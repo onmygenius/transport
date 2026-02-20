@@ -48,14 +48,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex-col justify-between p-12">
-        <div className="flex items-center gap-3">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-12">
+        <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" src="/hero_login.mp4" />
+        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="relative z-10 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
             <Truck className="h-6 w-6 text-white" />
           </div>
           <span className="text-xl font-bold text-white">FreightEx Europe</span>
         </div>
-        <div>
+        <div className="relative z-10">
           <h1 className="text-4xl font-bold text-white leading-tight">
             European Container<br />Freight Exchange
           </h1>
@@ -75,7 +77,7 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-blue-300 text-sm">© 2026 FreightEx Europe. Toate drepturile rezervate.</p>
+        <p className="relative z-10 text-blue-300 text-sm">© 2026 FreightEx Europe. Toate drepturile rezervate.</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-8">
