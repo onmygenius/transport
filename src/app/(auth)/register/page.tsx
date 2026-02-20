@@ -106,9 +106,9 @@ export default function RegisterPage() {
           <div className="mt-8 space-y-3">
             {[
               'Access to thousands of available shipments',
-              'Secure escrow payment system',
+              'Direct payment between parties (no middleman)',
               'Direct chat with partners',
-              'Digital documents (CMR, invoices)',
+              'Pan-European route coverage (25+ countries)',
             ].map(f => (
               <div key={f} className="flex items-center gap-3">
                 <CheckCircle className="h-5 w-5 text-blue-300 shrink-0" />
