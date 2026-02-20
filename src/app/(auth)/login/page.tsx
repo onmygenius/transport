@@ -53,8 +53,7 @@ export default function LoginPage() {
         <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" src="/hero_login.mp4" />
         <div className="absolute inset-0 bg-blue-950/50" />
         <div className="relative z-10 flex items-center gap-3">
-          <Image src="/logo.png" alt="FreightEx Europe" width={40} height={40} className="rounded-lg" />
-          <span className="text-xl font-bold text-white">FreightEx Europe</span>
+          <Image src="/logo.png" alt="FreightEx Europe" width={160} height={60} className="object-contain" />
         </div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold text-white leading-tight">
@@ -82,8 +81,7 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Image src="/logo.png" alt="FreightEx Europe" width={32} height={32} className="rounded-lg" />
-            <span className="text-lg font-bold text-gray-900">FreightEx Europe</span>
+            <Image src="/logo.png" alt="FreightEx Europe" width={140} height={50} className="object-contain" />
           </div>
 
           <div className="mb-8">
