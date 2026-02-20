@@ -7,7 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Truck, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
+import Image from 'next/image'
+import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type UserRole = 'transporter' | 'client'
@@ -91,9 +92,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen bg-gray-50">
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-            <Truck className="h-6 w-6 text-white" />
-          </div>
+          <Image src="/logo.png" alt="FreightEx Europe" width={40} height={40} className="rounded-lg" />
           <span className="text-xl font-bold text-white">FreightEx Europe</span>
         </div>
         <div>
@@ -123,9 +122,7 @@ export default function RegisterPage() {
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Truck className="h-5 w-5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="FreightEx Europe" width={32} height={32} className="rounded-lg" />
             <span className="text-lg font-bold text-gray-900">FreightEx Europe</span>
           </div>
 

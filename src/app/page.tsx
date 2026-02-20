@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Truck, Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp } from 'lucide-react'
+import Image from 'next/image'
+import { Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -7,9 +8,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
-              <Truck className="h-5 w-5 text-white" />
-            </div>
+            <Image src="/logo.png" alt="FreightEx Europe" width={40} height={40} className="rounded-lg" />
             <span className="text-lg font-bold text-gray-900">FreightEx Europe</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
@@ -94,7 +93,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 mb-6">
-                <Truck className="h-4 w-4 text-blue-600" />
+                <Package className="h-4 w-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-700">For Transporters</span>
               </div>
               <div className="space-y-6">
@@ -299,9 +298,7 @@ export default function HomePage() {
       <footer className="border-t border-gray-200 bg-white py-10">
         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
-              <Truck className="h-4 w-4 text-white" />
-            </div>
+            <Image src="/logo.png" alt="FreightEx Europe" width={28} height={28} className="rounded-md" />
             <span className="font-bold text-gray-900">FreightEx Europe</span>
           </div>
           <p className="text-sm text-gray-500">© 2026 FreightEx Europe. All rights reserved.</p>
