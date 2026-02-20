@@ -59,7 +59,7 @@ export default function TransporterSubscriptionPage() {
                   'Unlimited truck availability posts',
                   'Access to all transport requests',
                   'Unlimited offer submissions',
-                  'Wallet + Stripe payouts',
+                  'Direct payment from clients (no middleman)',
                   'Chat + digital documents',
                   'Verified badge after KYC',
                 ].map(f => (
