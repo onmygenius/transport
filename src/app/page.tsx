@@ -237,7 +237,7 @@ export default function HomePage() {
               href="/register"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
             >
-              Create free account
+              Create your account
               <ArrowRight className="h-5 w-5" />
             </Link>
           </div>
