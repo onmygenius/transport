@@ -262,7 +262,7 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>Platform Name</Label>
-                    <Input defaultValue="FreightEx Europe" />
+                    <Input defaultValue="Trade Container" />
                   </div>
                   <div className="space-y-2">
                     <Label>Support Email</Label>

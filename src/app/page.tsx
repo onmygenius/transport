@@ -8,7 +8,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="FreightEx Europe" width={160} height={60} className="object-contain" />
+            <Image src="/logo.png" alt="Trade Container" width={160} height={60} className="object-contain" />
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#hero" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Home</a>
@@ -230,7 +230,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h2 className="text-3xl font-bold text-white">Ready to get started?</h2>
           <p className="mt-4 text-blue-200 text-lg">
-            Join 1,800+ users who use FreightEx Europe every day.
+            Join 1,800+ users who use Trade Container every day.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -248,13 +248,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">About Us</h2>
-            <p className="mt-3 text-gray-500 max-w-xl mx-auto">The story behind FreightEx Europe and the team building the future of freight.</p>
+            <p className="mt-3 text-gray-500 max-w-xl mx-auto">The story behind Trade Container and the team building the future of freight.</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
               <p className="text-gray-600 leading-relaxed mb-6">
-                FreightEx Europe was founded with a simple idea: make container freight across Europe faster, more transparent and accessible to everyone — from large logistics companies to small businesses.
+                Trade Container was founded with a simple idea: make container freight across Europe faster, more transparent and accessible to everyone — from large logistics companies to small businesses.
               </p>
               <p className="text-gray-600 leading-relaxed mb-6">
                 We connect shippers directly with verified transporters, eliminating unnecessary intermediaries. Payments are settled directly between parties — we only charge a simple monthly subscription for platform access.
@@ -297,9 +297,9 @@ export default function HomePage() {
       <footer className="border-t border-gray-200 bg-white py-10">
         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="FreightEx Europe" width={140} height={50} className="object-contain" />
+            <Image src="/logo.png" alt="Trade Container" width={140} height={50} className="object-contain" />
           </div>
-          <p className="text-sm text-gray-500">© 2026 FreightEx Europe. All rights reserved.</p>
+          <p className="text-sm text-gray-500">© 2026 Trade Container. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Terms</a>
             <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Privacy</a>

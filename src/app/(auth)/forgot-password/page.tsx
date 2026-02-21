@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
             <Truck className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900">FreightEx Europe</span>
+          <span className="text-lg font-bold text-gray-900">Trade Container</span>
         </div>
 
         {sent ? (
