@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Package, ChevronLeft, ChevronRight, Eye, MessageSquare, CheckCircle } from 'lucide-react'
+import { Search, Package, ChevronLeft, ChevronRight, Eye, MessageSquare, CheckCircle, Anchor, MapPin, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { updateShipmentStatus } from '@/lib/actions/shipments'
 
@@ -16,8 +16,10 @@ interface Shipment {
   id: string
   origin_city: string
   origin_country: string
+  origin_address: string | null
   destination_city: string
   destination_country: string
+  destination_address: string | null
   container_type: string
   cargo_weight: number
   pickup_date: string
@@ -136,9 +138,9 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Route</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Container</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Pickup</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Pick-up Port</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Drop Port</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Container / Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Price / Offers</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Actions</th>
@@ -152,11 +154,27 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                       <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-mono text-xs font-bold text-gray-600">{s.id.slice(0, 8)}…</td>
                         <td className="px-6 py-4">
-                          <p className="text-xs font-medium text-gray-900">{s.origin_city}, {s.origin_country}</p>
-                          <p className="text-xs text-gray-400">→ {s.destination_city}, {s.destination_country}</p>
+                          <div className="flex items-center gap-1.5">
+                            <Anchor className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                            <span className="text-xs font-medium text-gray-900">{s.origin_city}</span>
+                          </div>
+                          {s.origin_address && (
+                            <p className="text-xs text-gray-400 mt-0.5 pl-5">{s.origin_address.split(' | ')[0]}</p>
+                          )}
                         </td>
-                        <td className="px-6 py-4 text-xs text-gray-600">{s.container_type} · {s.cargo_weight}t</td>
-                        <td className="px-6 py-4 text-xs text-gray-500">{s.pickup_date}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1.5">
+                            <Anchor className="h-3.5 w-3.5 text-orange-500 shrink-0" />
+                            <span className="text-xs font-medium text-gray-900">{s.destination_city}</span>
+                          </div>
+                          {s.destination_address && (
+                            <p className="text-xs text-gray-400 mt-0.5 pl-5">{s.destination_address.split(' | ')[0]}</p>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs font-medium text-gray-900">{s.container_type} · {s.cargo_weight}t</p>
+                          <p className="text-xs text-gray-400">{s.pickup_date?.slice(0, 10)}</p>
+                        </td>
                         <td className="px-6 py-4">
                           {s.agreed_price
                             ? <span className="text-sm font-bold text-gray-900">€{s.agreed_price.toLocaleString()}</span>

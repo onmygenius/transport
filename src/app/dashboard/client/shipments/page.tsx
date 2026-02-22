@@ -9,7 +9,7 @@ export default async function ClientShipmentsPage() {
 
   const { data: shipments } = await supabase
     .from('shipments')
-    .select('*, offers(count)')
+    .select('id, origin_city, origin_country, origin_address, destination_city, destination_country, destination_address, container_type, cargo_weight, pickup_date, status, agreed_price, offers(count)')
     .eq('client_id', user.id)
     .order('created_at', { ascending: false })
 
