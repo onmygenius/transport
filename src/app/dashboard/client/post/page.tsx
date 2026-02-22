@@ -345,7 +345,7 @@ export default function PostShipmentPage() {
                 <div className="space-y-2 col-span-2">
                   <Label>Special Instructions (optional)</Label>
                   <Textarea
-                    placeholder="Any special handling requirements, loading instructions, etc."
+                    placeholder="Shipping line, cargo description, driver need to speak english, other relevant details, etc."
                     rows={3}
                     value={extra.special_instructions}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setExtra(p => ({ ...p, special_instructions: e.target.value }))}
