@@ -134,10 +134,17 @@ interface TerminalSelectProps {
   placeholder?: string
 }
 
+const OTHER_TERMINAL = '__other__'
+
 export function TerminalSelect({ portCode, value, onChange, placeholder = 'Select terminal...' }: TerminalSelectProps) {
   const [open, setOpen] = useState(false)
+  const [isOther, setIsOther] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const terminals = PORT_TERMINALS[portCode] || []
+
+  useEffect(() => {
+    setIsOther(false)
+  }, [portCode])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -147,16 +154,28 @@ export function TerminalSelect({ portCode, value, onChange, placeholder = 'Selec
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  if (terminals.length === 0) {
+  if (terminals.length === 0 || isOther) {
     return (
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Enter terminal name..."
-        className="flex h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
-        style={{ color: '#111827' }}
-      />
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={isOther && value === OTHER_TERMINAL ? '' : value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Enter terminal name..."
+          className="flex h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+          style={{ color: '#111827' }}
+          autoFocus={isOther}
+        />
+        {terminals.length > 0 && (
+          <button
+            type="button"
+            onClick={() => { setIsOther(false); onChange('') }}
+            className="shrink-0 h-9 px-2 text-xs text-gray-500 border border-gray-200 rounded-md hover:bg-gray-50"
+          >
+            ← List
+          </button>
+        )}
+      </div>
     )
   }
 
@@ -172,7 +191,7 @@ export function TerminalSelect({ portCode, value, onChange, placeholder = 'Selec
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-56 overflow-y-auto">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-64 overflow-y-auto">
           <button
             type="button"
             onClick={() => { onChange(''); setOpen(false) }}
@@ -190,6 +209,13 @@ export function TerminalSelect({ portCode, value, onChange, placeholder = 'Selec
               {t}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => { setIsOther(true); onChange(''); setOpen(false) }}
+            className="w-full px-3 py-2 text-sm text-left text-blue-600 hover:bg-blue-50 border-t border-gray-100 font-medium"
+          >
+            ✏️ Other (enter manually)
+          </button>
         </div>
       )}
     </div>
