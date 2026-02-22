@@ -31,7 +31,7 @@ export default function PostShipmentPage() {
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [destinations, setDestinations] = useState<Destination[]>([emptyDest()])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
-  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general' as CargoType, transport_type: 'full' as TransportType })
+  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
@@ -51,7 +51,7 @@ export default function PostShipmentPage() {
     if (!drop.port) { setError('Please enter a Drop port.'); return }
     if (!drop.date) { setError('Please enter a Drop date.'); return }
     if (!cargo.container_type) { setError('Please select a container type.'); return }
-    if (!cargo.cargo_weight) { setError('Please enter cargo weight.'); return }
+    if (!cargo.cargo_weight) { setError('Please select cargo weight range.'); return }
 
     setLoading(true)
     const result = await createShipment({
@@ -63,8 +63,8 @@ export default function PostShipmentPage() {
       destination_address: [drop.terminal, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : ''].filter(Boolean).join(' | ') || undefined,
       container_type: cargo.container_type,
       container_count: cargo.container_count,
-      cargo_weight: parseFloat(cargo.cargo_weight),
-      cargo_type: cargo.cargo_type,
+      cargo_weight: 1,
+      cargo_type: (cargo.cargo_type || 'dangerous') as CargoType,
       transport_type: cargo.transport_type,
       pickup_date: pickup.time ? `${pickup.date}T${pickup.time}` : pickup.date,
       delivery_date: drop.date ? (drop.time ? `${drop.date}T${drop.time}` : drop.date) : undefined,
@@ -73,6 +73,8 @@ export default function PostShipmentPage() {
       currency: extra.currency,
       special_instructions: [
         extra.special_instructions,
+        cargo.cargo_weight ? `Weight: ${cargo.cargo_weight} kg` : '',
+        cargo.container_category ? `Category: ${cargo.container_category}` : '',
         `Stops: ${destinations.map((d, i) => `${i + 1}. ${d.address} [${d.operation}] ${d.date} ${d.time}`).join(' | ')}`,
       ].filter(Boolean).join('\n') || undefined,
     })
@@ -93,7 +95,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general', transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -294,18 +296,37 @@ export default function PostShipmentPage() {
                   <Input type="number" min="1" value={cargo.container_count} onChange={e => setCargo(p => ({ ...p, container_count: parseInt(e.target.value) || 1 }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Total Cargo Weight (tons) *</Label>
-                  <Input type="number" placeholder="e.g. 20" value={cargo.cargo_weight} onChange={e => setCargo(p => ({ ...p, cargo_weight: e.target.value }))} />
+                  <Label>Container Category</Label>
+                  <Select value={cargo.container_category} onValueChange={v => setCargo(p => ({ ...p, container_category: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="high_cube">High Cube (HC)</SelectItem>
+                      <SelectItem value="hc_dry">HC Dry</SelectItem>
+                      <SelectItem value="reefer">Reefer</SelectItem>
+                      <SelectItem value="hc_reefer">HC Reefer</SelectItem>
+                      <SelectItem value="tank">Tank</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Cargo Weight (kg) *</Label>
+                  <Select value={cargo.cargo_weight} onValueChange={v => setCargo(p => ({ ...p, cargo_weight: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select weight range" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1-5000">1 – 5,000 kg</SelectItem>
+                      <SelectItem value="5000-10000">5,000 – 10,000 kg</SelectItem>
+                      <SelectItem value="10000-20000">10,000 – 20,000 kg</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Cargo Type</Label>
                   <Select value={cargo.cargo_type} onValueChange={v => setCargo(p => ({ ...p, cargo_type: v as CargoType }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">General</SelectItem>
                       <SelectItem value="dangerous">Dangerous Goods</SelectItem>
-                      <SelectItem value="perishable">Perishable</SelectItem>
-                      <SelectItem value="oversized">Oversized</SelectItem>
+                      <SelectItem value="reefer">Reefer (temperature controlled)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

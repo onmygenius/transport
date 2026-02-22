@@ -32,7 +32,7 @@ export type EquipmentType =
 
 export type TransportType = 'full' | 'empty'
 
-export type CargoType = 'general' | 'dangerous' | 'perishable' | 'oversized'
+export type CargoType = 'dangerous' | 'reefer'
 
 export type DisputeStatus = 'open' | 'in_review' | 'resolved' | 'closed'
 
