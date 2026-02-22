@@ -63,15 +63,20 @@ export default function NewTruckPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Container Type</Label>
+                  <Label>Chassis Type</Label>
                   <Select>
-                    <SelectTrigger><SelectValue placeholder="Select container" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select chassis" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20ft">20ft Standard</SelectItem>
-                      <SelectItem value="40ft">40ft Standard</SelectItem>
-                      <SelectItem value="40ft_hc">40ft High Cube</SelectItem>
-                      <SelectItem value="reefer_20ft">Reefer 20ft</SelectItem>
-                      <SelectItem value="reefer_40ft">Reefer 40ft</SelectItem>
+                      <SelectItem value="standard_20ft">Standard 20ft Chassis</SelectItem>
+                      <SelectItem value="standard_40ft">Standard 40ft Chassis</SelectItem>
+                      <SelectItem value="extendable_20_40">Extendable 20ft–40ft Chassis</SelectItem>
+                      <SelectItem value="45ft">45ft Chassis</SelectItem>
+                      <SelectItem value="genset">Genset Chassis (Reefer power)</SelectItem>
+                      <SelectItem value="triaxle">Triaxle Chassis (Heavy load)</SelectItem>
+                      <SelectItem value="tanktainer">Tanktainer Chassis</SelectItem>
+                      <SelectItem value="flatbed_container">Flatbed Container Chassis</SelectItem>
+                      <SelectItem value="swap_body">Swap Body Chassis</SelectItem>
+                      <SelectItem value="bimodal">Bimodal Chassis (Road + Rail)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
