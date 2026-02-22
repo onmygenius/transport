@@ -15,9 +15,9 @@ import { CheckCircle, Package, Loader2, Plus, Trash2, ArrowDown } from 'lucide-r
 import { createShipment } from '@/lib/actions/shipments'
 import type { ContainerType, CargoType, TransportType } from '@/lib/types'
 
-interface PickupStop { port: string; terminal: string; container_ref: string; date: string; time: string }
+interface PickupStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 interface Destination { id: string; address: string; lat?: number; lng?: number; operation: 'loading' | 'unloading'; date: string; time: string }
-interface DropStop { port: string; terminal: string; container_ref: string; date: string; time: string }
+interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 
 const emptyDest = (): Destination => ({ id: Math.random().toString(36).slice(2), address: '', lat: undefined, lng: undefined, operation: 'unloading', date: '', time: '' })
 
@@ -28,9 +28,9 @@ export default function PostShipmentPage() {
   const [error, setError] = useState<string | null>(null)
   const [budgetVisible, setBudgetVisible] = useState(true)
 
-  const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', date: '', time: '' })
+  const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [destinations, setDestinations] = useState<Destination[]>([emptyDest()])
-  const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', date: '', time: '' })
+  const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general' as CargoType, transport_type: 'full' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
@@ -57,10 +57,10 @@ export default function PostShipmentPage() {
     const result = await createShipment({
       origin_city: pickup.port,
       origin_country: 'EU',
-      origin_address: [pickup.terminal, pickup.container_ref].filter(Boolean).join(' | ') || undefined,
+      origin_address: [pickup.terminal, pickup.container_ref, pickup.seal ? `Seal: ${pickup.seal}` : ''].filter(Boolean).join(' | ') || undefined,
       destination_city: drop.port,
       destination_country: 'EU',
-      destination_address: [drop.terminal, drop.container_ref].filter(Boolean).join(' | ') || undefined,
+      destination_address: [drop.terminal, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : ''].filter(Boolean).join(' | ') || undefined,
       container_type: cargo.container_type,
       container_count: cargo.container_count,
       cargo_weight: parseFloat(cargo.cargo_weight),
@@ -93,7 +93,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general', transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general', transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -135,6 +135,10 @@ export default function PostShipmentPage() {
                 <div className="space-y-2 col-span-2">
                   <Label>Container / Reference</Label>
                   <Input placeholder="e.g. ECHU1234567 or booking ref" value={pickup.container_ref} onChange={e => setPickupField('container_ref', e.target.value)} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label>Seal Number <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
+                  <Input placeholder="e.g. SL123456" value={pickup.seal} onChange={e => setPickupField('seal', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Date *</Label>
@@ -248,6 +252,10 @@ export default function PostShipmentPage() {
                 <div className="space-y-2 col-span-2">
                   <Label>Container / Reference</Label>
                   <Input placeholder="e.g. ECHU1234567 or booking ref" value={drop.container_ref} onChange={e => setDropField('container_ref', e.target.value)} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label>Seal Number <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
+                  <Input placeholder="e.g. SL123456" value={drop.seal} onChange={e => setDropField('seal', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Date *</Label>
