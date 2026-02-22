@@ -19,15 +19,7 @@ export type ShipmentStatus =
 
 export type OfferStatus = 'pending' | 'accepted' | 'rejected' | 'expired' | 'withdrawn'
 
-export type ContainerType =
-  | '20ft'
-  | '40ft'
-  | '40ft_hc'
-  | '45ft'
-  | 'reefer_20ft'
-  | 'reefer_40ft'
-  | 'open_top'
-  | 'flat_rack'
+export type ContainerType = '20ft' | '30ft' | '40ft' | '45ft' | 'other'
 
 export type EquipmentType =
   | 'flatbed'

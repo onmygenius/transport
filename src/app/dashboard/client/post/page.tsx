@@ -277,18 +277,15 @@ export default function PostShipmentPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Container Type *</Label>
+                  <Label>Container Size *</Label>
                   <Select value={cargo.container_type} onValueChange={v => setCargo(p => ({ ...p, container_type: v as ContainerType }))}>
-                    <SelectTrigger><SelectValue placeholder="Select container" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20ft">20ft Standard</SelectItem>
-                      <SelectItem value="40ft">40ft Standard</SelectItem>
-                      <SelectItem value="40ft_hc">40ft High Cube</SelectItem>
-                      <SelectItem value="45ft">45ft</SelectItem>
-                      <SelectItem value="reefer_20ft">Reefer 20ft</SelectItem>
-                      <SelectItem value="reefer_40ft">Reefer 40ft</SelectItem>
-                      <SelectItem value="open_top">Open Top</SelectItem>
-                      <SelectItem value="flat_rack">Flat Rack</SelectItem>
+                      <SelectItem value="20ft">20 FT</SelectItem>
+                      <SelectItem value="30ft">30 FT</SelectItem>
+                      <SelectItem value="40ft">40 FT</SelectItem>
+                      <SelectItem value="45ft">45 FT</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
