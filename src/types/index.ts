@@ -38,7 +38,7 @@ export type EquipmentType =
   | 'mega_trailer'
   | 'other'
 
-export type TransportType = 'fcl' | 'lcl'
+export type TransportType = 'full' | 'empty'
 
 export type CargoType = 'general' | 'dangerous' | 'perishable' | 'oversized'
 

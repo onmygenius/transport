@@ -31,7 +31,7 @@ export default function PostShipmentPage() {
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', date: '', time: '' })
   const [destinations, setDestinations] = useState<Destination[]>([emptyDest()])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', date: '', time: '' })
-  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general' as CargoType, transport_type: 'fcl' as TransportType })
+  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general' as CargoType, transport_type: 'full' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
@@ -93,7 +93,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general', transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, cargo_weight: '', cargo_type: 'general', transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -309,8 +309,8 @@ export default function PostShipmentPage() {
                   <Select value={cargo.transport_type} onValueChange={v => setCargo(p => ({ ...p, transport_type: v as TransportType }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fcl">FCL — Full Container Load</SelectItem>
-                      <SelectItem value="lcl">LCL — Less than Container Load</SelectItem>
+                      <SelectItem value="full">Full Container (loaded)</SelectItem>
+                      <SelectItem value="empty">Empty Container (repositioning)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

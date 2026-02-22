@@ -5,7 +5,7 @@ export type ShipmentStatus = 'pending' | 'offer_received' | 'confirmed' | 'picke
 export type OfferStatus = 'pending' | 'accepted' | 'rejected' | 'expired' | 'withdrawn'
 export type ContainerType = '20ft' | '40ft' | '40ft_hc' | '45ft' | 'reefer_20ft' | 'reefer_40ft' | 'open_top' | 'flat_rack'
 export type CargoType = 'general' | 'dangerous' | 'perishable' | 'oversized'
-export type TransportType = 'fcl' | 'lcl'
+export type TransportType = 'full' | 'empty'
 export type DisputeStatus = 'open' | 'in_review' | 'resolved' | 'closed'
 
 export interface Profile {
