@@ -9,8 +9,49 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Package, ChevronLeft, ChevronRight, Send, Lock, X, Loader2, CheckCircle } from 'lucide-react'
+import { Search, Package, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, Truck, Building2, Lock, X, Loader2, CheckCircle, Info, Heart } from 'lucide-react'
 import { createOffer } from '@/lib/actions/offers'
+import Link from 'next/link'
+
+// Helper functions pentru parsing special_instructions
+function parseWeight(instructions: string | null): string {
+  if (!instructions) return ''
+  const match = instructions.match(/Weight:\s*([^\n]+)/)
+  return match ? match[1].trim() : ''
+}
+
+function parseCategory(instructions: string | null): string {
+  if (!instructions) return ''
+  const match = instructions.match(/Category:\s*([^\n]+)/)
+  return match ? match[1].trim().replace(/_/g, ' ') : ''
+}
+
+interface Stop {
+  address: string
+  operation: 'loading' | 'unloading'
+  date: string
+  time: string
+}
+
+function parseStops(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  const match = instructions.match(/Stops:\s*(.+)/)
+  if (!match) return []
+  
+  const stopsStr = match[1]
+  const stopMatches = stopsStr.matchAll(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*([\d-]+)\s*([\d:]+)/g)
+  
+  const stops: Stop[] = []
+  for (const m of stopMatches) {
+    stops.push({
+      address: m[2].trim(),
+      operation: m[3].trim() as 'loading' | 'unloading',
+      date: m[4].trim(),
+      time: m[5].trim()
+    })
+  }
+  return stops
+}
 
 interface Client {
   id: string
@@ -24,15 +65,20 @@ interface Shipment {
   id: string
   origin_city: string
   origin_country: string
+  origin_address: string | null
   destination_city: string
   destination_country: string
+  destination_address: string | null
   container_type: string
   cargo_weight: number
   pickup_date: string
+  delivery_date: string | null
   budget: number | null
   budget_visible: boolean
   currency: string
   transport_type: string
+  cargo_type: string | null
+  special_instructions: string | null
   status: string
   client: Client
   offers: { count: number }[]
@@ -51,11 +97,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
 
   const [modalShipment, setModalShipment] = useState<Shipment | null>(null)
   const [offerForm, setOfferForm] = useState({
-    price: '',
     estimated_days: '',
     available_from: '',
     message: '',
-    valid_hours: '48',
   })
   const [submitting, setSubmitting] = useState(false)
   const [offerError, setOfferError] = useState<string | null>(null)
@@ -80,7 +124,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
 
   const openModal = (s: Shipment) => {
     setModalShipment(s)
-    setOfferForm({ price: '', estimated_days: '', available_from: s.pickup_date, message: '', valid_hours: '48' })
+    setOfferForm({ estimated_days: '', available_from: s.pickup_date, message: '' })
     setOfferError(null)
     setOfferSuccess(false)
   }
@@ -91,12 +135,12 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
     setOfferSuccess(false)
   }
 
-  const handleSubmitOffer = async () => {
+  const handleAcceptShipment = async () => {
     if (!modalShipment) return
     setOfferError(null)
 
-    if (!offerForm.price || parseFloat(offerForm.price) <= 0) {
-      setOfferError('Please enter a valid price.')
+    if (!modalShipment.budget) {
+      setOfferError('This shipment has no budget set.')
       return
     }
     if (!offerForm.estimated_days || parseInt(offerForm.estimated_days) <= 0) {
@@ -111,12 +155,12 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
     setSubmitting(true)
     const result = await createOffer({
       shipment_id: modalShipment.id,
-      price: parseFloat(offerForm.price),
-      currency: 'EUR',
+      price: modalShipment.budget,
+      currency: modalShipment.currency,
       estimated_days: parseInt(offerForm.estimated_days),
       available_from: offerForm.available_from,
       message: offerForm.message || undefined,
-      valid_hours: parseInt(offerForm.valid_hours),
+      valid_hours: 48,
     })
     setSubmitting(false)
 
@@ -127,7 +171,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
         router.refresh()
       }, 1500)
     } else {
-      setOfferError(result.error || 'Failed to submit offer.')
+      setOfferError(result.error || 'Failed to accept shipment.')
     }
   }
 
@@ -140,7 +184,20 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
       <main className="flex-1 p-6 space-y-6">
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="text-base">Open Transport Requests ({shipments.length})</CardTitle>
+            <div className="flex items-center justify-between mb-4">
+              <CardTitle className="text-base">Available Shipments ({shipments.length})</CardTitle>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span>Sort by</span>
+                <Select defaultValue="relevance">
+                  <SelectTrigger className="h-8 w-32"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevance</SelectItem>
+                    <SelectItem value="date">Date</SelectItem>
+                    <SelectItem value="price">Price</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
               <Input
@@ -157,55 +214,108 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Client</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Route</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Container</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Pickup</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Budget</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Offers</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Action</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 w-12"></th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Shipment</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Details</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Locations</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">From - until</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Price</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {paginated.map(s => {
-                    const clientName = s.client?.company_name || s.client?.full_name || 'Unknown'
                     const alreadyOffered = myOfferSet.has(s.id)
-                    const count = offerCount(s)
+                    const weight = parseWeight(s.special_instructions)
+                    const category = parseCategory(s.special_instructions)
+                    const stops = parseStops(s.special_instructions)
+                    const pickupTerminal = s.origin_address?.split(' | ')[0] || ''
+                    const dropTerminal = s.destination_address?.split(' | ')[0] || ''
+                    
                     return (
                       <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-gray-900">{clientName}</p>
-                          <p className="text-xs text-gray-400">{s.client?.company_country}</p>
+                        <td className="px-4 py-4">
+                          <button className="text-gray-300 hover:text-red-500 transition-colors">
+                            <Heart className="h-4 w-4" />
+                          </button>
                         </td>
-                        <td className="px-6 py-4">
-                          <p className="text-xs font-medium text-gray-900">{s.origin_city}, {s.origin_country}</p>
-                          <p className="text-xs text-gray-400">→ {s.destination_city}, {s.destination_country}</p>
+                        <td className="px-4 py-4">
+                          <Link href={`/dashboard/transporter/shipments/${s.id}`} className="text-sm font-bold text-cyan-600 hover:text-cyan-700 hover:underline">
+                            {s.id.slice(0, 8)}
+                          </Link>
                         </td>
-                        <td className="px-6 py-4 text-xs text-gray-600">{s.container_type} · {s.cargo_weight}t</td>
-                        <td className="px-6 py-4 text-xs text-gray-500">{s.pickup_date}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
+                          <div className="flex flex-wrap gap-1.5">
+                            <Badge variant="secondary" className="text-xs">{s.container_type}</Badge>
+                            {category && <Badge variant="secondary" className="text-xs">{category}</Badge>}
+                            {s.transport_type === 'full' && <Badge variant="default" className="text-xs bg-emerald-100 text-emerald-700">Full</Badge>}
+                            {s.transport_type === 'empty' && <Badge variant="default" className="text-xs bg-blue-100 text-blue-700">Empty</Badge>}
+                            {s.cargo_type === 'dangerous' && <Badge variant="destructive" className="text-xs">Dangerous</Badge>}
+                            {s.cargo_type === 'reefer' && <Badge variant="destructive" className="text-xs">Reefer</Badge>}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="space-y-0.5 text-xs">
+                            <div className="flex items-center gap-2">
+                              <ArrowRight className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                              <span className="font-medium text-gray-900">{s.origin_city}</span>
+                            </div>
+                            {pickupTerminal && (
+                              <div className="flex items-center gap-2 pl-5">
+                                <Building2 className="h-3 w-3 text-cyan-400 shrink-0" />
+                                <span className="text-gray-500">{pickupTerminal}</span>
+                              </div>
+                            )}
+                            {stops.map((stop, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <Truck className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                                <span className="text-gray-600">{stop.address}</span>
+                              </div>
+                            ))}
+                            <div className="flex items-center gap-2">
+                              <ArrowLeft className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                              <span className="font-medium text-gray-900">{s.destination_city}</span>
+                            </div>
+                            {dropTerminal && (
+                              <div className="flex items-center gap-2 pl-5">
+                                <Building2 className="h-3 w-3 text-cyan-400 shrink-0" />
+                                <span className="text-gray-500">{dropTerminal}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="text-xs space-y-0.5">
+                            <div className="text-gray-500">{s.pickup_date.split('T')[0]}</div>
+                            {s.delivery_date && (
+                              <div className="font-semibold text-gray-900">{s.delivery_date.split('T')[0]}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
                           {s.budget && s.budget_visible ? (
-                            <span className="text-sm font-semibold text-gray-900">€{s.budget.toLocaleString()}</span>
+                            <span className="text-sm font-bold text-gray-900">€{s.budget.toLocaleString()}</span>
                           ) : (
                             <span className="flex items-center gap-1 text-xs text-gray-400">
-                              <Lock className="h-3 w-3" /> Hidden
+                              <Lock className="h-3 w-3" />
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
-                          <Badge variant="secondary">{count} offer{count !== 1 ? 's' : ''}</Badge>
-                        </td>
-                        <td className="px-6 py-4">
-                          {alreadyOffered ? (
-                            <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
-                              <CheckCircle className="h-3.5 w-3.5" /> Offered
-                            </span>
-                          ) : (
-                            <Button size="sm" className="gap-1.5 h-8" onClick={() => openModal(s)}>
-                              <Send className="h-3.5 w-3.5" />
-                              Send Offer
+                        <td className="px-4 py-4">
+                          <div className="flex gap-1.5">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" title="View details">
+                              <Info className="h-4 w-4" />
                             </Button>
-                          )}
+                            {alreadyOffered ? (
+                              <Badge variant="default" className="bg-emerald-100 text-emerald-700 text-xs px-3">
+                                <CheckCircle className="h-3 w-3 mr-1" /> Accepted
+                              </Badge>
+                            ) : (
+                              <Button size="sm" className="gap-1.5 h-8 bg-cyan-500 hover:bg-cyan-600" onClick={() => openModal(s)}>
+                                Accept
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     )
@@ -244,9 +354,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
           <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
               <div>
-                <h2 className="text-base font-bold text-gray-900">Submit Offer</h2>
+                <h2 className="text-base font-bold text-gray-900">Accept Shipment</h2>
                 <p className="text-xs text-gray-500">
-                  {modalShipment.origin_city}, {modalShipment.origin_country} → {modalShipment.destination_city}, {modalShipment.destination_country}
+                  {modalShipment.origin_city} → {modalShipment.destination_city}
                 </p>
               </div>
               <button onClick={closeModal} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
@@ -260,23 +370,29 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mb-4">
                     <CheckCircle className="h-8 w-8 text-emerald-600" />
                   </div>
-                  <p className="text-lg font-bold text-gray-900">Offer Submitted!</p>
-                  <p className="text-sm text-gray-500 mt-1">The client will be notified of your offer.</p>
+                  <p className="text-lg font-bold text-gray-900">Shipment Accepted!</p>
+                  <p className="text-sm text-gray-500 mt-1">The client will review your acceptance.</p>
                 </div>
               ) : (
                 <>
                   <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
                     <div className="flex justify-between">
                       <span>Container</span>
-                      <span className="font-medium">{modalShipment.container_type} · {modalShipment.cargo_weight}t</span>
+                      <span className="font-medium">{modalShipment.container_type}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Pickup</span>
-                      <span className="font-medium">{modalShipment.pickup_date}</span>
+                      <span className="font-medium">{modalShipment.pickup_date.split('T')[0]}</span>
                     </div>
+                    {modalShipment.delivery_date && (
+                      <div className="flex justify-between">
+                        <span>Delivery</span>
+                        <span className="font-medium">{modalShipment.delivery_date.split('T')[0]}</span>
+                      </div>
+                    )}
                     {modalShipment.budget && modalShipment.budget_visible && (
                       <div className="flex justify-between">
-                        <span>Client Budget</span>
+                        <span>Price</span>
                         <span className="font-semibold text-emerald-600">€{modalShipment.budget.toLocaleString()}</span>
                       </div>
                     )}
@@ -288,16 +404,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Your Price (EUR) *</Label>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 1800"
-                        value={offerForm.price}
-                        onChange={e => setOfferForm(f => ({ ...f, price: e.target.value }))}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Delivery Days *</Label>
+                      <Label>Estimated Delivery Days *</Label>
                       <Input
                         type="number"
                         placeholder="e.g. 3"
@@ -314,24 +421,13 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                         onChange={e => setOfferForm(f => ({ ...f, available_from: e.target.value }))}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Offer Valid For</Label>
-                      <Select value={offerForm.valid_hours} onValueChange={v => setOfferForm(f => ({ ...f, valid_hours: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="24">24 hours</SelectItem>
-                          <SelectItem value="48">48 hours</SelectItem>
-                          <SelectItem value="72">72 hours</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Message to Client (optional)</Label>
                     <textarea
                       className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-                      placeholder="Any additional details about your offer..."
+                      placeholder="Any additional details..."
                       value={offerForm.message}
                       onChange={e => setOfferForm(f => ({ ...f, message: e.target.value }))}
                     />
@@ -345,9 +441,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                 <Button variant="outline" className="flex-1" onClick={closeModal} disabled={submitting}>
                   Cancel
                 </Button>
-                <Button className="flex-1 gap-2" onClick={handleSubmitOffer} disabled={submitting}>
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  {submitting ? 'Submitting…' : 'Submit Offer'}
+                <Button className="flex-1 gap-2 bg-cyan-500 hover:bg-cyan-600" onClick={handleAcceptShipment} disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                  {submitting ? 'Accepting…' : 'Accept Shipment'}
                 </Button>
               </div>
             )}
