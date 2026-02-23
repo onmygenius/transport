@@ -106,17 +106,17 @@ export default function FreightSearch() {
       <div className="mx-auto max-w-7xl px-6">
         {/* Search Widget */}
         <Card className="shadow-xl border-2 border-gray-100">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between mb-6">
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div className="flex flex-col gap-4 mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Find Transport or Cargo</h2>
-                <p className="text-sm text-gray-500 mt-1">Search across Europe's largest freight network</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Find Transport or Cargo</h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Search across Europe's largest freight network</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button
                   variant={searchType === 'client' ? 'default' : 'outline'}
                   onClick={() => setSearchType('client')}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   <Package className="h-4 w-4" />
                   I'm a Client
@@ -124,7 +124,7 @@ export default function FreightSearch() {
                 <Button
                   variant={searchType === 'transporter' ? 'default' : 'outline'}
                   onClick={() => setSearchType('transporter')}
-                  className="gap-2"
+                  className="gap-2 w-full sm:w-auto"
                 >
                   <Truck className="h-4 w-4" />
                   I'm a Transporter
@@ -132,7 +132,7 @@ export default function FreightSearch() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
               {/* Origin */}
               <div className="space-y-2">
                 <Label className="text-xs font-medium text-gray-700">Origin</Label>
@@ -215,9 +215,10 @@ export default function FreightSearch() {
               </div>
             </div>
 
-            <Button onClick={handleSearch} className="w-full gap-2 bg-blue-600 hover:bg-blue-700" size="lg">
-              <Search className="h-5 w-5" />
-              Search {searchType === 'client' ? 'Transporters' : 'Available Cargo'}
+            <Button onClick={handleSearch} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" size="lg">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">Search {searchType === 'client' ? 'Transporters' : 'Available Cargo'}</span>
+              <span className="sm:hidden">Search</span>
             </Button>
           </CardContent>
         </Card>
@@ -225,12 +226,12 @@ export default function FreightSearch() {
         {/* Results */}
         {showResults && (
           <div className="mt-8 space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="text-xs sm:text-sm text-gray-600">
                 <span className="font-semibold text-gray-900">{MOCK_RESULTS.length} results</span> found for your search
               </p>
               <Select defaultValue="relevance">
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -245,30 +246,30 @@ export default function FreightSearch() {
 
             {MOCK_RESULTS.map((result, idx) => (
               <Card key={result.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col lg:flex-row items-start justify-between gap-4 lg:gap-6">
                     {/* Left: Company Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-blue-100">
                           {result.type === 'transporter' ? (
-                            <Truck className="h-6 w-6 text-blue-600" />
+                            <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                           ) : (
-                            <Ship className="h-6 w-6 text-emerald-600" />
+                            <Ship className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
                           )}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900">{result.company}</h3>
+                            <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{result.company}</h3>
                             {result.verified && (
-                              <CheckCircle className="h-4 w-4 text-blue-500" />
+                              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500 shrink-0" />
                             )}
                           </div>
-                          <div className="flex items-center gap-3 mt-1">
+                          <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
                             <div className="flex items-center gap-1">
-                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                              <span className="text-sm font-medium text-gray-700">{result.rating}</span>
-                              <span className="text-xs text-gray-500">({result.reviews} reviews)</span>
+                              <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-400 text-amber-400" />
+                              <span className="text-xs sm:text-sm font-medium text-gray-700">{result.rating}</span>
+                              <span className="text-xs text-gray-500">({result.reviews})</span>
                             </div>
                             {result.type === 'transporter' && result.fleet && (
                               <Badge variant="secondary" className="text-xs">{result.fleet}</Badge>
@@ -277,26 +278,26 @@ export default function FreightSearch() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Route</p>
-                          <p className="font-medium text-gray-900">{result.route}</p>
+                          <p className="text-xs text-gray-500 mb-0.5">Route</p>
+                          <p className="font-medium text-gray-900 text-xs sm:text-sm">{result.route}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">
+                          <p className="text-xs text-gray-500 mb-0.5">
                             {result.type === 'transporter' ? 'Available' : 'Pickup'}
                           </p>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-gray-900 text-xs sm:text-sm">
                             {result.type === 'transporter' ? result.available : result.pickup}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Container Type</p>
+                          <p className="text-xs text-gray-500 mb-0.5">Container</p>
                           <Badge variant="outline" className="text-xs">{result.containerType}</Badge>
                         </div>
                         {result.type === 'shipment' && result.cargoType && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Cargo Type</p>
+                            <p className="text-xs text-gray-500 mb-0.5">Cargo</p>
                             <Badge variant="outline" className="text-xs">{result.cargoType}</Badge>
                           </div>
                         )}
@@ -304,34 +305,27 @@ export default function FreightSearch() {
                     </div>
 
                     {/* Right: Price & Actions (LOCKED for non-premium) */}
-                    <div className="flex flex-col items-end gap-4 min-w-[200px]">
+                    <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 sm:gap-3 w-full lg:w-auto lg:min-w-[200px] mt-3 lg:mt-0">
                       {/* Price - BLURRED */}
-                      <div className="relative">
-                        <div className="text-right blur-sm pointer-events-none select-none">
-                          <p className="text-2xl font-bold text-gray-900">€{result.price}</p>
-                          <p className="text-xs text-gray-500">Total price</p>
+                      <div className="relative flex-1 lg:flex-none lg:w-full">
+                        <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
+                          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">€{result.price}</p>
+                          <p className="text-xs text-gray-500">Total</p>
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex items-center gap-2 bg-gray-900/80 text-white px-3 py-1.5 rounded-lg text-xs font-medium">
+                          <div className="flex items-center gap-1.5 bg-gray-900/80 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium">
                             <Lock className="h-3 w-3" />
-                            Locked
+                            <span className="hidden sm:inline">Locked</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Contact - LOCKED */}
-                      <div className="w-full">
-                        <Button variant="outline" className="w-full gap-2 relative" disabled>
-                          <div className="blur-sm">Contact</div>
-                          <Lock className="h-4 w-4 absolute right-3" />
-                        </Button>
-                      </div>
-
                       {/* View Details - LOCKED */}
-                      <Button className="w-full gap-2 bg-blue-600 hover:bg-blue-700" asChild>
+                      <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
                         <Link href="/register">
-                          <Lock className="h-4 w-4" />
-                          Unlock Details
+                          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <span className="hidden sm:inline">Unlock Details</span>
+                          <span className="sm:hidden">Unlock</span>
                         </Link>
                       </Button>
                     </div>
@@ -342,17 +336,17 @@ export default function FreightSearch() {
 
             {/* CTA Card after 3 results */}
             <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-6 sm:p-8 text-center">
                 <div className="flex justify-center mb-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600">
                     <Lock className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Want to see full details?</h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Want to see full details?</h3>
+                <p className="text-sm sm:text-base text-gray-600 mb-6 max-w-md mx-auto">
                   Subscribe to unlock prices, contact details, and connect directly with {searchType === 'client' ? 'transporters' : 'shippers'}.
                 </p>
-                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-md mx-auto mb-6">
                   {[
                     'View exact prices',
                     'Contact details & messaging',
@@ -366,12 +360,12 @@ export default function FreightSearch() {
                   ))}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button size="lg" className="gap-2 bg-blue-600 hover:bg-blue-700" asChild>
+                  <Button size="lg" className="gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" asChild>
                     <Link href="/register">
                       Subscribe Now - €{searchType === 'client' ? '29' : '49'}/month
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
+                  <Button size="lg" variant="outline" className="text-sm sm:text-base" asChild>
                     <Link href="/login">Sign In</Link>
                   </Button>
                 </div>
