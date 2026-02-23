@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp } from 'lucide-react'
+import FreightSearch from '@/components/home/freight-search'
 
 export default function HomePage() {
   return (
@@ -82,6 +83,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <FreightSearch />
 
       <section id="how-it-works" className="py-20 bg-gray-50">
         <div className="mx-auto max-w-7xl px-6">
