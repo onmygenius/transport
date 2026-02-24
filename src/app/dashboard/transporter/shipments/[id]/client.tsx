@@ -44,14 +44,14 @@ function parseCategory(instructions: string | null): string {
 
 interface Stop {
   address: string
-  operation: 'loading' | 'unloading'
+  operation: 'loading' | 'unloading' | 'both'
   date: string
   time: string
 }
 
-function parseStops(instructions: string | null): Stop[] {
+function parseIntermediateStops(instructions: string | null): Stop[] {
   if (!instructions) return []
-  const match = instructions.match(/Stops:\s*(.+)/)
+  const match = instructions.match(/Intermediate Stops:\s*([\s\S]+?)(?=\n|Destinations:|$)/)
   if (!match) return []
   
   const stopsStr = match[1]
@@ -61,7 +61,27 @@ function parseStops(instructions: string | null): Stop[] {
   for (const m of stopMatches) {
     stops.push({
       address: m[2].trim(),
-      operation: m[3].trim() as 'loading' | 'unloading',
+      operation: m[3].trim() as 'loading' | 'unloading' | 'both',
+      date: m[4].trim(),
+      time: m[5].trim()
+    })
+  }
+  return stops
+}
+
+function parseDestinations(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  const match = instructions.match(/Destinations:\s*([\s\S]+?)(?=\n|$)/)
+  if (!match) return []
+  
+  const stopsStr = match[1]
+  const stopMatches = stopsStr.matchAll(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*([\d-]+)\s*([\d:]+)/g)
+  
+  const stops: Stop[] = []
+  for (const m of stopMatches) {
+    stops.push({
+      address: m[2].trim(),
+      operation: m[3].trim() as 'loading' | 'unloading' | 'both',
       date: m[4].trim(),
       time: m[5].trim()
     })
@@ -131,7 +151,8 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
 
   const weight = parseWeight(shipment.special_instructions)
   const category = parseCategory(shipment.special_instructions)
-  const stops = parseStops(shipment.special_instructions)
+  const intermediateStops = parseIntermediateStops(shipment.special_instructions)
+  const destinations = parseDestinations(shipment.special_instructions)
   const pickupTerminal = shipment.origin_address?.split(' | ')[0] || ''
   const pickupContainerRef = shipment.origin_address?.split(' | ')[1] || ''
   const pickupSeal = shipment.origin_address?.split(' | ')[2] || ''
@@ -149,12 +170,20 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
       label: `Pick-up: ${shipment.origin_city}`,
       type: 'pickup' as const
     },
-    ...stops
+    ...intermediateStops
       .filter(stop => stop.address && stop.address.trim().length > 0)
       .map((stop, idx) => ({
         city: stop.address,
         country: 'Europe',
-        label: `Stop ${idx + 1}: ${stop.address}`,
+        label: `Intermediate Stop ${idx + 1}: ${stop.address}`,
+        type: 'stop' as const
+      })),
+    ...destinations
+      .filter(dest => dest.address && dest.address.trim().length > 0)
+      .map((dest, idx) => ({
+        city: dest.address,
+        country: 'Europe',
+        label: `Destination ${idx + 1}: ${dest.address}`,
         type: 'stop' as const
       })),
     {
@@ -325,12 +354,12 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
                 </div>
 
                 {/* Intermediate stops */}
-                {stops.map((stop, idx) => (
-                  <div key={idx} className="border-l-4 border-cyan-300 pl-4">
+                {intermediateStops.map((stop, idx) => (
+                  <div key={`intermediate-${idx}`} className="border-l-4 border-amber-500 pl-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <Truck className="h-4 w-4 text-cyan-500" />
+                      <Truck className="h-4 w-4 text-amber-500" />
                       <span className="text-sm font-bold text-gray-900">
-                        Stop {idx + 1} - {stop.operation === 'loading' ? 'Loading' : 'Unloading'}
+                        Intermediate Stop {idx + 1} - {stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : 'Loading & Unloading'}
                       </span>
                     </div>
                     <div className="space-y-2 text-sm">
@@ -341,6 +370,28 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
                       <div className="flex items-center gap-2 pl-5">
                         <Calendar className="h-3.5 w-3.5 text-gray-400" />
                         <span className="text-gray-600">{stop.date} {stop.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Destinations */}
+                {destinations.map((dest, idx) => (
+                  <div key={`destination-${idx}`} className="border-l-4 border-emerald-500 pl-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4 text-emerald-500" />
+                      <span className="text-sm font-bold text-gray-900">
+                        Destination {idx + 1} - {dest.operation === 'loading' ? 'Loading' : dest.operation === 'unloading' ? 'Unloading' : 'Loading & Unloading'}
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                        <span className="font-medium">{dest.address}</span>
+                      </div>
+                      <div className="flex items-center gap-2 pl-5">
+                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        <span className="text-gray-600">{dest.date} {dest.time}</span>
                       </div>
                     </div>
                   </div>

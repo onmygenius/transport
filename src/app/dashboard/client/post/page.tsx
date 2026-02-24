@@ -182,28 +182,20 @@ export default function PostShipmentPage() {
                             <Trash2 className="h-3.5 w-3.5" /> Remove
                           </button>
                         </div>
-                        <CardDescription>Stop along the route for loading/unloading</CardDescription>
+                        <CardDescription>Customs checkpoint or waypoint along the route</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2 col-span-2">
-                            <Label>Port / City *</Label>
-                            <PortSelect 
-                              placeholder="Select port or city..." 
+                            <Label>Location (Douane / Wegen) *</Label>
+                            <Input 
+                              placeholder="e.g. Customs Hamburg, Border Checkpoint Aachen, etc." 
                               value={stop.port} 
-                              onChange={v => updateIntermediateStop(stop.id, 'port', v)} 
+                              onChange={e => updateIntermediateStop(stop.id, 'port', e.target.value)} 
                             />
                           </div>
                           <div className="space-y-2 col-span-2">
-                            <Label>Terminal <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
-                            <TerminalSelect 
-                              portCode={stopPortCode} 
-                              value={stop.terminal} 
-                              onChange={v => updateIntermediateStop(stop.id, 'terminal', v)} 
-                            />
-                          </div>
-                          <div className="space-y-2 col-span-2">
-                            <Label>Operation Type *</Label>
+                            <Label>Stop Type *</Label>
                             <div className="flex gap-2">
                               <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'loading')}
                                 className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
@@ -215,7 +207,7 @@ export default function PostShipmentPage() {
                               </button>
                               <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'both')}
                                 className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'both' ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                                Both
+                                Customs
                               </button>
                             </div>
                           </div>
