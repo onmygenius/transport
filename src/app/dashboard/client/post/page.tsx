@@ -16,7 +16,7 @@ import { createShipment } from '@/lib/actions/shipments'
 import type { ContainerType, CargoType, TransportType } from '@/lib/types'
 
 interface PickupStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
-interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'loading' | 'unloading' | 'customs'; date: string; time: string; customsDetails?: string }
+interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'customs'; date: string; time: string; customsDetails?: string }
 interface Destination { id: string; address: string; lat?: number; lng?: number; operation: 'loading' | 'unloading'; date: string; time: string }
 interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 
@@ -197,14 +197,6 @@ export default function PostShipmentPage() {
                           <div className="space-y-2 col-span-2">
                             <Label>Stop Type *</Label>
                             <div className="grid grid-cols-2 gap-2">
-                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'loading')}
-                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                                Loading
-                              </button>
-                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'unloading')}
-                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'unloading' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                                Unloading
-                              </button>
                               <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'weighbridge')}
                                 className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'weighbridge' ? 'border-orange-600 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
                                 Weighbridge
