@@ -16,12 +16,12 @@ import { createShipment } from '@/lib/actions/shipments'
 import type { ContainerType, CargoType, TransportType } from '@/lib/types'
 
 interface PickupStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
-interface IntermediateStop { id: string; port: string; terminal: string; operation: 'loading' | 'unloading' | 'both'; date: string; time: string }
+interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'loading' | 'unloading' | 'customs'; date: string; time: string; customsDetails?: string }
 interface Destination { id: string; address: string; lat?: number; lng?: number; operation: 'loading' | 'unloading'; date: string; time: string }
 interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 
 const emptyDest = (): Destination => ({ id: Math.random().toString(36).slice(2), address: '', lat: undefined, lng: undefined, operation: 'unloading', date: '', time: '' })
-const emptyIntermediateStop = (): IntermediateStop => ({ id: Math.random().toString(36).slice(2), port: '', terminal: '', operation: 'loading', date: '', time: '' })
+const emptyIntermediateStop = (): IntermediateStop => ({ id: Math.random().toString(36).slice(2), port: '', terminal: '', operation: 'weighbridge', date: '', time: '', customsDetails: '' })
 
 export default function PostShipmentPage() {
   const router = useRouter()
@@ -82,7 +82,7 @@ export default function PostShipmentPage() {
         extra.special_instructions,
         cargo.cargo_weight ? `Weight: ${cargo.cargo_weight} kg` : '',
         cargo.container_category ? `Category: ${cargo.container_category}` : '',
-        intermediateStops.length > 0 ? `Intermediate Stops: ${intermediateStops.map((s, i) => `${i + 1}. ${s.port} [${s.operation}] ${s.date} ${s.time}`).join(' | ')}` : '',
+        intermediateStops.length > 0 ? `Intermediate Stops: ${intermediateStops.map((s, i) => `${i + 1}. ${s.port} [${s.operation}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`).join(' | ')}` : '',
         `Destinations: ${destinations.map((d, i) => `${i + 1}. ${d.address} [${d.operation}] ${d.date} ${d.time}`).join(' | ')}`,
       ].filter(Boolean).join('\n') || undefined,
     })
@@ -182,35 +182,49 @@ export default function PostShipmentPage() {
                             <Trash2 className="h-3.5 w-3.5" /> Remove
                           </button>
                         </div>
-                        <CardDescription>Customs checkpoint or waypoint along the route</CardDescription>
+                        <CardDescription>Weighbridge, loading/unloading point, or customs checkpoint</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2 col-span-2">
-                            <Label>Location (Douane / Wegen) *</Label>
+                            <Label>Location *</Label>
                             <Input 
-                              placeholder="e.g. Customs Hamburg, Border Checkpoint Aachen, etc." 
+                              placeholder="e.g. Weighbridge Hamburg, Customs Aachen, Loading Point Berlin, etc." 
                               value={stop.port} 
                               onChange={e => updateIntermediateStop(stop.id, 'port', e.target.value)} 
                             />
                           </div>
                           <div className="space-y-2 col-span-2">
                             <Label>Stop Type *</Label>
-                            <div className="flex gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                               <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'loading')}
-                                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
                                 Loading
                               </button>
                               <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'unloading')}
-                                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'unloading' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'unloading' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
                                 Unloading
                               </button>
-                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'both')}
-                                className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'both' ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'weighbridge')}
+                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'weighbridge' ? 'border-orange-600 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                                Weighbridge
+                              </button>
+                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'customs')}
+                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'customs' ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
                                 Customs
                               </button>
                             </div>
                           </div>
+                          {stop.operation === 'customs' && (
+                            <div className="space-y-2 col-span-2">
+                              <Label>Customs Details <span className="text-gray-400 font-normal text-xs">(e.g. scan, gas control, other)</span></Label>
+                              <Input 
+                                placeholder="e.g. X-ray scan, gas control, document check, etc." 
+                                value={stop.customsDetails || ''} 
+                                onChange={e => updateIntermediateStop(stop.id, 'customsDetails', e.target.value)} 
+                              />
+                            </div>
+                          )}
                           <div className="space-y-2">
                             <Label>Date *</Label>
                             <Input type="date" value={stop.date} onChange={e => updateIntermediateStop(stop.id, 'date', e.target.value)} />
