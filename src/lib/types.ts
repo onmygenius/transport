@@ -7,6 +7,8 @@ export type ContainerType = '20ft' | '40ft' | '40ft_hc' | '45ft' | 'reefer_20ft'
 export type CargoType = 'general' | 'dangerous' | 'perishable' | 'oversized'
 export type TransportType = 'fcl' | 'lcl'
 export type DisputeStatus = 'open' | 'in_review' | 'resolved' | 'closed'
+export type DocumentType = 'cmr' | 'bol' | 'packing_list' | 'pod' | 'commercial_invoice' | 'customs_declaration' | 'insurance_certificate' | 'temperature_record' | 'weighbridge_certificate' | 'other'
+export type DocumentStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Profile {
   id: string
@@ -120,4 +122,22 @@ export interface ActionResult<T = null> {
   success: boolean
   data?: T
   error?: string
+}
+
+export interface ShipmentDocument {
+  id: string
+  shipment_id: string
+  uploaded_by: string
+  uploaded_by_role: 'client' | 'transporter'
+  document_type: DocumentType
+  file_name: string
+  file_path: string
+  file_size: number
+  mime_type: string
+  status: DocumentStatus
+  rejection_reason: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+  uploader?: Profile
 }

@@ -16,6 +16,8 @@ import {
 import { createOffer } from '@/lib/actions/offers'
 import Link from 'next/link'
 import { ShipmentRouteMap } from '@/components/ui/shipment-route-map'
+import { ShipmentDocuments } from '@/components/shipment-documents'
+import type { ShipmentDocument } from '@/lib/types'
 
 // Helper functions
 function formatDate(dateString: string): string {
@@ -135,9 +137,11 @@ interface Offer {
 interface Props {
   shipment: Shipment
   existingOffer: Offer | null
+  initialDocuments?: ShipmentDocument[]
+  canViewDocuments?: boolean
 }
 
-export default function ShipmentDetailsClient({ shipment, existingOffer }: Props) {
+export default function ShipmentDetailsClient({ shipment, existingOffer, initialDocuments = [], canViewDocuments = false }: Props) {
   const router = useRouter()
   const [showAcceptModal, setShowAcceptModal] = useState(false)
   const [offerForm, setOfferForm] = useState({
@@ -523,6 +527,30 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
             </Card>
           </div>
         </div>
+
+        {/* Documents Section */}
+        {canViewDocuments ? (
+          <ShipmentDocuments
+            shipmentId={shipment.id}
+            userRole="transporter"
+            canUpload={canViewDocuments}
+            initialDocuments={initialDocuments}
+          />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-amber-500" />
+                Documents
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">🔒 Documents will be available after you accept this shipment</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       {/* Accept Modal */}

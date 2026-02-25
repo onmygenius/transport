@@ -23,5 +23,20 @@ export default async function ShipmentDetailPage({ params }: { params: Promise<{
 
   if (!shipment) notFound()
 
-  return <ShipmentDetailClient shipment={shipment} />
+  // Fetch documents for this shipment
+  const { data: documents } = await supabase
+    .from('shipment_documents')
+    .select(`
+      *,
+      uploader:profiles!shipment_documents_uploaded_by_fkey(
+        id,
+        full_name,
+        company_name,
+        role
+      )
+    `)
+    .eq('shipment_id', id)
+    .order('created_at', { ascending: false })
+
+  return <ShipmentDetailClient shipment={shipment} initialDocuments={documents || []} />
 }

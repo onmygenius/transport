@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle, Star, ArrowLeft, Package, MapPin, Calendar, Weight } from 'lucide-react'
 import Link from 'next/link'
 import { acceptOffer, rejectOffer } from '@/lib/actions/offers'
+import { ShipmentDocuments } from '@/components/shipment-documents'
+import type { ShipmentDocument } from '@/lib/types'
 
 interface Transporter {
   id: string
@@ -63,7 +65,7 @@ const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' 
   cancelled: { label: 'Cancelled', variant: 'secondary' },
 }
 
-export default function ShipmentDetailClient({ shipment }: { shipment: Shipment }) {
+export default function ShipmentDetailClient({ shipment, initialDocuments = [] }: { shipment: Shipment; initialDocuments?: ShipmentDocument[] }) {
   const router = useRouter()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -191,11 +193,14 @@ export default function ShipmentDetailClient({ shipment }: { shipment: Shipment 
             )}
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Offers Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">
-                  {pendingOffers.length > 0
+                  {shipment.status === 'confirmed' || shipment.status === 'in_transit' || shipment.status === 'delivered' || shipment.status === 'completed'
+                    ? 'Offers accepted'
+                    : pendingOffers.length > 0
                     ? `Offers (${pendingOffers.length}) — sorted by price`
                     : 'Offers'}
                 </CardTitle>
@@ -274,6 +279,14 @@ export default function ShipmentDetailClient({ shipment }: { shipment: Shipment 
                 )}
               </CardContent>
             </Card>
+
+            {/* Documents Section */}
+            <ShipmentDocuments
+              shipmentId={shipment.id}
+              userRole="client"
+              canUpload={true}
+              initialDocuments={initialDocuments}
+            />
           </div>
         </div>
       </main>

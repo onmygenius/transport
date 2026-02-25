@@ -60,10 +60,34 @@ export default async function TransporterShipmentDetailsPage({ params }: { param
     client: Array.isArray(shipment.client) ? shipment.client[0] : shipment.client
   }
 
+  // Fetch documents only if transporter has accepted the shipment
+  const canViewDocuments = shipment.status && ['confirmed', 'in_transit', 'delivered', 'completed'].includes(shipment.status)
+  let documents = []
+  
+  if (canViewDocuments) {
+    const { data: docs } = await supabase
+      .from('shipment_documents')
+      .select(`
+        *,
+        uploader:profiles!shipment_documents_uploaded_by_fkey(
+          id,
+          full_name,
+          company_name,
+          role
+        )
+      `)
+      .eq('shipment_id', id)
+      .order('created_at', { ascending: false })
+    
+    documents = docs || []
+  }
+
   return (
     <ShipmentDetailsClient
       shipment={transformedShipment}
       existingOffer={existingOffer || null}
+      initialDocuments={documents}
+      canViewDocuments={canViewDocuments}
     />
   )
 }
