@@ -37,35 +37,42 @@ export function ShipmentRouteMap({ locations }: Props) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  console.log('ShipmentRouteMap component rendered with locations:', locations)
+
   useEffect(() => {
+    console.log('useEffect triggered with', locations.length, 'locations')
+    
     if (locations.length < 2) {
+      console.warn('Not enough locations (need at least 2):', locations.length)
       setLoading(false)
       setError('Not enough locations to show route')
       return
     }
 
-    let mounted = true
-
-    // Wait for DOM to be ready with retry logic
-    const checkAndInit = () => {
-      if (!mounted) return
-      
-      if (mapRef.current) {
-        initMap()
-      } else {
-        // Retry after a short delay
-        setTimeout(checkAndInit, 50)
-      }
-    }
-
-    // Start checking after initial delay
-    const timer = setTimeout(checkAndInit, 100)
-
     const initMap = async () => {
+      console.log('initMap called, checking mapRef.current:', !!mapRef.current)
+      
+      if (!mapRef.current) {
+        console.error('Map ref is not available, will retry...')
+        // Retry after DOM is ready
+        setTimeout(initMap, 100)
+        return
+      }
+      
       console.log('Initializing map with', locations.length, 'locations')
+      console.log('API Key available:', !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)
       try {
         // Load Google Maps script
-        await loadGoogleMapsScript(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '')
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        if (!apiKey) {
+          console.error('Google Maps API key is missing!')
+          setError('Google Maps API key is not configured')
+          setLoading(false)
+          return
+        }
+        console.log('Loading Google Maps script...')
+        await loadGoogleMapsScript(apiKey)
+        console.log('Google Maps script loaded successfully')
 
         const geocoder = new google.maps.Geocoder()
         
@@ -105,66 +112,76 @@ export function ShipmentRouteMap({ locations }: Props) {
           return
         }
 
-        // Create map centered on first location
+        // Create map
+        const bounds = new google.maps.LatLngBounds()
+        validLocations.forEach(loc => bounds.extend(loc!.position))
+        
         const map = new google.maps.Map(mapRef.current!, {
-          zoom: 6,
-          center: validLocations[0]!.position,
           mapTypeControl: true,
           streetViewControl: false,
           fullscreenControl: true,
         })
 
-        // If we have multiple locations, draw route
+        // Try to draw route with Directions API
         if (validLocations.length >= 2) {
           const directionsService = new google.maps.DirectionsService()
           const directionsRenderer = new google.maps.DirectionsRenderer({
             map,
-            suppressMarkers: false,
+            suppressMarkers: true, // We'll add custom markers
             polylineOptions: {
-              strokeColor: '#06b6d4', // cyan-500
+              strokeColor: '#ef4444', // red-500
               strokeWeight: 4,
               strokeOpacity: 0.8
             }
           })
 
-          // Build waypoints (all locations except first and last)
-          const waypoints = validLocations.slice(1, -1).map(loc => ({
-            location: loc!.position,
-            stopover: true
-          }))
-
           try {
             const result = await directionsService.route({
               origin: validLocations[0]!.position,
               destination: validLocations[validLocations.length - 1]!.position,
-              waypoints,
               travelMode: google.maps.TravelMode.DRIVING,
-              optimizeWaypoints: false
             })
 
             directionsRenderer.setDirections(result)
+            console.log('Directions route displayed successfully')
           } catch (err) {
-            console.error('Directions request failed:', err)
-            // Fallback: just show markers
-            validLocations.forEach((loc, idx) => {
-              new google.maps.Marker({
-                position: loc!.position,
-                map,
-                title: loc!.label,
-                label: {
-                  text: (idx + 1).toString(),
-                  color: 'white',
-                  fontWeight: 'bold'
-                },
-              })
-            })
-
-            // Fit bounds to show all markers
-            const bounds = new google.maps.LatLngBounds()
-            validLocations.forEach(loc => bounds.extend(loc!.position))
-            map.fitBounds(bounds)
+            console.error('Directions request failed, showing markers only:', err)
           }
         }
+
+        // Add custom markers for all locations
+        validLocations.forEach((loc, idx) => {
+          const marker = new google.maps.Marker({
+            position: loc!.position,
+            map,
+            title: loc!.label,
+            label: {
+              text: loc!.type === 'pickup' ? 'A' : 'B',
+              color: 'white',
+              fontWeight: 'bold'
+            },
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: loc!.type === 'pickup' ? '#06b6d4' : '#10b981',
+              fillOpacity: 1,
+              strokeColor: 'white',
+              strokeWeight: 2,
+            }
+          })
+
+          // Add info window
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<div style="padding: 8px;"><strong>${loc!.label}</strong></div>`
+          })
+
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker)
+          })
+        })
+
+        // Fit map to show all markers
+        map.fitBounds(bounds)
 
         setLoading(false)
       } catch (err) {
@@ -174,34 +191,29 @@ export function ShipmentRouteMap({ locations }: Props) {
       }
     }
 
-    return () => {
-      mounted = false
-      clearTimeout(timer)
-    }
+    initMap()
   }, [locations])
 
-  if (loading) {
-    return (
-      <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
-          <p className="text-sm">Loading map...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <p className="text-sm">{error}</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div ref={mapRef} className="w-full h-96 rounded-lg" />
+    <div className="relative w-full h-96">
+      <div ref={mapRef} className="w-full h-96 rounded-lg" />
+      
+      {loading && (
+        <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
+            <p className="text-sm">Loading map...</p>
+          </div>
+        </div>
+      )}
+      
+      {error && (
+        <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

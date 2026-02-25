@@ -162,7 +162,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
 
   const clientName = shipment.client?.company_name || shipment.client?.full_name || 'Unknown'
 
-  // Build locations array for map
+  // Build locations array for map - simplified to just origin and destination
   const mapLocations = [
     {
       city: shipment.origin_city,
@@ -170,29 +170,15 @@ export default function ShipmentDetailsClient({ shipment, existingOffer }: Props
       label: `Pick-up: ${shipment.origin_city}`,
       type: 'pickup' as const
     },
-    ...intermediateStops
-      .filter(stop => stop.address && stop.address.trim().length > 0)
-      .map((stop, idx) => ({
-        city: stop.address,
-        country: 'Europe',
-        label: `Intermediate Stop ${idx + 1}: ${stop.address}`,
-        type: 'stop' as const
-      })),
-    ...destinations
-      .filter(dest => dest.address && dest.address.trim().length > 0)
-      .map((dest, idx) => ({
-        city: dest.address,
-        country: 'Europe',
-        label: `Destination ${idx + 1}: ${dest.address}`,
-        type: 'stop' as const
-      })),
     {
       city: shipment.destination_city,
       country: shipment.destination_country,
       label: `Drop-off: ${shipment.destination_city}`,
       type: 'dropoff' as const
     }
-  ].filter(loc => loc.city && loc.city.trim().length > 0)
+  ]
+
+  console.log('Map locations for route:', mapLocations)
 
   const handleAcceptShipment = async () => {
     setError(null)
