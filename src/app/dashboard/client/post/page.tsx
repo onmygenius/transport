@@ -34,7 +34,7 @@ export default function PostShipmentPage() {
   const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>([])
   const [destinations, setDestinations] = useState<Destination[]>([emptyDest()])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
-  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' as TransportType })
+  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
@@ -71,7 +71,7 @@ export default function PostShipmentPage() {
       container_type: cargo.container_type,
       container_count: cargo.container_count,
       cargo_weight: parseFloat(cargo.cargo_weight) || 1,
-      cargo_type: (cargo.cargo_type || 'dangerous') as CargoType,
+      cargo_type: (cargo.cargo_type || 'general') as CargoType,
       transport_type: cargo.transport_type,
       pickup_date: pickup.time ? `${pickup.date}T${pickup.time}` : pickup.date,
       delivery_date: drop.date ? (drop.time ? `${drop.date}T${drop.time}` : drop.date) : undefined,
@@ -103,7 +103,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setIntermediateStops([]); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setIntermediateStops([]); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -382,11 +382,14 @@ export default function PostShipmentPage() {
                   <Select value={cargo.container_type} onValueChange={v => setCargo(p => ({ ...p, container_type: v as ContainerType }))}>
                     <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20ft">20 FT</SelectItem>
-                      <SelectItem value="30ft">30 FT</SelectItem>
-                      <SelectItem value="40ft">40 FT</SelectItem>
-                      <SelectItem value="45ft">45 FT</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="20ft">20 FT Standard</SelectItem>
+                      <SelectItem value="40ft">40 FT Standard</SelectItem>
+                      <SelectItem value="40ft_hc">40 FT High Cube</SelectItem>
+                      <SelectItem value="45ft">45 FT High Cube</SelectItem>
+                      <SelectItem value="reefer_20ft">20 FT Reefer</SelectItem>
+                      <SelectItem value="reefer_40ft">40 FT Reefer</SelectItem>
+                      <SelectItem value="open_top">Open Top</SelectItem>
+                      <SelectItem value="flat_rack">Flat Rack</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -424,8 +427,10 @@ export default function PostShipmentPage() {
                   <Select value={cargo.cargo_type} onValueChange={v => setCargo(p => ({ ...p, cargo_type: v as CargoType }))}>
                     <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="general">General Cargo</SelectItem>
                       <SelectItem value="dangerous">Dangerous Goods</SelectItem>
-                      <SelectItem value="reefer">Reefer (temperature controlled)</SelectItem>
+                      <SelectItem value="perishable">Perishable (temperature controlled)</SelectItem>
+                      <SelectItem value="oversized">Oversized / Heavy</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -434,8 +439,8 @@ export default function PostShipmentPage() {
                   <Select value={cargo.transport_type} onValueChange={v => setCargo(p => ({ ...p, transport_type: v as TransportType }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="full">Full Container (loaded)</SelectItem>
-                      <SelectItem value="empty">Empty Container (repositioning)</SelectItem>
+                      <SelectItem value="fcl">FCL (Full Container Load)</SelectItem>
+                      <SelectItem value="lcl">LCL (Less than Container Load)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
