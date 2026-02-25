@@ -16,12 +16,48 @@ import { createShipment } from '@/lib/actions/shipments'
 import type { ContainerType, CargoType, TransportType } from '@/lib/types'
 
 interface PickupStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
-interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'customs'; date: string; time: string; customsDetails?: string; weighbridgeDetails?: string }
-interface Destination { id: string; address: string; lat?: number; lng?: number; operation: 'loading' | 'unloading'; date: string; time: string }
+interface Stop {
+  id: string
+  type: 'intermediate' | 'location'
+  // For intermediate stops
+  port?: string
+  terminal?: string
+  operation?: 'weighbridge' | 'customs'
+  customsDetails?: string
+  weighbridgeDetails?: string
+  // For locations
+  address?: string
+  lat?: number
+  lng?: number
+  operationType?: 'loading' | 'unloading'
+  // Common
+  date: string
+  time: string
+}
 interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 
-const emptyDest = (): Destination => ({ id: Math.random().toString(36).slice(2), address: '', lat: undefined, lng: undefined, operation: 'unloading', date: '', time: '' })
-const emptyIntermediateStop = (): IntermediateStop => ({ id: Math.random().toString(36).slice(2), port: '', terminal: '', operation: 'weighbridge', date: '', time: '', customsDetails: '', weighbridgeDetails: '' })
+const emptyIntermediateStop = (): Stop => ({
+  id: Math.random().toString(36).slice(2),
+  type: 'intermediate',
+  port: '',
+  terminal: '',
+  operation: 'weighbridge',
+  date: '',
+  time: '',
+  customsDetails: '',
+  weighbridgeDetails: ''
+})
+
+const emptyLocation = (): Stop => ({
+  id: Math.random().toString(36).slice(2),
+  type: 'location',
+  address: '',
+  lat: undefined,
+  lng: undefined,
+  operationType: 'unloading',
+  date: '',
+  time: ''
+})
 
 export default function PostShipmentPage() {
   const router = useRouter()
@@ -31,25 +67,22 @@ export default function PostShipmentPage() {
   const [budgetVisible, setBudgetVisible] = useState(true)
 
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
-  const [intermediateStops, setIntermediateStops] = useState<IntermediateStop[]>([])
-  const [destinations, setDestinations] = useState<Destination[]>([emptyDest()])
+  const [stops, setStops] = useState<Stop[]>([])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
   const setDropField = (field: keyof DropStop, value: string) => setDrop(p => ({ ...p, [field]: value }))
-  const updateIntermediateStop = (id: string, field: keyof IntermediateStop, value: string) => setIntermediateStops(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
-  const addIntermediateStop = () => { if (intermediateStops.length < 5) setIntermediateStops(p => [...p, emptyIntermediateStop()]) }
-  const removeIntermediateStop = (id: string) => setIntermediateStops(p => p.filter(s => s.id !== id))
-  const updateDest = (id: string, field: keyof Destination, value: string) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, [field]: value } : d))
-  const updateDestAddress = (id: string, address: string, lat?: number, lng?: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, address, lat, lng } : d))
-  const addDest = () => { if (destinations.length < 4) setDestinations(p => [...p, emptyDest()]) }
-  const removeDest = (id: string) => { if (destinations.length > 1) setDestinations(p => p.filter(d => d.id !== id)) }
+  const updateStop = (id: string, field: keyof Stop, value: any) => setStops(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
+  const updateStopAddress = (id: string, address: string, lat?: number, lng?: number) => setStops(prev => prev.map(s => s.id === id ? { ...s, address, lat, lng } : s))
+  const addIntermediateStop = () => { if (stops.length < 10) setStops(p => [...p, emptyIntermediateStop()]) }
+  const addLocation = () => { if (stops.length < 10) setStops(p => [...p, emptyLocation()]) }
+  const removeStop = (id: string) => setStops(p => p.filter(s => s.id !== id))
 
   const pickupPortCode = EUROPEAN_PORTS.find(p => `${p.name}, ${p.country}` === pickup.port)?.code ?? ''
   const dropPortCode = EUROPEAN_PORTS.find(p => `${p.name}, ${p.country}` === drop.port)?.code ?? ''
-  const getIntermediateStopPortCode = (port: string) => EUROPEAN_PORTS.find(p => `${p.name}, ${p.country}` === port)?.code ?? ''
+  const getStopPortCode = (port: string) => EUROPEAN_PORTS.find(p => `${p.name}, ${p.country}` === port)?.code ?? ''
 
   const handleSubmit = async () => {
     setError(null)
@@ -82,8 +115,13 @@ export default function PostShipmentPage() {
         extra.special_instructions,
         cargo.cargo_weight ? `Weight: ${cargo.cargo_weight} kg` : '',
         cargo.container_category ? `Category: ${cargo.container_category}` : '',
-        intermediateStops.length > 0 ? `Intermediate Stops: ${intermediateStops.map((s, i) => `${i + 1}. ${s.port} [${s.operation}${s.weighbridgeDetails ? ` - ${s.weighbridgeDetails}` : ''}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`).join(' | ')}` : '',
-        `Destinations: ${destinations.map((d, i) => `${i + 1}. ${d.address} [${d.operation}] ${d.date} ${d.time}`).join(' | ')}`,
+        stops.length > 0 ? `Stops: ${stops.map((s, i) => {
+          if (s.type === 'intermediate') {
+            return `${i + 1}. ${s.port} [${s.operation}${s.weighbridgeDetails ? ` - ${s.weighbridgeDetails}` : ''}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`
+          } else {
+            return `${i + 1}. ${s.address} [${s.operationType}] ${s.date} ${s.time}`
+          }
+        }).join(' | ')}` : '',
       ].filter(Boolean).join('\n') || undefined,
     })
     setLoading(false)
@@ -103,7 +141,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setIntermediateStops([]); setDestinations([emptyDest()]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setStops([]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -164,168 +202,155 @@ export default function PostShipmentPage() {
 
           <div className="flex justify-center"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
 
-          {/* INTERMEDIATE STOPS */}
-          {intermediateStops.length > 0 && (
-            <>
-              {intermediateStops.map((stop, index) => {
-                const stopPortCode = getIntermediateStopPortCode(stop.port)
-                return (
-                  <div key={stop.id}>
-                    <Card className="border-l-4 border-l-amber-500">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">1.{index + 1}</span>
-                            <CardTitle className="text-base">Intermediate Stop {index + 1}</CardTitle>
-                          </div>
-                          <button type="button" onClick={() => removeIntermediateStop(stop.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
-                            <Trash2 className="h-3.5 w-3.5" /> Remove
-                          </button>
-                        </div>
-                        <CardDescription>Weighbridge, loading/unloading point, or customs checkpoint</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2 col-span-2">
-                            <Label>Location *</Label>
-                            <Input 
-                              placeholder="e.g. Weighbridge Hamburg, Customs Aachen, Loading Point Berlin, etc." 
-                              value={stop.port} 
-                              onChange={e => updateIntermediateStop(stop.id, 'port', e.target.value)} 
-                            />
-                          </div>
-                          <div className="space-y-2 col-span-2">
-                            <Label>Stop Type *</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'weighbridge')}
-                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'weighbridge' ? 'border-orange-600 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                                Weighbridge
-                              </button>
-                              <button type="button" onClick={() => updateIntermediateStop(stop.id, 'operation', 'customs')}
-                                className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'customs' ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                                Customs
-                              </button>
-                            </div>
-                          </div>
-                          {stop.operation === 'weighbridge' && (
-                            <div className="space-y-2 col-span-2">
-                              <Label>Weighbridge Details <span className="text-gray-400 font-normal text-xs">(e.g. hour, reference, other details)</span></Label>
-                              <Input 
-                                placeholder="e.g. 14:00, Reference #12345, Driver contact, etc." 
-                                value={stop.weighbridgeDetails || ''} 
-                                onChange={e => updateIntermediateStop(stop.id, 'weighbridgeDetails', e.target.value)} 
-                              />
-                            </div>
-                          )}
-                          {stop.operation === 'customs' && (
-                            <div className="space-y-2 col-span-2">
-                              <Label>Customs Details <span className="text-gray-400 font-normal text-xs">(e.g. scan, gas control, other)</span></Label>
-                              <Input 
-                                placeholder="e.g. X-ray scan, gas control, document check, etc." 
-                                value={stop.customsDetails || ''} 
-                                onChange={e => updateIntermediateStop(stop.id, 'customsDetails', e.target.value)} 
-                              />
-                            </div>
-                          )}
-                          <div className="space-y-2">
-                            <Label>Date *</Label>
-                            <Input type="date" value={stop.date} onChange={e => updateIntermediateStop(stop.id, 'date', e.target.value)} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Time</Label>
-                            <Input type="time" value={stop.time} onChange={e => updateIntermediateStop(stop.id, 'time', e.target.value)} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <div className="flex justify-center mt-4"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
-                  </div>
-                )
-              })}
-            </>
-          )}
-
-          {/* DESTINATIONS */}
-          {destinations.map((dest, index) => (
-            <div key={dest.id}>
-              <Card className="border-l-4 border-l-emerald-500">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{index + 2}</span>
-                      <CardTitle className="text-base">Destination {destinations.length > 1 ? index + 1 : ''}</CardTitle>
-                    </div>
-                    {destinations.length > 1 && (
-                      <button type="button" onClick={() => removeDest(dest.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+          {/* STOPS (Intermediate + Locations) - În ordinea adăugării */}
+          {stops.map((stop, index) => (
+            <div key={stop.id}>
+              {stop.type === 'intermediate' ? (
+                <Card className="border-l-4 border-l-amber-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">{index + 2}</span>
+                        <CardTitle className="text-base">Intermediate Stop {index + 1}</CardTitle>
+                      </div>
+                      <button type="button" onClick={() => removeStop(stop.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
                         <Trash2 className="h-3.5 w-3.5" /> Remove
                       </button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2 col-span-2">
-                      <Label>Address / Location *</Label>
-                      <PlacesAutocomplete
-                        placeholder="e.g. Europastraße 5, Gelsenkirchen, Germany"
-                        value={dest.address}
-                        onChange={(v, _pid, lat, lng) => updateDestAddress(dest.id, v, lat, lng)}
-                        types={['geocode', 'establishment']}
-                      />
                     </div>
-                    {dest.lat && dest.lng && (
-                      <div className="col-span-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                        <iframe
-                          title={`map-${dest.id}`}
-                          width="100%"
-                          height="180"
-                          style={{ border: 0, display: 'block' }}
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${dest.lat},${dest.lng}&zoom=14`}
+                    <CardDescription>Weighbridge, loading/unloading point, or customs checkpoint</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 col-span-2">
+                        <Label>Location *</Label>
+                        <Input 
+                          placeholder="e.g. Weighbridge Hamburg, Customs Aachen, Loading Point Berlin, etc." 
+                          value={stop.port || ''} 
+                          onChange={e => updateStop(stop.id, 'port', e.target.value)} 
                         />
                       </div>
-                    )}
-                    <div className="space-y-2 col-span-2">
-                      <Label>Operation Type</Label>
-                      <div className="flex gap-2">
-                        <button type="button" onClick={() => updateDest(dest.id, 'operation', 'loading')}
-                          className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${dest.operation === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                          Loading
-                        </button>
-                        <button type="button" onClick={() => updateDest(dest.id, 'operation', 'unloading')}
-                          className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${dest.operation === 'unloading' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
-                          Unloading
-                        </button>
+                      <div className="space-y-2 col-span-2">
+                        <Label>Stop Type *</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button type="button" onClick={() => updateStop(stop.id, 'operation', 'weighbridge')}
+                            className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'weighbridge' ? 'border-orange-600 bg-orange-50 text-orange-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                            Weighbridge
+                          </button>
+                          <button type="button" onClick={() => updateStop(stop.id, 'operation', 'customs')}
+                            className={`rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operation === 'customs' ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                            Customs
+                          </button>
+                        </div>
+                      </div>
+                      {stop.operation === 'weighbridge' && (
+                        <div className="space-y-2 col-span-2">
+                          <Label>Weighbridge Details <span className="text-gray-400 font-normal text-xs">(e.g. hour, reference, other details)</span></Label>
+                          <Input 
+                            placeholder="e.g. 14:00, Reference #12345, Driver contact, etc." 
+                            value={stop.weighbridgeDetails || ''} 
+                            onChange={e => updateStop(stop.id, 'weighbridgeDetails', e.target.value)} 
+                          />
+                        </div>
+                      )}
+                      {stop.operation === 'customs' && (
+                        <div className="space-y-2 col-span-2">
+                          <Label>Customs Details <span className="text-gray-400 font-normal text-xs">(e.g. scan, gas control, other)</span></Label>
+                          <Input 
+                            placeholder="e.g. X-ray scan, gas control, document check, etc." 
+                            value={stop.customsDetails || ''} 
+                            onChange={e => updateStop(stop.id, 'customsDetails', e.target.value)} 
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-2">
+                        <Label>Date *</Label>
+                        <Input type="date" value={stop.date} onChange={e => updateStop(stop.id, 'date', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Time</Label>
+                        <Input type="time" value={stop.time} onChange={e => updateStop(stop.id, 'time', e.target.value)} />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Date</Label>
-                      <Input type="date" value={dest.date} onChange={e => updateDest(dest.id, 'date', e.target.value)} />
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="border-l-4 border-l-emerald-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{index + 2}</span>
+                        <CardTitle className="text-base">Location {index + 1}</CardTitle>
+                      </div>
+                      <button type="button" onClick={() => removeStop(stop.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                      </button>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Time</Label>
-                      <Input type="time" value={dest.time} onChange={e => updateDest(dest.id, 'time', e.target.value)} />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 col-span-2">
+                        <Label>Address / Location *</Label>
+                        <PlacesAutocomplete
+                          placeholder="e.g. Europastraße 5, Gelsenkirchen, Germany"
+                          value={stop.address || ''}
+                          onChange={(v, _pid, lat, lng) => updateStopAddress(stop.id, v, lat, lng)}
+                          types={['geocode', 'establishment']}
+                        />
+                      </div>
+                      {stop.lat && stop.lng && (
+                        <div className="col-span-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                          <iframe
+                            title={`map-${stop.id}`}
+                            width="100%"
+                            height="180"
+                            style={{ border: 0, display: 'block' }}
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${stop.lat},${stop.lng}&zoom=14`}
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-2 col-span-2">
+                        <Label>Operation Type</Label>
+                        <div className="flex gap-2">
+                          <button type="button" onClick={() => updateStop(stop.id, 'operationType', 'loading')}
+                            className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operationType === 'loading' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                            Loading
+                          </button>
+                          <button type="button" onClick={() => updateStop(stop.id, 'operationType', 'unloading')}
+                            className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${stop.operationType === 'unloading' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>
+                            Unloading
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Date</Label>
+                        <Input type="date" value={stop.date} onChange={e => updateStop(stop.id, 'date', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Time</Label>
+                        <Input type="time" value={stop.time} onChange={e => updateStop(stop.id, 'time', e.target.value)} />
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
               <div className="flex justify-center mt-4"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
             </div>
           ))}
 
-          {/* BUTTONS ROW: Add Intermediate Stop + Add Destination - MEREU JOS */}
+          {/* BUTTONS ROW: Add Intermediate Stop + Add Location - MEREU JOS */}
           <div className="grid grid-cols-2 gap-4">
-            {intermediateStops.length < 5 && (
+            {stops.length < 10 && (
               <button type="button" onClick={addIntermediateStop}
                 className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
                 <Plus className="h-4 w-4" /> Add intermediate stop
               </button>
             )}
-            {destinations.length < 4 && (
-              <button type="button" onClick={addDest}
+            {stops.length < 10 && (
+              <button type="button" onClick={addLocation}
                 className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 py-3 text-sm text-emerald-600 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
-                <Plus className="h-4 w-4" /> Add destination
+                <Plus className="h-4 w-4" /> Add location
               </button>
             )}
           </div>
@@ -335,7 +360,7 @@ export default function PostShipmentPage() {
           <Card className="border-l-4 border-l-orange-500">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white">{destinations.length + 2}</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white">{stops.length + 2}</span>
                 <CardTitle className="text-base">Drop Container</CardTitle>
               </div>
               <CardDescription>Where is the container being dropped off?</CardDescription>
