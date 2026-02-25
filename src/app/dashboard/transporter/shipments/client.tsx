@@ -94,6 +94,13 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const perPage = 10
+  
+  // Filter states
+  const [originFilter, setOriginFilter] = useState('')
+  const [destinationFilter, setDestinationFilter] = useState('')
+  const [availableFromFilter, setAvailableFromFilter] = useState('')
+  const [containerTypeFilter, setContainerTypeFilter] = useState('')
+  const [shippingTypeFilter, setShippingTypeFilter] = useState('')
 
   const [modalShipment, setModalShipment] = useState<Shipment | null>(null)
   const [offerForm, setOfferForm] = useState({
@@ -111,12 +118,31 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
     const origin = `${s.origin_city} ${s.origin_country}`
     const dest = `${s.destination_city} ${s.destination_country}`
     const client = s.client?.company_name || s.client?.full_name || ''
-    return (
+    
+    // Search filter
+    const matchesSearch = (
       origin.toLowerCase().includes(search.toLowerCase()) ||
       dest.toLowerCase().includes(search.toLowerCase()) ||
       client.toLowerCase().includes(search.toLowerCase()) ||
       s.id.toLowerCase().includes(search.toLowerCase())
     )
+    
+    // Origin filter
+    const matchesOrigin = !originFilter || s.origin_city.toLowerCase().includes(originFilter.toLowerCase())
+    
+    // Destination filter
+    const matchesDestination = !destinationFilter || s.destination_city.toLowerCase().includes(destinationFilter.toLowerCase())
+    
+    // Available From filter (pickup_date >= selected date)
+    const matchesAvailableFrom = !availableFromFilter || s.pickup_date >= availableFromFilter
+    
+    // Container Type filter
+    const matchesContainerType = !containerTypeFilter || containerTypeFilter === 'all' || s.container_type === containerTypeFilter
+    
+    // Shipping Type filter
+    const matchesShippingType = !shippingTypeFilter || shippingTypeFilter === 'all' || s.transport_type === shippingTypeFilter
+    
+    return matchesSearch && matchesOrigin && matchesDestination && matchesAvailableFrom && matchesContainerType && matchesShippingType
   })
 
   const totalPages = Math.ceil(filtered.length / perPage)
@@ -198,7 +224,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                 </Select>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative mb-4">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search by client, origin, destination..."
@@ -206,6 +232,69 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                 value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1) }}
               />
+            </div>
+            
+            {/* Filters */}
+            <div className="grid grid-cols-5 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">Origin</Label>
+                <Input
+                  placeholder="Rotterdam, NL"
+                  value={originFilter}
+                  onChange={e => { setOriginFilter(e.target.value); setPage(1) }}
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">Destination</Label>
+                <Input
+                  placeholder="Hamburg, DE"
+                  value={destinationFilter}
+                  onChange={e => { setDestinationFilter(e.target.value); setPage(1) }}
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">Available From</Label>
+                <Input
+                  type="date"
+                  value={availableFromFilter}
+                  onChange={e => { setAvailableFromFilter(e.target.value); setPage(1) }}
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">Container Type</Label>
+                <Select value={containerTypeFilter} onValueChange={v => { setContainerTypeFilter(v); setPage(1) }}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="20ft">20 FT</SelectItem>
+                    <SelectItem value="40ft">40 FT</SelectItem>
+                    <SelectItem value="40ft_hc">40 FT HC</SelectItem>
+                    <SelectItem value="45ft">45 FT</SelectItem>
+                    <SelectItem value="reefer_20ft">20 FT Reefer</SelectItem>
+                    <SelectItem value="reefer_40ft">40 FT Reefer</SelectItem>
+                    <SelectItem value="open_top">Open Top</SelectItem>
+                    <SelectItem value="flat_rack">Flat Rack</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">Shipping Type</Label>
+                <Select value={shippingTypeFilter} onValueChange={v => { setShippingTypeFilter(v); setPage(1) }}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="FCL (Full Container Load)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="fcl">FCL (Full Container Load)</SelectItem>
+                    <SelectItem value="lcl">LCL (Less than Container Load)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
 
