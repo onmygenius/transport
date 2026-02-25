@@ -16,12 +16,12 @@ import { createShipment } from '@/lib/actions/shipments'
 import type { ContainerType, CargoType, TransportType } from '@/lib/types'
 
 interface PickupStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
-interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'customs'; date: string; time: string; customsDetails?: string }
+interface IntermediateStop { id: string; port: string; terminal: string; operation: 'weighbridge' | 'customs'; date: string; time: string; customsDetails?: string; weighbridgeDetails?: string }
 interface Destination { id: string; address: string; lat?: number; lng?: number; operation: 'loading' | 'unloading'; date: string; time: string }
 interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
 
 const emptyDest = (): Destination => ({ id: Math.random().toString(36).slice(2), address: '', lat: undefined, lng: undefined, operation: 'unloading', date: '', time: '' })
-const emptyIntermediateStop = (): IntermediateStop => ({ id: Math.random().toString(36).slice(2), port: '', terminal: '', operation: 'weighbridge', date: '', time: '', customsDetails: '' })
+const emptyIntermediateStop = (): IntermediateStop => ({ id: Math.random().toString(36).slice(2), port: '', terminal: '', operation: 'weighbridge', date: '', time: '', customsDetails: '', weighbridgeDetails: '' })
 
 export default function PostShipmentPage() {
   const router = useRouter()
@@ -82,7 +82,7 @@ export default function PostShipmentPage() {
         extra.special_instructions,
         cargo.cargo_weight ? `Weight: ${cargo.cargo_weight} kg` : '',
         cargo.container_category ? `Category: ${cargo.container_category}` : '',
-        intermediateStops.length > 0 ? `Intermediate Stops: ${intermediateStops.map((s, i) => `${i + 1}. ${s.port} [${s.operation}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`).join(' | ')}` : '',
+        intermediateStops.length > 0 ? `Intermediate Stops: ${intermediateStops.map((s, i) => `${i + 1}. ${s.port} [${s.operation}${s.weighbridgeDetails ? ` - ${s.weighbridgeDetails}` : ''}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`).join(' | ')}` : '',
         `Destinations: ${destinations.map((d, i) => `${i + 1}. ${d.address} [${d.operation}] ${d.date} ${d.time}`).join(' | ')}`,
       ].filter(Boolean).join('\n') || undefined,
     })
@@ -207,6 +207,16 @@ export default function PostShipmentPage() {
                               </button>
                             </div>
                           </div>
+                          {stop.operation === 'weighbridge' && (
+                            <div className="space-y-2 col-span-2">
+                              <Label>Weigh Bridge Details <span className="text-gray-400 font-normal text-xs">(e.g. hour, reference, other details)</span></Label>
+                              <Input 
+                                placeholder="e.g. 14:00, Reference #12345, Driver contact, etc." 
+                                value={stop.weighbridgeDetails || ''} 
+                                onChange={e => updateIntermediateStop(stop.id, 'weighbridgeDetails', e.target.value)} 
+                              />
+                            </div>
+                          )}
                           {stop.operation === 'customs' && (
                             <div className="space-y-2 col-span-2">
                               <Label>Customs Details <span className="text-gray-400 font-normal text-xs">(e.g. scan, gas control, other)</span></Label>
@@ -235,15 +245,22 @@ export default function PostShipmentPage() {
             </>
           )}
 
-          {intermediateStops.length < 5 && (
-            <>
+          {/* BUTTONS ROW: Add Intermediate Stop + Add Destination */}
+          <div className="grid grid-cols-2 gap-4">
+            {intermediateStops.length < 5 && (
               <button type="button" onClick={addIntermediateStop}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
-                <Plus className="h-4 w-4" /> Add intermediate stop (optional)
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
+                <Plus className="h-4 w-4" /> Add intermediate stop
               </button>
-              <div className="flex justify-center"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
-            </>
-          )}
+            )}
+            {destinations.length < 4 && (
+              <button type="button" onClick={addDest}
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 py-3 text-sm text-emerald-600 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
+                <Plus className="h-4 w-4" /> Add destination
+              </button>
+            )}
+          </div>
+          <div className="flex justify-center"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
 
           {/* DESTINATIONS */}
           {destinations.map((dest, index) => (
@@ -313,13 +330,6 @@ export default function PostShipmentPage() {
               <div className="flex justify-center mt-4"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
             </div>
           ))}
-
-          {destinations.length < 4 && (
-            <button type="button" onClick={addDest}
-              className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-3 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
-              <Plus className="h-4 w-4" /> Add another destination
-            </button>
-          )}
 
           {/* DROP */}
           <Card className="border-l-4 border-l-orange-500">
