@@ -126,12 +126,11 @@ export function ShipmentRouteMap({ locations }: Props) {
         if (validLocations.length >= 2) {
           const directionsService = new google.maps.DirectionsService()
           const directionsRenderer = new google.maps.DirectionsRenderer({
-            map,
             suppressMarkers: true, // We'll add custom markers
             polylineOptions: {
-              strokeColor: '#ef4444', // red-500
-              strokeWeight: 4,
-              strokeOpacity: 0.8
+              strokeColor: '#EF4444', // red-500
+              strokeWeight: 5,
+              strokeOpacity: 0.9
             }
           })
 
@@ -143,6 +142,7 @@ export function ShipmentRouteMap({ locations }: Props) {
             })
 
             directionsRenderer.setDirections(result)
+            directionsRenderer.setMap(map)
             console.log('Directions route displayed successfully')
           } catch (err) {
             console.error('Directions request failed, showing markers only:', err)
@@ -150,7 +150,9 @@ export function ShipmentRouteMap({ locations }: Props) {
         }
 
         // Add custom markers for all locations
+        console.log('Adding markers for', validLocations.length, 'locations')
         validLocations.forEach((loc, idx) => {
+          console.log(`Creating marker ${idx + 1}:`, loc!.label, loc!.type)
           const marker = new google.maps.Marker({
             position: loc!.position,
             map,
@@ -158,17 +160,20 @@ export function ShipmentRouteMap({ locations }: Props) {
             label: {
               text: loc!.type === 'pickup' ? 'A' : 'B',
               color: 'white',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              fontSize: '16px'
             },
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: loc!.type === 'pickup' ? '#06b6d4' : '#10b981',
+              scale: 15,
+              fillColor: '#EF4444', // red-500 - same as route color
               fillOpacity: 1,
               strokeColor: 'white',
-              strokeWeight: 2,
-            }
+              strokeWeight: 3,
+            },
+            zIndex: 1000
           })
+          console.log('Marker created:', marker)
 
           // Add info window
           const infoWindow = new google.maps.InfoWindow({
@@ -180,8 +185,17 @@ export function ShipmentRouteMap({ locations }: Props) {
           })
         })
 
-        // Fit map to show all markers
+        // Fit map to show all markers - do this after markers are added
+        console.log('Fitting map bounds to show all markers')
         map.fitBounds(bounds)
+        
+        // Add some padding to ensure markers are visible
+        setTimeout(() => {
+          const currentZoom = map.getZoom()
+          if (currentZoom && currentZoom > 10) {
+            map.setZoom(currentZoom - 1)
+          }
+        }, 100)
 
         setLoading(false)
       } catch (err) {
