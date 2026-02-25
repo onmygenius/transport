@@ -64,7 +64,6 @@ export default function PostShipmentPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [budgetVisible, setBudgetVisible] = useState(true)
 
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [stops, setStops] = useState<Stop[]>([])
@@ -109,7 +108,7 @@ export default function PostShipmentPage() {
       pickup_date: pickup.time ? `${pickup.date}T${pickup.time}` : pickup.date,
       delivery_date: drop.date ? (drop.time ? `${drop.date}T${drop.time}` : drop.date) : undefined,
       budget: extra.budget ? parseFloat(extra.budget) : undefined,
-      budget_visible: budgetVisible,
+      budget_visible: true,
       currency: extra.currency,
       special_instructions: [
         extra.special_instructions,
@@ -478,19 +477,6 @@ export default function PostShipmentPage() {
                 <div className="space-y-2">
                   <Label>Estimated Budget (EUR)</Label>
                   <Input type="number" placeholder="e.g. 2000" value={extra.budget} onChange={e => setExtra(p => ({ ...p, budget: e.target.value }))} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Show Budget to Transporters</Label>
-                  <div className="flex items-center gap-3 h-9">
-                    <button
-                      type="button"
-                      onClick={() => setBudgetVisible(!budgetVisible)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${budgetVisible ? 'bg-emerald-600' : 'bg-gray-300'}`}
-                    >
-                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${budgetVisible ? 'translate-x-6' : 'translate-x-1'}`} />
-                    </button>
-                    <span className="text-sm text-gray-600">{budgetVisible ? 'Visible' : 'Hidden'}</span>
-                  </div>
                 </div>
                 <div className="space-y-2 col-span-2">
                   <Label>Special Instructions (optional)</Label>
