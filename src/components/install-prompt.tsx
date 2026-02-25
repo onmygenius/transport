@@ -18,31 +18,44 @@ export function InstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
+    console.log('InstallPrompt: useEffect triggered')
+    
     // Check if running as standalone app
     const standalone = window.matchMedia('(display-mode: standalone)').matches
     setIsStandalone(standalone)
+    console.log('InstallPrompt: standalone =', standalone)
 
     // Detect iOS
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
     setIsIOS(ios)
+    console.log('InstallPrompt: iOS =', ios)
 
     // Detect mobile
     const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     setIsMobile(mobile)
+    console.log('InstallPrompt: mobile =', mobile)
 
     // Don't show if already installed or not mobile
-    if (standalone || !mobile) {
+    if (standalone) {
+      console.log('InstallPrompt: Already installed, not showing')
+      return
+    }
+
+    if (!mobile) {
+      console.log('InstallPrompt: Not mobile, not showing')
       return
     }
 
     // Check if user already dismissed the prompt
     const dismissed = localStorage.getItem('pwa-install-dismissed')
     if (dismissed) {
+      console.log('InstallPrompt: User dismissed, not showing')
       return
     }
 
     // For Android - listen for beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('InstallPrompt: beforeinstallprompt event fired')
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
       setShowPrompt(true)
@@ -50,16 +63,15 @@ export function InstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
-    // For iOS - show prompt after 3 seconds
-    if (ios) {
-      const timer = setTimeout(() => {
-        setShowPrompt(true)
-      }, 3000)
-      return () => clearTimeout(timer)
-    }
+    // Show prompt after 2 seconds for all mobile devices
+    const timer = setTimeout(() => {
+      console.log('InstallPrompt: Timer fired, showing prompt')
+      setShowPrompt(true)
+    }, 2000)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      clearTimeout(timer)
     }
   }, [])
 
