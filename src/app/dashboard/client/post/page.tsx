@@ -209,7 +209,7 @@ export default function PostShipmentPage() {
                           </div>
                           {stop.operation === 'weighbridge' && (
                             <div className="space-y-2 col-span-2">
-                              <Label>Weigh Bridge Details <span className="text-gray-400 font-normal text-xs">(e.g. hour, reference, other details)</span></Label>
+                              <Label>Weighbridge Details <span className="text-gray-400 font-normal text-xs">(e.g. hour, reference, other details)</span></Label>
                               <Input 
                                 placeholder="e.g. 14:00, Reference #12345, Driver contact, etc." 
                                 value={stop.weighbridgeDetails || ''} 
