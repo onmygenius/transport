@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Truck, ChevronLeft, ChevronRight, CheckCircle, Loader2 } from 'lucide-react'
 import { updateShipmentStatus } from '@/lib/actions/shipments'
+import Link from 'next/link'
 
 interface Client {
   id: string
@@ -142,6 +143,11 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
+                            <Link href={`/dashboard/transporter/shipments/${job.id}`}>
+                              <Button variant="outline" size="sm" className="h-7 text-xs">
+                                View Details
+                              </Button>
+                            </Link>
                             {job.status === 'confirmed' && (
                               <Button
                                 size="sm"
