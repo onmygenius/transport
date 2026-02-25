@@ -44,6 +44,12 @@ function parseCategory(instructions: string | null): string {
   return match ? match[1].trim().replace(/_/g, ' ') : ''
 }
 
+function parseManualInstructions(instructions: string | null): string {
+  if (!instructions) return ''
+  const lines = instructions.split('\n')
+  return lines[0] || ''
+}
+
 interface Stop {
   address: string
   operation: 'loading' | 'unloading' | 'both'
@@ -157,6 +163,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
   const category = parseCategory(shipment.special_instructions)
   const intermediateStops = parseIntermediateStops(shipment.special_instructions)
   const destinations = parseDestinations(shipment.special_instructions)
+  const manualInstructions = parseManualInstructions(shipment.special_instructions)
   const pickupTerminal = shipment.origin_address?.split(' | ')[0] || ''
   const pickupContainerRef = shipment.origin_address?.split(' | ')[1] || ''
   const pickupSeal = shipment.origin_address?.split(' | ')[2] || ''
@@ -501,6 +508,18 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                     <CheckCircle className="h-4 w-4" />
                     Accept Shipment
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Special Instructions */}
+            {manualInstructions && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Special Instructions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{manualInstructions}</p>
                 </CardContent>
               </Card>
             )}

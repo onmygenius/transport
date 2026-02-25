@@ -39,12 +39,19 @@ export function ShipmentDocuments({ shipmentId, userRole, canUpload, initialDocu
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handleFileSelect called')
     const file = e.target.files?.[0]
-    if (!file) return
+    console.log('Selected file:', file)
+    if (!file) {
+      console.log('No file selected')
+      return
+    }
 
     setError(null)
     setSuccess(null)
     setUploading(true)
+
+    console.log('Creating FormData with:', { shipmentId, selectedType, fileName: file.name, fileSize: file.size })
 
     const formData = new FormData()
     formData.append('shipment_id', shipmentId)
@@ -52,7 +59,9 @@ export function ShipmentDocuments({ shipmentId, userRole, canUpload, initialDocu
     formData.append('file', file)
     if (notes) formData.append('notes', notes)
 
+    console.log('Calling uploadDocument...')
     const result = await uploadDocument(formData)
+    console.log('Upload result:', result)
 
     if (result.success && result.data) {
       setDocuments(prev => [result.data!, ...prev])
@@ -60,6 +69,7 @@ export function ShipmentDocuments({ shipmentId, userRole, canUpload, initialDocu
       setNotes('')
       if (fileInputRef.current) fileInputRef.current.value = ''
     } else {
+      console.error('Upload failed:', result.error)
       setError(result.error || 'Upload failed')
     }
 
@@ -167,10 +177,19 @@ export function ShipmentDocuments({ shipmentId, userRole, canUpload, initialDocu
                 onChange={handleFileSelect}
                 disabled={uploading}
                 className="hidden"
+                id="document-file-input"
               />
               <Button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.preventDefault()
+                  console.log('Button clicked, fileInputRef:', fileInputRef.current)
+                  if (fileInputRef.current) {
+                    fileInputRef.current.click()
+                  } else {
+                    console.error('File input ref is null')
+                  }
+                }}
                 disabled={uploading}
                 className="w-full"
               >

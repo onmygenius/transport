@@ -24,6 +24,7 @@ interface Shipment {
   cargo_weight: number
   pickup_date: string
   status: string
+  budget: number | null
   agreed_price: number | null
   offers: { count: number }[]
 }
@@ -180,7 +181,9 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                             ? <span className="text-sm font-bold text-gray-900">€{s.agreed_price.toLocaleString()}</span>
                             : count > 0
                               ? <Link href={`/dashboard/client/shipments/${s.id}`} className="text-xs font-semibold text-blue-600 hover:underline">{count} offer{count !== 1 ? 's' : ''}</Link>
-                              : <span className="text-xs text-gray-400">—</span>
+                              : s.budget
+                                ? <span className="text-sm font-medium text-gray-600">€{s.budget.toLocaleString()}</span>
+                                : <span className="text-xs text-gray-400">—</span>
                           }
                         </td>
                         <td className="px-6 py-4">

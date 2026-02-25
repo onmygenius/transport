@@ -6,7 +6,7 @@ import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, XCircle, Star, ArrowLeft, Package, MapPin, Calendar, Weight } from 'lucide-react'
+import { CheckCircle, XCircle, Star, ArrowLeft, Package, MapPin, Calendar, Weight, Navigation, TruckIcon, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { acceptOffer, rejectOffer } from '@/lib/actions/offers'
 import { ShipmentDocuments } from '@/components/shipment-documents'
@@ -53,6 +53,80 @@ interface Shipment {
   offers: Offer[]
 }
 
+// Helper functions to parse special_instructions
+function parseManualInstructions(instructions: string | null): string {
+  if (!instructions) return ''
+  const lines = instructions.split('\n')
+  return lines[0] || ''
+}
+
+function parseWeight(instructions: string | null): string {
+  if (!instructions) return ''
+  const match = instructions.match(/Weight:\s*([^\n]+)/)
+  return match ? match[1].trim() : ''
+}
+
+function parseCategory(instructions: string | null): string {
+  if (!instructions) return ''
+  const match = instructions.match(/Category:\s*([^\n]+)/)
+  return match ? match[1].trim() : ''
+}
+
+interface Stop {
+  number: number
+  location: string
+  operation: string
+  details?: string
+  date: string
+  time: string
+}
+
+function parseIntermediateStops(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  const match = instructions.match(/Intermediate Stops:\s*([^\n]+)/)
+  if (!match) return []
+  
+  const stopsText = match[1]
+  const stopPattern = /(\d+)\. ([^\[]+) \[([^\]]+)\] (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/g
+  const stops: Stop[] = []
+  let m
+  
+  while ((m = stopPattern.exec(stopsText)) !== null) {
+    stops.push({
+      number: parseInt(m[1]),
+      location: m[2].trim(),
+      operation: m[3].trim(),
+      date: m[4],
+      time: m[5]
+    })
+  }
+  
+  return stops
+}
+
+function parseDestinations(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  const match = instructions.match(/Destinations:\s*([^\n]+)/)
+  if (!match) return []
+  
+  const destText = match[1]
+  const destPattern = /(\d+)\. ([^\[]+) \[([^\]]+)\] (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/g
+  const destinations: Stop[] = []
+  let m
+  
+  while ((m = destPattern.exec(destText)) !== null) {
+    destinations.push({
+      number: parseInt(m[1]),
+      location: m[2].trim(),
+      operation: m[3].trim(),
+      date: m[4],
+      time: m[5]
+    })
+  }
+  
+  return destinations
+}
+
 const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' | 'default' | 'success' | 'destructive' | 'secondary' }> = {
   pending: { label: 'Pending', variant: 'warning' },
   offer_received: { label: 'Offer Received', variant: 'info' },
@@ -72,6 +146,11 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
 
   const pendingOffers = shipment.offers.filter(o => o.status === 'pending').sort((a, b) => a.price - b.price)
   const cfg = statusConfig[shipment.status] ?? { label: shipment.status, variant: 'secondary' as const }
+  
+  // Parse special instructions
+  const manualInstructions = parseManualInstructions(shipment.special_instructions)
+  const intermediateStops = parseIntermediateStops(shipment.special_instructions)
+  const destinations = parseDestinations(shipment.special_instructions)
 
   const handleAccept = async (offerId: string) => {
     setActionLoading(offerId)
@@ -119,27 +198,73 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="lg:col-span-1 space-y-4">
             <Card>
-              <CardHeader><CardTitle className="text-base">Route</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs text-gray-500">Origin</p>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><Navigation className="h-4 w-4" />Route</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                {/* Origin */}
+                <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 shrink-0">
+                    <MapPin className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-emerald-600 mb-0.5">Pick-up</p>
                     <p className="text-sm font-semibold text-gray-900">{shipment.origin_city}, {shipment.origin_country}</p>
+                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                      <Calendar className="h-3 w-3" />
+                      <span>{shipment.pickup_date}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs text-gray-500">Destination</p>
+
+                {/* Intermediate Stops */}
+                {intermediateStops.map((stop, idx) => (
+                  <div key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 shrink-0">
+                      <TruckIcon className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-blue-600 mb-0.5">Stop {stop.number}</p>
+                      <p className="text-sm font-semibold text-gray-900">{stop.location}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>
+                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        <span>{stop.date} {stop.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Destinations */}
+                {destinations.map((dest, idx) => (
+                  <div key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 shrink-0">
+                      <MapPin className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-orange-600 mb-0.5">Destination {dest.number}</p>
+                      <p className="text-sm font-semibold text-gray-900">{dest.location}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{dest.operation}</p>
+                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        <span>{dest.date} {dest.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Final Destination */}
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 shrink-0">
+                    <MapPin className="h-4 w-4 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-red-600 mb-0.5">Drop-off</p>
                     <p className="text-sm font-semibold text-gray-900">{shipment.destination_city}, {shipment.destination_country}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Calendar className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs text-gray-500">Pickup Date</p>
-                    <p className="text-sm font-semibold text-gray-900">{shipment.pickup_date}</p>
+                    {shipment.delivery_date && (
+                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                        <Calendar className="h-3 w-3" />
+                        <span>{shipment.delivery_date}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -183,11 +308,11 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
               </Card>
             )}
 
-            {shipment.special_instructions && (
+            {manualInstructions && (
               <Card>
-                <CardHeader><CardTitle className="text-base">Instructions</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-base">Special Instructions</CardTitle></CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">{shipment.special_instructions}</p>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{manualInstructions}</p>
                 </CardContent>
               </Card>
             )}
