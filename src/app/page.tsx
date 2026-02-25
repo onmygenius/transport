@@ -9,7 +9,7 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Trade Container" width={160} height={60} className="object-contain" />
+            <Image src="/logo-site.png" alt="Trade Container" width={160} height={60} className="object-contain" />
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#hero" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Home</a>
@@ -300,7 +300,7 @@ export default function HomePage() {
       <footer className="border-t border-gray-200 bg-white py-10">
         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Trade Container" width={140} height={50} className="object-contain" />
+            <Image src="/logo-site.png" alt="Trade Container" width={140} height={50} className="object-contain" />
           </div>
           <p className="text-sm text-gray-500">© 2026 Trade Container. All rights reserved.</p>
           <div className="flex gap-6">

@@ -92,7 +92,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen bg-gray-50">
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Trade Container" width={160} height={60} className="object-contain" />
+          <Image src="/logo-site.png" alt="Trade Container" width={160} height={60} className="object-contain" />
         </div>
         <div>
           <h1 className="text-4xl font-bold text-white leading-tight">
@@ -121,7 +121,7 @@ export default function RegisterPage() {
       <div className="flex flex-1 items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Image src="/logo.png" alt="Trade Container" width={140} height={50} className="object-contain" />
+            <Image src="/logo-site.png" alt="Trade Container" width={140} height={50} className="object-contain" />
           </div>
 
           <div className="mb-6">

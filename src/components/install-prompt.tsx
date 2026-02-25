@@ -93,9 +93,11 @@ export function InstallPrompt() {
         <div className="p-4">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
-                <Smartphone className="w-6 h-6 text-white" />
-              </div>
+              <img 
+                src="/logo-pwa.png" 
+                alt="TRADE CONTAINER" 
+                className="w-12 h-12 rounded-lg"
+              />
             </div>
             
             <div className="flex-1 min-w-0">
