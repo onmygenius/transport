@@ -27,9 +27,10 @@ const navItems = [
 interface TransporterSidebarProps {
   companyName?: string
   email?: string
+  unreadMessagesCount?: number
 }
 
-export function TransporterSidebar({ companyName, email }: TransporterSidebarProps) {
+export function TransporterSidebar({ companyName, email, unreadMessagesCount = 0 }: TransporterSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -57,12 +58,15 @@ export function TransporterSidebar({ companyName, email }: TransporterSidebarPro
             const isActive = item.href === '/dashboard/transporter'
               ? pathname === item.href
               : pathname.startsWith(item.href)
+            const isMessages = item.href === '/dashboard/transporter/messages'
+            const showBadge = isMessages && unreadMessagesCount > 0
+            
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative',
                     isActive
                       ? 'bg-blue-50 text-blue-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -70,6 +74,11 @@ export function TransporterSidebar({ companyName, email }: TransporterSidebarPro
                 >
                   <item.icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-blue-600' : 'text-gray-400')} />
                   {item.title}
+                  {showBadge && (
+                    <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                      {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             )

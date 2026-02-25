@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ClientSidebar } from '@/components/client/sidebar'
+import { getUnreadMessagesCount } from '@/lib/actions/messages'
 
 export default async function ClientLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -16,11 +17,14 @@ export default async function ClientLayout({ children }: { children: React.React
 
   if (!profile || profile.role !== 'client') redirect('/dashboard')
 
+  const unreadCount = await getUnreadMessagesCount()
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <ClientSidebar
         companyName={profile.company_name || profile.full_name || 'My Company'}
         email={profile.email}
+        unreadMessagesCount={unreadCount}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
         {children}
