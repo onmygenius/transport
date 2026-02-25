@@ -70,7 +70,7 @@ export default function PostShipmentPage() {
       destination_address: [drop.terminal, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : ''].filter(Boolean).join(' | ') || undefined,
       container_type: cargo.container_type,
       container_count: cargo.container_count,
-      cargo_weight: 1,
+      cargo_weight: parseFloat(cargo.cargo_weight) || 1,
       cargo_type: (cargo.cargo_type || 'dangerous') as CargoType,
       transport_type: cargo.transport_type,
       pickup_date: pickup.time ? `${pickup.date}T${pickup.time}` : pickup.date,
