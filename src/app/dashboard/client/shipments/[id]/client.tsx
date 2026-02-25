@@ -145,6 +145,7 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
   const [error, setError] = useState<string | null>(null)
 
   const pendingOffers = shipment.offers.filter(o => o.status === 'pending').sort((a, b) => a.price - b.price)
+  const acceptedOffers = shipment.offers.filter(o => o.status === 'accepted')
   const cfg = statusConfig[shipment.status] ?? { label: shipment.status, variant: 'secondary' as const }
   
   // Parse special instructions
@@ -331,7 +332,46 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                {pendingOffers.length === 0 ? (
+                {/* Show accepted offers when shipment is confirmed */}
+                {['confirmed', 'in_transit', 'delivered', 'completed'].includes(shipment.status) && acceptedOffers.length > 0 ? (
+                  <div className="divide-y divide-gray-100">
+                    {acceptedOffers.map((offer, i) => {
+                      const name = offer.transporter.company_name || offer.transporter.full_name || 'Unknown'
+                      return (
+                        <div key={offer.id} className="p-6 bg-emerald-50">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold bg-emerald-200 text-emerald-800">
+                                <CheckCircle className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-semibold text-gray-900">{name}</p>
+                                  {offer.transporter.kyc_status === 'approved' && (
+                                    <CheckCircle className="h-3.5 w-3.5 text-blue-500" />
+                                  )}
+                                  <span className="text-xs text-gray-400">{offer.transporter.company_country}</span>
+                                </div>
+                                <p className="text-xs text-gray-500">{offer.estimated_days} days delivery · Available from {offer.available_from}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xl font-bold text-emerald-700">€{offer.price.toLocaleString()}</p>
+                              <Badge variant="default" className="mt-1 bg-emerald-600">Accepted</Badge>
+                            </div>
+                          </div>
+
+                          {offer.message && (
+                            <div className="bg-white rounded-lg p-3 border border-emerald-200">
+                              <p className="text-xs font-medium text-emerald-700 mb-1">Message from transporter:</p>
+                              <p className="text-sm text-gray-600">{offer.message}</p>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : pendingOffers.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                     <Package className="h-10 w-10 mb-3 opacity-30" />
                     <p className="text-sm font-medium">
