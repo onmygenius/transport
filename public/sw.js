@@ -1,8 +1,7 @@
 const CACHE_NAME = 'freightex-v1';
 const urlsToCache = [
   '/',
-  '/dashboard',
-  '/logo.png',
+  '/logo-pwa.png',
   '/manifest.json'
 ];
 
