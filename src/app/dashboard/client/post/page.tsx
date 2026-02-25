@@ -245,23 +245,6 @@ export default function PostShipmentPage() {
             </>
           )}
 
-          {/* BUTTONS ROW: Add Intermediate Stop + Add Destination */}
-          <div className="grid grid-cols-2 gap-4">
-            {intermediateStops.length < 5 && (
-              <button type="button" onClick={addIntermediateStop}
-                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
-                <Plus className="h-4 w-4" /> Add intermediate stop
-              </button>
-            )}
-            {destinations.length < 4 && (
-              <button type="button" onClick={addDest}
-                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 py-3 text-sm text-emerald-600 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
-                <Plus className="h-4 w-4" /> Add destination
-              </button>
-            )}
-          </div>
-          <div className="flex justify-center"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
-
           {/* DESTINATIONS */}
           {destinations.map((dest, index) => (
             <div key={dest.id}>
@@ -330,6 +313,23 @@ export default function PostShipmentPage() {
               <div className="flex justify-center mt-4"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
             </div>
           ))}
+
+          {/* BUTTONS ROW: Add Intermediate Stop + Add Destination - MEREU JOS */}
+          <div className="grid grid-cols-2 gap-4">
+            {intermediateStops.length < 5 && (
+              <button type="button" onClick={addIntermediateStop}
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
+                <Plus className="h-4 w-4" /> Add intermediate stop
+              </button>
+            )}
+            {destinations.length < 4 && (
+              <button type="button" onClick={addDest}
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 py-3 text-sm text-emerald-600 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
+                <Plus className="h-4 w-4" /> Add destination
+              </button>
+            )}
+          </div>
+          <div className="flex justify-center"><ArrowDown className="h-5 w-5 text-gray-400" /></div>
 
           {/* DROP */}
           <Card className="border-l-4 border-l-orange-500">
