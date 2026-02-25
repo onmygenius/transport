@@ -1,8 +1,7 @@
 const CACHE_NAME = 'freightex-v1';
 const urlsToCache = [
   '/',
-  '/logo-pwa.png',
-  '/manifest.webmanifest'
+  '/logo-pwa.png'
 ];
 
 self.addEventListener('install', (event) => {
