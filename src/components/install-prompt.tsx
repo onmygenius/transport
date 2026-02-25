@@ -18,23 +18,33 @@ export function InstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
+    console.log('InstallPrompt: Component mounted')
+    
     // Check if running as standalone app
     const standalone = window.matchMedia('(display-mode: standalone)').matches
+    console.log('InstallPrompt: standalone =', standalone)
     if (standalone) {
+      console.log('InstallPrompt: App already installed, not showing prompt')
       return
     }
 
     // Check if user already dismissed the prompt
     const dismissed = localStorage.getItem('pwa-install-dismissed')
+    console.log('InstallPrompt: dismissed =', dismissed)
     if (dismissed) {
+      console.log('InstallPrompt: User dismissed prompt, not showing. Clear localStorage to test again.')
       return
     }
 
+    console.log('InstallPrompt: Waiting for beforeinstallprompt event...')
+
     // Listen for beforeinstallprompt event (Android Chrome/Edge)
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('InstallPrompt: beforeinstallprompt event fired!', e)
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
       setShowPrompt(true)
+      console.log('InstallPrompt: Prompt will be shown')
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
