@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, MapPin, Calendar, Package, Truck, Ship, Lock, Star, CheckCircle } from 'lucide-react'
+import { Search, MapPin, Calendar, Package, Truck, Ship, Lock, Star, CheckCircle, Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,95 +10,58 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import Link from 'next/link'
 
-// Mock data - hardcoded realistic results
-const MOCK_RESULTS = [
-  {
-    id: '1',
-    type: 'transporter',
-    company: 'EuroTrans Logistics',
-    rating: 4.8,
-    reviews: 127,
-    route: 'Rotterdam → Hamburg',
-    available: 'Mar 15-20, 2024',
-    containerType: '40ft HC',
-    price: 1250,
-    verified: true,
-    fleet: '45 trucks',
-    country: 'Netherlands'
-  },
-  {
-    id: '2',
-    type: 'transporter',
-    company: 'Baltic Freight Solutions',
-    rating: 4.9,
-    reviews: 203,
-    route: 'Rotterdam → Hamburg',
-    available: 'Mar 16-22, 2024',
-    containerType: '40ft HC, 20ft',
-    price: 1180,
-    verified: true,
-    fleet: '62 trucks',
-    country: 'Germany'
-  },
-  {
-    id: '3',
-    type: 'shipment',
-    company: 'Global Trade GmbH',
-    rating: 4.7,
-    reviews: 89,
-    route: 'Rotterdam → Berlin',
-    pickup: 'Mar 18, 2024',
-    delivery: 'Mar 20, 2024',
-    containerType: '40ft HC',
-    cargoType: 'Electronics',
-    price: 1400,
-    verified: true,
-    terminal: 'APM Terminal Rotterdam'
-  },
-  {
-    id: '4',
-    type: 'transporter',
-    company: 'Scandinavia Express',
-    rating: 4.6,
-    reviews: 156,
-    route: 'Hamburg → Copenhagen',
-    available: 'Mar 17-25, 2024',
-    containerType: '40ft HC, Reefer',
-    price: 980,
-    verified: true,
-    fleet: '38 trucks',
-    country: 'Denmark'
-  },
-  {
-    id: '5',
-    type: 'shipment',
-    company: 'Mediterranean Shipping Co',
-    rating: 4.9,
-    reviews: 234,
-    route: 'Antwerp → Milan',
-    pickup: 'Mar 19, 2024',
-    delivery: 'Mar 22, 2024',
-    containerType: '20ft',
-    cargoType: 'Textiles',
-    price: 1650,
-    verified: true,
-    terminal: 'Port of Antwerp'
-  }
-]
+interface SearchResult {
+  id: string
+  type: string
+  company: string
+  verified: boolean
+  route: string
+  pickup?: string
+  delivery?: string
+  containerType: string
+  transportType?: string
+  price: number | null
+  priceVisible: boolean
+  currency: string
+  status: string
+}
 
 export default function FreightSearch() {
   const [searchType, setSearchType] = useState<'client' | 'transporter'>('client')
   const [showResults, setShowResults] = useState(false)
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [loading, setLoading] = useState(false)
   const [filters, setFilters] = useState({
     origin: '',
     destination: '',
     date: '',
     containerType: '',
-    shippingType: 'FCL'
+    shippingType: 'fcl'
   })
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    setLoading(true)
     setShowResults(true)
+    
+    try {
+      const params = new URLSearchParams()
+      if (filters.origin) params.append('origin', filters.origin)
+      if (filters.destination) params.append('destination', filters.destination)
+      if (filters.date) params.append('date', filters.date)
+      if (filters.containerType) params.append('containerType', filters.containerType)
+      if (filters.shippingType) params.append('shippingType', filters.shippingType)
+      
+      const response = await fetch(`/api/search-shipments?${params.toString()}`)
+      const data = await response.json()
+      
+      if (data.results) {
+        setResults(data.results)
+      }
+    } catch (error) {
+      console.error('Search error:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -185,15 +148,14 @@ export default function FreightSearch() {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="20ft">20ft Standard</SelectItem>
-                    <SelectItem value="40ft">40ft Standard</SelectItem>
-                    <SelectItem value="40hc">40ft High Cube</SelectItem>
-                    <SelectItem value="45hc">45ft High Cube</SelectItem>
-                    <SelectItem value="reefer20">20ft Reefer</SelectItem>
-                    <SelectItem value="reefer40">40ft Reefer</SelectItem>
-                    <SelectItem value="opentop">Open Top</SelectItem>
-                    <SelectItem value="flatrack">Flat Rack</SelectItem>
-                    <SelectItem value="tank">Tank Container</SelectItem>
+                    <SelectItem value="20ft">20 FT</SelectItem>
+                    <SelectItem value="40ft">40 FT</SelectItem>
+                    <SelectItem value="40ft_hc">40 FT HC</SelectItem>
+                    <SelectItem value="45ft">45 FT</SelectItem>
+                    <SelectItem value="reefer_20ft">20 FT Reefer</SelectItem>
+                    <SelectItem value="reefer_40ft">40 FT Reefer</SelectItem>
+                    <SelectItem value="open_top">Open Top</SelectItem>
+                    <SelectItem value="flat_rack">Flat Rack</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -206,19 +168,21 @@ export default function FreightSearch() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="FCL">FCL (Full Container Load)</SelectItem>
-                    <SelectItem value="LCL">LCL (Less than Container)</SelectItem>
-                    <SelectItem value="FTL">FTL (Full Truck Load)</SelectItem>
-                    <SelectItem value="LTL">LTL (Less than Truck)</SelectItem>
+                    <SelectItem value="fcl">FCL (Full Container Load)</SelectItem>
+                    <SelectItem value="lcl">LCL (Less than Container Load)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <Button onClick={handleSearch} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" size="lg">
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="hidden sm:inline">Search {searchType === 'client' ? 'Transporters' : 'Available Cargo'}</span>
-              <span className="sm:hidden">Search</span>
+            <Button onClick={handleSearch} disabled={loading} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" size="lg">
+              {loading ? (
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+              <span className="hidden sm:inline">{loading ? 'Searching...' : `Search ${searchType === 'client' ? 'Transporters' : 'Available Cargo'}`}</span>
+              <span className="sm:hidden">{loading ? 'Searching...' : 'Search'}</span>
             </Button>
           </CardContent>
         </Card>
@@ -228,7 +192,7 @@ export default function FreightSearch() {
           <div className="mt-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-xs sm:text-sm text-gray-600">
-                <span className="font-semibold text-gray-900">{MOCK_RESULTS.length} results</span> found for your search
+                <span className="font-semibold text-gray-900">{results.length} results</span> found for your search
               </p>
               <Select defaultValue="relevance">
                 <SelectTrigger className="w-full sm:w-40">
@@ -244,7 +208,18 @@ export default function FreightSearch() {
               </Select>
             </div>
 
-            {MOCK_RESULTS.map((result, idx) => (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              </div>
+            ) : results.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No shipments found. Try adjusting your filters.</p>
+                </CardContent>
+              </Card>
+            ) : results.map((result) => (
               <Card key={result.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col lg:flex-row items-start justify-between gap-4 lg:gap-6">
@@ -252,11 +227,7 @@ export default function FreightSearch() {
                     <div className="flex-1 w-full">
                       <div className="flex items-center gap-2 sm:gap-3 mb-3">
                         <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-blue-100">
-                          {result.type === 'transporter' ? (
-                            <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-                          ) : (
-                            <Ship className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
-                          )}
+                          <Ship className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -266,14 +237,7 @@ export default function FreightSearch() {
                             )}
                           </div>
                           <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-400 text-amber-400" />
-                              <span className="text-xs sm:text-sm font-medium text-gray-700">{result.rating}</span>
-                              <span className="text-xs text-gray-500">({result.reviews})</span>
-                            </div>
-                            {result.type === 'transporter' && result.fleet && (
-                              <Badge variant="secondary" className="text-xs">{result.fleet}</Badge>
-                            )}
+                            <Badge variant="secondary" className="text-xs">{result.status}</Badge>
                           </div>
                         </div>
                       </div>
@@ -284,23 +248,17 @@ export default function FreightSearch() {
                           <p className="font-medium text-gray-900 text-xs sm:text-sm">{result.route}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-0.5">
-                            {result.type === 'transporter' ? 'Available' : 'Pickup'}
-                          </p>
-                          <p className="font-medium text-gray-900 text-xs sm:text-sm">
-                            {result.type === 'transporter' ? result.available : result.pickup}
-                          </p>
+                          <p className="text-xs text-gray-500 mb-0.5">Pickup</p>
+                          <p className="font-medium text-gray-900 text-xs sm:text-sm">{result.pickup}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 mb-0.5">Container</p>
                           <Badge variant="outline" className="text-xs">{result.containerType}</Badge>
                         </div>
-                        {result.type === 'shipment' && result.cargoType && (
-                          <div>
-                            <p className="text-xs text-gray-500 mb-0.5">Cargo</p>
-                            <Badge variant="outline" className="text-xs">{result.cargoType}</Badge>
-                          </div>
-                        )}
+                        <div>
+                          <p className="text-xs text-gray-500 mb-0.5">Transport</p>
+                          <Badge variant="outline" className="text-xs">{result.transportType?.toUpperCase()}</Badge>
+                        </div>
                       </div>
                     </div>
 
@@ -308,10 +266,17 @@ export default function FreightSearch() {
                     <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 sm:gap-3 w-full lg:w-auto lg:min-w-[200px] mt-3 lg:mt-0">
                       {/* Price - BLURRED */}
                       <div className="relative flex-1 lg:flex-none lg:w-full">
-                        <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
-                          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">€{result.price}</p>
-                          <p className="text-xs text-gray-500">Total</p>
-                        </div>
+                        {result.price && result.priceVisible ? (
+                          <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
+                            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{result.currency === 'EUR' ? '€' : '$'}{result.price.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">Total</p>
+                          </div>
+                        ) : (
+                          <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
+                            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">€****</p>
+                            <p className="text-xs text-gray-500">Total</p>
+                          </div>
+                        )}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="flex items-center gap-1.5 bg-gray-900/80 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium">
                             <Lock className="h-3 w-3" />
