@@ -189,8 +189,8 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
                             <Link href={`/dashboard/client/shipments/${s.id}`}>
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <Eye className="h-3.5 w-3.5" />
+                              <Button variant="outline" size="sm" className="h-7 text-xs">
+                                View/Edit
                               </Button>
                             </Link>
                             {s.status === 'delivered' && (
