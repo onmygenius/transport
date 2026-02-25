@@ -11,6 +11,23 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
+  // Check if user is authenticated and has active subscription
+  const { data: { user } } = await supabase.auth.getUser()
+  let hasActiveSubscription = false
+
+  if (user) {
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('status, expires_at')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single()
+
+    if (subscription && new Date(subscription.expires_at) > new Date()) {
+      hasActiveSubscription = true
+    }
+  }
+
   let query = supabase
     .from('shipments')
     .select(`
@@ -73,5 +90,5 @@ export async function GET(request: NextRequest) {
     status: s.status
   }))
 
-  return NextResponse.json({ results })
+  return NextResponse.json({ results, hasActiveSubscription })
 }

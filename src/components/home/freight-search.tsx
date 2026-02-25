@@ -31,6 +31,7 @@ export default function FreightSearch() {
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
   const [filters, setFilters] = useState({
     origin: '',
     destination: '',
@@ -56,6 +57,7 @@ export default function FreightSearch() {
       
       if (data.results) {
         setResults(data.results)
+        setHasActiveSubscription(data.hasActiveSubscription || false)
       }
     } catch (error) {
       console.error('Search error:', error)
@@ -264,35 +266,64 @@ export default function FreightSearch() {
 
                     {/* Right: Price & Actions (LOCKED for non-premium) */}
                     <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 sm:gap-3 w-full lg:w-auto lg:min-w-[200px] mt-3 lg:mt-0">
-                      {/* Price - BLURRED */}
+                      {/* Price - VISIBLE or BLURRED based on subscription */}
                       <div className="relative flex-1 lg:flex-none lg:w-full">
-                        {result.price && result.priceVisible ? (
-                          <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
-                            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{result.currency === 'EUR' ? '€' : '$'}{result.price.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">Total</p>
+                        {hasActiveSubscription ? (
+                          // User has active subscription - show real price
+                          <div className="text-center lg:text-right">
+                            {result.price && result.priceVisible ? (
+                              <>
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{result.currency === 'EUR' ? '€' : '$'}{result.price.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Total</p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-500">—</p>
+                                <p className="text-xs text-gray-500">Price hidden</p>
+                              </>
+                            )}
                           </div>
                         ) : (
-                          <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
-                            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">€****</p>
-                            <p className="text-xs text-gray-500">Total</p>
-                          </div>
+                          // User doesn't have subscription - blur price
+                          <>
+                            {result.price && result.priceVisible ? (
+                              <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">{result.currency === 'EUR' ? '€' : '$'}{result.price.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Total</p>
+                              </div>
+                            ) : (
+                              <div className="text-center lg:text-right blur-sm pointer-events-none select-none">
+                                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">€****</p>
+                                <p className="text-xs text-gray-500">Total</p>
+                              </div>
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="flex items-center gap-1.5 bg-gray-900/80 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium">
+                                <Lock className="h-3 w-3" />
+                                <span className="hidden sm:inline">Locked</span>
+                              </div>
+                            </div>
+                          </>
                         )}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex items-center gap-1.5 bg-gray-900/80 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium">
-                            <Lock className="h-3 w-3" />
-                            <span className="hidden sm:inline">Locked</span>
-                          </div>
-                        </div>
                       </div>
 
-                      {/* View Details - LOCKED */}
-                      <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
-                        <Link href="/register">
-                          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                          <span className="hidden sm:inline">Unlock Details</span>
-                          <span className="sm:hidden">Unlock</span>
-                        </Link>
-                      </Button>
+                      {/* View Details or Unlock Details based on subscription */}
+                      {hasActiveSubscription ? (
+                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
+                          <Link href={`/dashboard/${searchType === 'client' ? 'client' : 'transporter'}/shipments/${result.id}`}>
+                            <span className="hidden sm:inline">View Details</span>
+                            <span className="sm:hidden">View</span>
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
+                          <Link href="/register">
+                            <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">Unlock Details</span>
+                            <span className="sm:hidden">Unlock</span>
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
