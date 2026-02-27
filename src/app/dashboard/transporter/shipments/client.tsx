@@ -35,7 +35,27 @@ interface Stop {
 
 function parseStops(instructions: string | null): Stop[] {
   if (!instructions) return []
-  const match = instructions.match(/Stops:\s*(.+)/)
+  const match = instructions.match(/Intermediate Stops:\s*([\s\S]+?)(?=\n|Destinations:|$)/)
+  if (!match) return []
+  
+  const stopsStr = match[1]
+  const stopMatches = stopsStr.matchAll(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*([\d-]+)\s*([\d:]+)/g)
+  
+  const stops: Stop[] = []
+  for (const m of stopMatches) {
+    stops.push({
+      address: m[2].trim(),
+      operation: m[3].trim() as 'loading' | 'unloading',
+      date: m[4].trim(),
+      time: m[5].trim()
+    })
+  }
+  return stops
+}
+
+function parseDestinations(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  const match = instructions.match(/Destinations:\s*([\s\S]+?)(?=\n|$)/)
   if (!match) return []
   
   const stopsStr = match[1]
@@ -320,6 +340,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                     const weight = parseWeight(s.special_instructions)
                     const category = parseCategory(s.special_instructions)
                     const stops = parseStops(s.special_instructions)
+                    const destinations = parseDestinations(s.special_instructions)
                     const pickupTerminal = s.origin_address?.split(' | ')[0] || ''
                     const dropTerminal = s.destination_address?.split(' | ')[0] || ''
                     
@@ -363,10 +384,18 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                                 <span className="text-gray-600">{stop.address}</span>
                               </div>
                             ))}
-                            <div className="flex items-center gap-2">
-                              <ArrowLeft className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
-                              <span className="font-medium text-gray-900">{s.destination_city}</span>
-                            </div>
+                            {destinations.map((dest, idx) => (
+                              <div key={`dest-${idx}`} className="flex items-center gap-2">
+                                <ArrowLeft className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                <span className="font-medium text-gray-900">{dest.address}</span>
+                              </div>
+                            ))}
+                            {destinations.length === 0 && (
+                              <div className="flex items-center gap-2">
+                                <ArrowLeft className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                                <span className="font-medium text-gray-900">{s.destination_city}</span>
+                              </div>
+                            )}
                             {dropTerminal && (
                               <div className="flex items-center gap-2 pl-5">
                                 <Building2 className="h-3 w-3 text-cyan-400 shrink-0" />
