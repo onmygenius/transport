@@ -87,19 +87,24 @@ function parseIntermediateStops(instructions: string | null): Stop[] {
   if (!match) return []
   
   const stopsText = match[1]
-  const stopPattern = /(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})/g
   const stops: Stop[] = []
-  let m
   
-  while ((m = stopPattern.exec(stopsText)) !== null) {
-    stops.push({
-      number: parseInt(m[1]),
-      location: m[2].trim(),
-      operation: m[3].trim(),
-      date: m[4],
-      time: m[5]
-    })
-  }
+  // Split by pipe | to get individual stops
+  const stopEntries = stopsText.split('|').map(s => s.trim()).filter(s => s.length > 0)
+  
+  stopEntries.forEach(entry => {
+    // Try to parse: "1. Location [Operation] 2026-02-27 12:00" or "1. Location [Operation] 2026-02-27"
+    const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?/)
+    if (match) {
+      stops.push({
+        number: parseInt(match[1]),
+        location: match[2].trim(),
+        operation: match[3].trim(),
+        date: match[4],
+        time: match[5] || ''
+      })
+    }
+  })
   
   return stops
 }
@@ -110,19 +115,24 @@ function parseDestinations(instructions: string | null): Stop[] {
   if (!match) return []
   
   const destText = match[1]
-  const destPattern = /(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})/g
   const destinations: Stop[] = []
-  let m
   
-  while ((m = destPattern.exec(destText)) !== null) {
-    destinations.push({
-      number: parseInt(m[1]),
-      location: m[2].trim(),
-      operation: m[3].trim(),
-      date: m[4],
-      time: m[5]
-    })
-  }
+  // Split by pipe | to get individual destinations
+  const destEntries = destText.split('|').map(d => d.trim()).filter(d => d.length > 0)
+  
+  destEntries.forEach(entry => {
+    // Try to parse: "1. Location [Operation] 2026-02-27 12:00" or "1. Location [Operation] 2026-02-27"
+    const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?/)
+    if (match) {
+      destinations.push({
+        number: parseInt(match[1]),
+        location: match[2].trim(),
+        operation: match[3].trim(),
+        date: match[4],
+        time: match[5] || ''
+      })
+    }
+  })
   
   return destinations
 }
@@ -223,13 +233,15 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
                       <TruckIcon className="h-4 w-4 text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-medium text-blue-600 mb-0.5">Stop {stop.number}</p>
+                      <p className="text-xs font-medium text-blue-600 mb-0.5">Intermediate Stop {stop.number}</p>
                       <p className="text-sm font-semibold text-gray-900">{stop.location}</p>
-                      <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>
-                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                        <Clock className="h-3 w-3" />
-                        <span>{stop.date} {stop.time}</span>
-                      </div>
+                      {stop.operation && <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>}
+                      {stop.date && stop.time && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          <span>{stop.date} {stop.time}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

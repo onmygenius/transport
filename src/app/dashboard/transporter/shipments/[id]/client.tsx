@@ -52,7 +52,7 @@ function parseManualInstructions(instructions: string | null): string {
 
 interface Stop {
   address: string
-  operation: 'loading' | 'unloading' | 'both'
+  operation: 'loading' | 'unloading' | 'both' | 'weighbridge' | 'customs' | string
   date: string
   time: string
 }
@@ -356,7 +356,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                     <div className="flex items-center gap-2 mb-2">
                       <Truck className="h-4 w-4 text-amber-500" />
                       <span className="text-sm font-bold text-gray-900">
-                        Intermediate Stop {idx + 1} - {stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : 'Loading & Unloading'}
+                        Intermediate Stop {idx + 1} - {stop.operation === 'weighbridge' ? 'Weighbridge' : stop.operation === 'customs' ? 'Customs' : stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : stop.operation}
                       </span>
                     </div>
                     <div className="space-y-2 text-sm">
