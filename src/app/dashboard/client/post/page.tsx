@@ -68,7 +68,7 @@ export default function PostShipmentPage() {
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [stops, setStops] = useState<Stop[]>([])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
-  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' as TransportType })
+  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
@@ -401,14 +401,11 @@ export default function PostShipmentPage() {
                   <Select value={cargo.container_type} onValueChange={v => setCargo(p => ({ ...p, container_type: v as ContainerType }))}>
                     <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20ft">20 FT Standard</SelectItem>
-                      <SelectItem value="40ft">40 FT Standard</SelectItem>
-                      <SelectItem value="40ft_hc">40 FT High Cube</SelectItem>
-                      <SelectItem value="45ft">45 FT High Cube</SelectItem>
-                      <SelectItem value="reefer_20ft">20 FT Reefer</SelectItem>
-                      <SelectItem value="reefer_40ft">40 FT Reefer</SelectItem>
-                      <SelectItem value="open_top">Open Top</SelectItem>
-                      <SelectItem value="flat_rack">Flat Rack</SelectItem>
+                      <SelectItem value="20ft">20 FT</SelectItem>
+                      <SelectItem value="30ft">30 FT</SelectItem>
+                      <SelectItem value="40ft">40 FT</SelectItem>
+                      <SelectItem value="45ft">45 FT</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -458,8 +455,8 @@ export default function PostShipmentPage() {
                   <Select value={cargo.transport_type} onValueChange={v => setCargo(p => ({ ...p, transport_type: v as TransportType }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fcl">FCL (Full Container Load)</SelectItem>
-                      <SelectItem value="lcl">LCL (Less than Container Load)</SelectItem>
+                      <SelectItem value="full">Full Container (loaded)</SelectItem>
+                      <SelectItem value="empty">Empty Container (repositioning)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -83,11 +83,11 @@ interface Stop {
 
 function parseIntermediateStops(instructions: string | null): Stop[] {
   if (!instructions) return []
-  const match = instructions.match(/Intermediate Stops:\s*([^\n]+)/)
+  const match = instructions.match(/Intermediate Stops:\s*([\s\S]+?)(?=Destinations:|$)/)
   if (!match) return []
   
   const stopsText = match[1]
-  const stopPattern = /(\d+)\. ([^\[]+) \[([^\]]+)\] (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/g
+  const stopPattern = /(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})/g
   const stops: Stop[] = []
   let m
   
@@ -106,11 +106,11 @@ function parseIntermediateStops(instructions: string | null): Stop[] {
 
 function parseDestinations(instructions: string | null): Stop[] {
   if (!instructions) return []
-  const match = instructions.match(/Destinations:\s*([^\n]+)/)
+  const match = instructions.match(/Destinations:\s*([\s\S]+?)(?=$)/)
   if (!match) return []
   
   const destText = match[1]
-  const destPattern = /(\d+)\. ([^\[]+) \[([^\]]+)\] (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/g
+  const destPattern = /(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})/g
   const destinations: Stop[] = []
   let m
   
