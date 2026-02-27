@@ -421,16 +421,10 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                                 <span className="text-gray-500">{pickupTerminal}</span>
                               </div>
                             )}
-                            {intermediateStops.map((stop, idx) => (
+                            {allStops.map((stop, idx) => (
                               <div key={`stop-${idx}`} className="flex items-center gap-2">
-                                <Truck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                                <Truck className={`h-3.5 w-3.5 ${stop.type === 'intermediate' ? 'text-amber-500' : 'text-cyan-500'} shrink-0`} />
                                 <span className="text-gray-600">{stop.address}</span>
-                              </div>
-                            ))}
-                            {destinations.map((dest, idx) => (
-                              <div key={`dest-${idx}`} className="flex items-center gap-2">
-                                <Truck className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
-                                <span className="text-gray-600">{dest.address}</span>
                               </div>
                             ))}
                             <div className="flex items-center gap-2">
