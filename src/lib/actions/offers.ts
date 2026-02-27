@@ -40,6 +40,33 @@ export async function createOffer(data: CreateOfferData): Promise<ActionResult<O
     return { success: false, error: 'This shipment is no longer accepting offers' }
   }
 
+  // Check ALL existing offers for this shipment from this transporter
+  const { data: existingOffers } = await supabase
+    .from('offers')
+    .select('id, status')
+    .eq('shipment_id', data.shipment_id)
+    .eq('transporter_id', user.id)
+
+  if (existingOffers && existingOffers.length > 0) {
+    // Check if there's an active offer (pending or accepted)
+    const hasActiveOffer = existingOffers.some(o => o.status === 'pending' || o.status === 'accepted')
+    if (hasActiveOffer) {
+      return { success: false, error: 'You have already submitted an offer for this shipment' }
+    }
+
+    // Delete all inactive offers (withdrawn, rejected, expired) to avoid unique constraint
+    const inactiveOfferIds = existingOffers
+      .filter(o => ['withdrawn', 'rejected', 'expired'].includes(o.status))
+      .map(o => o.id)
+    
+    if (inactiveOfferIds.length > 0) {
+      await supabase
+        .from('offers')
+        .delete()
+        .in('id', inactiveOfferIds)
+    }
+  }
+
   const validUntil = new Date()
   validUntil.setHours(validUntil.getHours() + data.valid_hours)
 

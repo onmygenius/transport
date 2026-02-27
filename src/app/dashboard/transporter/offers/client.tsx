@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Package, ChevronLeft, ChevronRight, XCircle } from 'lucide-react'
 import { withdrawOffer } from '@/lib/actions/offers'
+import { createClient } from '@/lib/supabase/client'
 
 interface Shipment {
   id: string
@@ -47,11 +48,46 @@ export default function TransporterOffersClient({ offers }: { offers: Offer[] })
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [withdrawing, setWithdrawing] = useState<string | null>(null)
+  const [acceptedOfferIds, setAcceptedOfferIds] = useState<Set<string>>(new Set())
   const perPage = 10
 
-  const filtered = offers.filter(o => statusFilter === 'all' || o.status === statusFilter)
+  // Update offers with local state
+  const updatedOffers = offers.map(o => 
+    acceptedOfferIds.has(o.id) ? { ...o, status: 'accepted' } : o
+  )
+
+  const filtered = updatedOffers.filter(o => statusFilter === 'all' || o.status === statusFilter)
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
+
+  // Subscribe to realtime updates for offer status changes
+  useEffect(() => {
+    const supabase = createClient()
+    
+    const channel = supabase
+      .channel('offers-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'offers'
+        },
+        (payload: any) => {
+          // When an offer status changes to 'accepted', update local state
+          if (payload.new?.status === 'accepted' && payload.new?.id) {
+            setAcceptedOfferIds(prev => new Set(prev).add(payload.new.id))
+          }
+          // Also refresh to get full updated data
+          router.refresh()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [router])
 
   const handleWithdraw = async (offerId: string) => {
     setWithdrawing(offerId)
