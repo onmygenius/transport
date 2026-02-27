@@ -111,8 +111,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
   const [submitting, setSubmitting] = useState(false)
   const [offerError, setOfferError] = useState<string | null>(null)
   const [offerSuccess, setOfferSuccess] = useState(false)
+  const [acceptedShipmentIds, setAcceptedShipmentIds] = useState<string[]>(myOfferShipmentIds)
 
-  const myOfferSet = new Set(myOfferShipmentIds)
+  const myOfferSet = new Set(acceptedShipmentIds)
 
   const filtered = shipments.filter(s => {
     const origin = `${s.origin_city} ${s.origin_country}`
@@ -192,6 +193,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
 
     if (result.success) {
       setOfferSuccess(true)
+      setAcceptedShipmentIds(prev => [...prev, modalShipment.id])
       setTimeout(() => {
         closeModal()
         router.refresh()
