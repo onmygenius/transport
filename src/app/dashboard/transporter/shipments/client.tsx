@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Package, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, Truck, Building2, Lock, X, Loader2, CheckCircle, Info, Heart, Flag } from 'lucide-react'
+import { Search, Package, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, Truck, Building2, Lock, X, Loader2, CheckCircle, Info, Heart, Flag, FlagTriangleRight } from 'lucide-react'
 import { createOffer } from '@/lib/actions/offers'
 import Link from 'next/link'
 
@@ -369,7 +369,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                         <td className="px-4 py-4">
                           <div className="space-y-0.5 text-xs">
                             <div className="flex items-center gap-2">
-                              <ArrowRight className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                              <FlagTriangleRight className="h-3.5 w-3.5 text-gray-900 shrink-0" />
                               <span className="font-medium text-gray-900">{s.origin_city}</span>
                             </div>
                             {pickupTerminal && (
@@ -386,8 +386,8 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                             ))}
                             {destinations.map((dest, idx) => (
                               <div key={`dest-${idx}`} className="flex items-center gap-2">
-                                <ArrowLeft className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                                <span className="font-medium text-gray-900">{dest.address}</span>
+                                <Truck className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                                <span className="text-gray-600">{dest.address}</span>
                               </div>
                             ))}
                             <div className="flex items-center gap-2">
