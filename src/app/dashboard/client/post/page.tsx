@@ -114,8 +114,13 @@ export default function PostShipmentPage() {
         extra.special_instructions,
         cargo.cargo_weight ? `Weight: ${cargo.cargo_weight} kg` : '',
         cargo.container_category ? `Category: ${cargo.container_category}` : '',
-        stops.filter(s => s.type === 'intermediate').length > 0 ? `Intermediate Stops: ${stops.filter(s => s.type === 'intermediate').map((s, i) => `${i + 1}. ${s.port} [${s.operation}${s.weighbridgeDetails ? ` - ${s.weighbridgeDetails}` : ''}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time}`).join(' | ')}` : '',
-        stops.filter(s => s.type === 'location').length > 0 ? `Destinations: ${stops.filter(s => s.type === 'location').map((s, i) => `${i + 1}. ${s.address} [${s.operationType}] ${s.date} ${s.time}`).join(' | ')}` : '',
+        stops.length > 0 ? `Route Stops: ${stops.map((s, i) => {
+          if (s.type === 'intermediate') {
+            return `${i + 1}. ${s.port} [${s.operation}${s.weighbridgeDetails ? ` - ${s.weighbridgeDetails}` : ''}${s.customsDetails ? ` - ${s.customsDetails}` : ''}] ${s.date} ${s.time} {intermediate}`
+          } else {
+            return `${i + 1}. ${s.address} [${s.operationType}] ${s.date} ${s.time} {destination}`
+          }
+        }).join(' | ')}` : '',
       ].filter(Boolean).join('\n') || undefined,
     })
     setLoading(false)

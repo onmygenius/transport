@@ -51,10 +51,41 @@ function parseManualInstructions(instructions: string | null): string {
 }
 
 interface Stop {
+  number?: number
   address: string
   operation: 'loading' | 'unloading' | 'both' | 'weighbridge' | 'customs' | string
   date: string
   time: string
+  type?: 'intermediate' | 'destination'
+}
+
+function parseRouteStops(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  
+  const newMatch = instructions.match(/Route Stops:\s*([\s\S]+?)(?=\n|$)/)
+  if (newMatch) {
+    const stopsText = newMatch[1]
+    const stops: Stop[] = []
+    const stopEntries = stopsText.split('|').map(s => s.trim()).filter(s => s.length > 0)
+    
+    stopEntries.forEach(entry => {
+      const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?\s*\{(intermediate|destination)\}/)
+      if (match) {
+        stops.push({
+          number: parseInt(match[1]),
+          address: match[2].trim(),
+          operation: match[3].trim(),
+          date: match[4],
+          time: match[5] || '',
+          type: match[6] as 'intermediate' | 'destination'
+        })
+      }
+    })
+    
+    return stops
+  }
+  
+  return []
 }
 
 function parseIntermediateStops(instructions: string | null): Stop[] {
@@ -70,10 +101,11 @@ function parseIntermediateStops(instructions: string | null): Stop[] {
     stops.push({
       address: m[2].trim(),
       operation: m[3].trim() as 'loading' | 'unloading' | 'both',
-      date: m[4].trim(),
-      time: m[5].trim()
+      date: m[4],
+      time: m[5]
     })
   }
+  
   return stops
 }
 
@@ -161,9 +193,18 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
 
   const weight = parseWeight(shipment.special_instructions)
   const category = parseCategory(shipment.special_instructions)
-  const intermediateStops = parseIntermediateStops(shipment.special_instructions)
-  const destinations = parseDestinations(shipment.special_instructions)
   const manualInstructions = parseManualInstructions(shipment.special_instructions)
+  
+  let allStops = parseRouteStops(shipment.special_instructions)
+  
+  if (allStops.length === 0) {
+    const intermediateStops = parseIntermediateStops(shipment.special_instructions)
+    const destinations = parseDestinations(shipment.special_instructions)
+    allStops = [
+      ...intermediateStops.map(s => ({ ...s, type: 'intermediate' as const })),
+      ...destinations.map(d => ({ ...d, type: 'destination' as const }))
+    ]
+  }
   const pickupTerminal = shipment.origin_address?.split(' | ')[0] || ''
   const pickupContainerRef = shipment.origin_address?.split(' | ')[1] || ''
   const pickupSeal = shipment.origin_address?.split(' | ')[2] || ''
@@ -300,8 +341,8 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                   {shipment.cargo_type && (
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Cargo Type</p>
-                      <Badge variant="destructive" className="text-sm">
-                        {shipment.cargo_type === 'dangerous' ? 'Dangerous Goods' : 'Reefer (Temperature Controlled)'}
+                      <Badge variant={shipment.cargo_type === 'general' ? 'secondary' : 'destructive'} className="text-sm">
+                        {shipment.cargo_type === 'dangerous' ? 'Dangerous Goods' : shipment.cargo_type === 'reefer' ? 'Reefer (Temperature Controlled)' : 'General Cargo'}
                       </Badge>
                     </div>
                   )}
@@ -350,13 +391,20 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                   </div>
                 </div>
 
-                {/* Intermediate stops */}
-                {intermediateStops.map((stop, idx) => (
-                  <div key={`intermediate-${idx}`} className="border-l-4 border-amber-500 pl-4">
+                {/* All Stops (Intermediate + Destinations) in chronological order */}
+                {allStops.map((stop, idx) => (
+                  <div key={idx} className={`border-l-4 ${stop.type === 'intermediate' ? 'border-amber-500' : 'border-emerald-500'} pl-4`}>
                     <div className="flex items-center gap-2 mb-2">
-                      <Truck className="h-4 w-4 text-amber-500" />
+                      {stop.type === 'intermediate' ? (
+                        <Truck className="h-4 w-4 text-amber-500" />
+                      ) : (
+                        <MapPin className="h-4 w-4 text-emerald-500" />
+                      )}
                       <span className="text-sm font-bold text-gray-900">
-                        Intermediate Stop {idx + 1} - {stop.operation === 'weighbridge' ? 'Weighbridge' : stop.operation === 'customs' ? 'Customs' : stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : stop.operation}
+                        {stop.type === 'intermediate' 
+                          ? `Intermediate Stop ${stop.number} - ${stop.operation === 'weighbridge' ? 'Weighbridge' : stop.operation === 'customs' ? 'Customs' : stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : stop.operation}`
+                          : `Destination ${stop.number} - ${stop.operation === 'loading' ? 'Loading' : stop.operation === 'unloading' ? 'Unloading' : 'Loading & Unloading'}`
+                        }
                       </span>
                     </div>
                     <div className="space-y-2 text-sm">
@@ -367,28 +415,6 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                       <div className="flex items-center gap-2 pl-5">
                         <Calendar className="h-3.5 w-3.5 text-gray-400" />
                         <span className="text-gray-600">{stop.date} {stop.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Destinations */}
-                {destinations.map((dest, idx) => (
-                  <div key={`destination-${idx}`} className="border-l-4 border-emerald-500 pl-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4 text-emerald-500" />
-                      <span className="text-sm font-bold text-gray-900">
-                        Destination {idx + 1} - {dest.operation === 'loading' ? 'Loading' : dest.operation === 'unloading' ? 'Unloading' : 'Loading & Unloading'}
-                      </span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="font-medium">{dest.address}</span>
-                      </div>
-                      <div className="flex items-center gap-2 pl-5">
-                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-gray-600">{dest.date} {dest.time}</span>
                       </div>
                     </div>
                   </div>

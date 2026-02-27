@@ -73,12 +73,44 @@ function parseCategory(instructions: string | null): string {
 }
 
 interface Stop {
-  number: number
+  number?: number
   location: string
   operation: string
   details?: string
   date: string
   time: string
+  type?: 'intermediate' | 'destination'
+}
+
+function parseRouteStops(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  
+  // Try new format first: "Route Stops: ..."
+  const newMatch = instructions.match(/Route Stops:\s*([\s\S]+?)(?=\n|$)/)
+  if (newMatch) {
+    const stopsText = newMatch[1]
+    const stops: Stop[] = []
+    const stopEntries = stopsText.split('|').map(s => s.trim()).filter(s => s.length > 0)
+    
+    stopEntries.forEach(entry => {
+      const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?\s*\{(intermediate|destination)\}/)
+      if (match) {
+        stops.push({
+          number: parseInt(match[1]),
+          location: match[2].trim(),
+          operation: match[3].trim(),
+          date: match[4],
+          time: match[5] || '',
+          type: match[6] as 'intermediate' | 'destination'
+        })
+      }
+    })
+    
+    return stops
+  }
+  
+  // Fallback to old format for backward compatibility
+  return []
 }
 
 function parseIntermediateStops(instructions: string | null): Stop[] {
@@ -89,11 +121,9 @@ function parseIntermediateStops(instructions: string | null): Stop[] {
   const stopsText = match[1]
   const stops: Stop[] = []
   
-  // Split by pipe | to get individual stops
   const stopEntries = stopsText.split('|').map(s => s.trim()).filter(s => s.length > 0)
   
   stopEntries.forEach(entry => {
-    // Try to parse: "1. Location [Operation] 2026-02-27 12:00" or "1. Location [Operation] 2026-02-27"
     const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?/)
     if (match) {
       stops.push({
@@ -160,8 +190,19 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
   
   // Parse special instructions
   const manualInstructions = parseManualInstructions(shipment.special_instructions)
-  const intermediateStops = parseIntermediateStops(shipment.special_instructions)
-  const destinations = parseDestinations(shipment.special_instructions)
+  
+  // Try new format first (Route Stops with preserved order)
+  let allStops = parseRouteStops(shipment.special_instructions)
+  
+  // Fallback to old format if new format not found
+  if (allStops.length === 0) {
+    const intermediateStops = parseIntermediateStops(shipment.special_instructions)
+    const destinations = parseDestinations(shipment.special_instructions)
+    allStops = [
+      ...intermediateStops.map(s => ({ ...s, type: 'intermediate' as const })),
+      ...destinations.map(d => ({ ...d, type: 'destination' as const }))
+    ]
+  }
 
   const handleAccept = async (offerId: string) => {
     setActionLoading(offerId)
@@ -226,41 +267,44 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
                   </div>
                 </div>
 
-                {/* Intermediate Stops */}
-                {intermediateStops.map((stop, idx) => (
-                  <div key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 shrink-0">
-                      <TruckIcon className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-blue-600 mb-0.5">Intermediate Stop {stop.number}</p>
-                      <p className="text-sm font-semibold text-gray-900">{stop.location}</p>
-                      {stop.operation && <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>}
-                      {stop.date && stop.time && (
-                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                          <Clock className="h-3 w-3" />
-                          <span>{stop.date} {stop.time}</span>
+                {/* All Stops (Intermediate + Destinations) in chronological order */}
+                {allStops.map((stop, idx) => (
+                  <div key={idx} className={`flex items-start gap-3 pb-3 border-b border-gray-100`}>
+                    {stop.type === 'intermediate' ? (
+                      <>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 shrink-0">
+                          <TruckIcon className="h-4 w-4 text-blue-600" />
                         </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Destinations */}
-                {destinations.map((dest, idx) => (
-                  <div key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 shrink-0">
-                      <MapPin className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-medium text-orange-600 mb-0.5">Destination {dest.number}</p>
-                      <p className="text-sm font-semibold text-gray-900">{dest.location}</p>
-                      <p className="text-xs text-gray-600 mt-0.5">{dest.operation}</p>
-                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                        <Clock className="h-3 w-3" />
-                        <span>{dest.date} {dest.time}</span>
-                      </div>
-                    </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-blue-600 mb-0.5">Intermediate Stop {stop.number}</p>
+                          <p className="text-sm font-semibold text-gray-900">{stop.location}</p>
+                          {stop.operation && <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>}
+                          {stop.date && stop.time && (
+                            <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              <span>{stop.date} {stop.time}</span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 shrink-0">
+                          <MapPin className="h-4 w-4 text-orange-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-orange-600 mb-0.5">Destination {stop.number}</p>
+                          <p className="text-sm font-semibold text-gray-900">{stop.location}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">{stop.operation}</p>
+                          {stop.date && stop.time && (
+                            <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              <span>{stop.date} {stop.time}</span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
 

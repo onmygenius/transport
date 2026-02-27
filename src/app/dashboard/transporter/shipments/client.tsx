@@ -31,6 +31,35 @@ interface Stop {
   operation: 'loading' | 'unloading'
   date: string
   time: string
+  type?: 'intermediate' | 'destination'
+}
+
+function parseRouteStops(instructions: string | null): Stop[] {
+  if (!instructions) return []
+  
+  const newMatch = instructions.match(/Route Stops:\s*([\s\S]+?)(?=\n|$)/)
+  if (newMatch) {
+    const stopsText = newMatch[1]
+    const stops: Stop[] = []
+    const stopEntries = stopsText.split('|').map(s => s.trim()).filter(s => s.length > 0)
+    
+    stopEntries.forEach(entry => {
+      const match = entry.match(/(\d+)\.\s*([^\[]+)\s*\[([^\]]+)\]\s*(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?\s*\{(intermediate|destination)\}/)
+      if (match) {
+        stops.push({
+          address: match[2].trim(),
+          operation: match[3].trim() as 'loading' | 'unloading',
+          date: match[4],
+          time: match[5] || '',
+          type: match[6] as 'intermediate' | 'destination'
+        })
+      }
+    })
+    
+    return stops
+  }
+  
+  return []
 }
 
 function parseStops(instructions: string | null): Stop[] {
@@ -339,8 +368,22 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                     const alreadyOffered = myOfferSet.has(s.id)
                     const weight = parseWeight(s.special_instructions)
                     const category = parseCategory(s.special_instructions)
-                    const stops = parseStops(s.special_instructions)
-                    const destinations = parseDestinations(s.special_instructions)
+                    
+                    // Try new format first
+                    let allStops = parseRouteStops(s.special_instructions)
+                    let intermediateStops: Stop[] = []
+                    let destinations: Stop[] = []
+                    
+                    if (allStops.length > 0) {
+                      // New format - separate by type
+                      intermediateStops = allStops.filter(s => s.type === 'intermediate')
+                      destinations = allStops.filter(s => s.type === 'destination')
+                    } else {
+                      // Old format
+                      intermediateStops = parseStops(s.special_instructions)
+                      destinations = parseDestinations(s.special_instructions)
+                    }
+                    
                     const pickupTerminal = s.origin_address?.split(' | ')[0] || ''
                     const dropTerminal = s.destination_address?.split(' | ')[0] || ''
                     
@@ -378,9 +421,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                                 <span className="text-gray-500">{pickupTerminal}</span>
                               </div>
                             )}
-                            {stops.map((stop, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <Truck className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
+                            {intermediateStops.map((stop, idx) => (
+                              <div key={`stop-${idx}`} className="flex items-center gap-2">
+                                <Truck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
                                 <span className="text-gray-600">{stop.address}</span>
                               </div>
                             ))}
