@@ -402,10 +402,11 @@ export default function PostShipmentPage() {
                     <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="20ft">20 FT</SelectItem>
-                      <SelectItem value="30ft">30 FT</SelectItem>
                       <SelectItem value="40ft">40 FT</SelectItem>
+                      <SelectItem value="40ft_hc">40 FT HC</SelectItem>
                       <SelectItem value="45ft">45 FT</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="open_top">Open Top</SelectItem>
+                      <SelectItem value="flat_rack">Flat Rack</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
