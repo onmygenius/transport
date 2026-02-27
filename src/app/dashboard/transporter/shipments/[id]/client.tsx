@@ -286,9 +286,9 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                     <p className="text-xs text-gray-500 mb-1">Transport Type</p>
                     <Badge 
                       variant="default" 
-                      className={`text-sm ${shipment.transport_type === 'full' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}
+                      className={`text-sm ${shipment.transport_type === 'fcl' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}
                     >
-                      {shipment.transport_type === 'full' ? 'Full Container' : 'Empty Container'}
+                      {shipment.transport_type === 'fcl' ? 'Full Container' : 'Empty Container'}
                     </Badge>
                   </div>
                   {weight && (

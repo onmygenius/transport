@@ -360,8 +360,8 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                           <div className="flex flex-wrap gap-1.5">
                             <Badge variant="secondary" className="text-xs">{s.container_type}</Badge>
                             {category && <Badge variant="secondary" className="text-xs">{category}</Badge>}
-                            {s.transport_type === 'full' && <Badge variant="default" className="text-xs bg-emerald-100 text-emerald-700">Full</Badge>}
-                            {s.transport_type === 'empty' && <Badge variant="default" className="text-xs bg-blue-100 text-blue-700">Empty</Badge>}
+                            {s.transport_type === 'fcl' && <Badge variant="default" className="text-xs bg-emerald-100 text-emerald-700">Full</Badge>}
+                            {s.transport_type === 'lcl' && <Badge variant="default" className="text-xs bg-blue-100 text-blue-700">Empty</Badge>}
                             {s.cargo_type === 'dangerous' && <Badge variant="destructive" className="text-xs">Dangerous</Badge>}
                             {s.cargo_type === 'reefer' && <Badge variant="destructive" className="text-xs">Reefer</Badge>}
                           </div>

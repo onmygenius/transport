@@ -68,7 +68,7 @@ export default function PostShipmentPage() {
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [stops, setStops] = useState<Stop[]>([])
   const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
-  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'full' as TransportType })
+  const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
@@ -455,8 +455,8 @@ export default function PostShipmentPage() {
                   <Select value={cargo.transport_type} onValueChange={v => setCargo(p => ({ ...p, transport_type: v as TransportType }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="full">Full Container (loaded)</SelectItem>
-                      <SelectItem value="empty">Empty Container (repositioning)</SelectItem>
+                      <SelectItem value="fcl">Full Container (loaded)</SelectItem>
+                      <SelectItem value="lcl">Empty Container (repositioning)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
