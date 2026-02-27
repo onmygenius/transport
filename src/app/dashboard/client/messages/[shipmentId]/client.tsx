@@ -36,8 +36,15 @@ export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, 
 
   useEffect(() => {
     scrollToBottom()
-    markMessagesAsRead(shipmentId)
-  }, [messages, shipmentId])
+    const markAsRead = async () => {
+      await markMessagesAsRead(shipmentId)
+      router.refresh()
+      if (typeof window !== 'undefined' && (window as any).__refreshUnreadCount) {
+        await (window as any).__refreshUnreadCount()
+      }
+    }
+    markAsRead()
+  }, [messages, shipmentId, router])
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return

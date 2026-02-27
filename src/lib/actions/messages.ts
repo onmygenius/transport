@@ -165,6 +165,8 @@ export async function markMessagesAsRead(shipmentId: string): Promise<ActionResu
   revalidatePath(`/dashboard/transporter/messages/${shipmentId}`)
   revalidatePath('/dashboard/client/messages')
   revalidatePath('/dashboard/transporter/messages')
+  revalidatePath('/dashboard/client')
+  revalidatePath('/dashboard/transporter')
 
   return { success: true, data: undefined }
 }

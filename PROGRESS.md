@@ -125,8 +125,79 @@ Vezi `TEST-ACCOUNTS.md` pentru detalii complete.
 
 ---
 
+## Sesiunea 5 — Messaging System (25 februarie 2026)
+
+### Backend — Server Actions (`src/lib/actions/messages.ts`)
+- ✅ **`sendMessage()`** — trimite mesaj nou cu autentificare și validare
+- ✅ **`getMessages()`** — obține toate mesajele pentru un shipment cu info sender
+- ✅ **`markMessagesAsRead()`** — marchează mesajele ca citite automat
+- ✅ **`getConversations()`** — listă conversații cu număr mesaje necitite
+- ✅ **`getShipmentForChat()`** — info shipment pentru header chat
+- ✅ **`getUnreadMessagesCount()`** — total mesaje necitite pentru user
+- Query-uri simplificate (fără join-uri complexe) pentru stabilitate
+- Control acces strict (RLS) și error handling complet
+
+### Database — RLS Policies (`create-chat-messages-rls.sql`)
+- ✅ **SELECT policy** — users pot vedea mesajele pentru shipment-urile lor
+- ✅ **INSERT policy** — users pot trimite mesaje pentru shipment-urile lor
+- ✅ **UPDATE policy** — users pot marca mesajele ca citite
+- ✅ **Performance indexes** — `shipment_id`, `sender_id`, `created_at`, `is_read`
+
+### UI — Chat Individual
+**Client:** `/dashboard/client/messages/[shipmentId]`  
+**Transporter:** `/dashboard/transporter/messages/[shipmentId]`
+
+**Features:**
+- Design modern cu mesaje colorate (verde pentru client, albastru pentru transporter)
+- Auto-scroll la ultimul mesaj
+- Textarea cu auto-resize
+- **Enter** pentru send, **Shift+Enter** pentru linie nouă
+- Formatare timp relativă (Just now, 5 minutes ago, Yesterday, etc.)
+- Header cu nume partener și rută (Warsaw → Rome)
+- Buton "Back to Messages" pentru navigare
+
+### UI — Liste Conversații
+**Client:** `/dashboard/client/messages`  
+**Transporter:** `/dashboard/transporter/messages`
+
+**Features:**
+- Date reale din baza de date (nu mock data)
+- Badge roșu cu număr mesaje necitite per conversație
+- Cod shipment (SHP-6E6B7290)
+- Ultimul mesaj + timp
+- Link direct la chat individual
+- Empty state când nu există conversații
+
+### 🔴 Notificări Mesaje Necitite
+**Sidebar Client:** `src/components/client/sidebar.tsx`  
+**Sidebar Transporter:** `src/components/transporter/sidebar.tsx`
+
+**Features:**
+- **Badge roșu** pe link "Messages" în sidebar
+- Afișează numărul total de mesaje necitite (1-99+)
+- Se actualizează automat la fiecare încărcare pagină
+- Integrare în layout prin `getUnreadMessagesCount()`
+
+### Bug Fixes
+- ✅ **Next.js 15+ params Promise** — fix `await params` în dynamic routes `[shipmentId]`
+- ✅ **Supabase complex joins** — simplificat queries pentru a evita erori RLS
+- ✅ **TypeScript ActionResult** — fix typing pentru `markMessagesAsRead()`
+
+### Testat și Funcțional
+- ✅ Mesaj trimis cu succes de la client către transporter
+- ✅ Chat se încarcă corect fără redirect
+- ✅ Navigare funcționează perfect
+- ✅ Badge-ul roșu apare când există mesaje necitite
+- ✅ Mark as read funcționează automat
+
+**Commit:** `feat: complete messaging system with unread notifications` (6a9139e)
+
+---
+
 ## TODO — Următoarele
 
+- [x] Sistem mesagerie complet între client și transporter
+- [x] Notificări vizuale pentru mesaje necitite
 - [ ] Pagina detalii shipment `/dashboard/client/shipments/[id]` — afișare Pick-up, Destinations, Drop complet
 - [ ] Dashboard transporter — shipmente disponibile cu noua structură Pick-up/Drop
 - [ ] Formularul Truck — salvare în Supabase (momentan doar UI)
