@@ -131,6 +131,10 @@ export default function TransporterSettingsPage() {
       if (updateError) throw updateError
 
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
+      
+      setTimeout(() => {
+        window.location.reload()
+      }, 500)
     } catch (error) {
       console.error('Error uploading avatar:', error)
       alert('Error uploading avatar. Please try again.')

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -33,9 +34,50 @@ interface TransporterSidebarProps {
 export function TransporterSidebar({ companyName, email, unreadMessagesCount = 0 }: TransporterSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function loadAvatar() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url)
+      }
+    }
+
+    loadAvatar()
+
+    const channel = supabase
+      .channel('profile-avatar-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          if (payload.new.avatar_url) {
+            setAvatarUrl(payload.new.avatar_url)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   const handleSignOut = async () => {
-    const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
   }
@@ -43,8 +85,12 @@ export function TransporterSidebar({ companyName, email, unreadMessagesCount = 0
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
       <div className="flex h-16 items-center gap-3 border-b border-gray-100 px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600">
-          <Truck className="h-5 w-5 text-white" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 overflow-hidden">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+          ) : (
+            <Truck className="h-5 w-5 text-white" />
+          )}
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-gray-900">{companyName || 'FreightEx'}</p>
