@@ -17,7 +17,7 @@ const navItems = [
   { title: 'My Offers', href: '/dashboard/transporter/offers', icon: Package },
   { title: 'Active Jobs', href: '/dashboard/transporter/jobs', icon: Truck },
   { title: 'My Trucks', href: '/dashboard/transporter/trucks', icon: Truck },
-  { title: 'Documents', href: '/dashboard/transporter/documents', icon: FileText },
+  // { title: 'Documents', href: '/dashboard/transporter/documents', icon: FileText },
   { title: 'Billing', href: '/dashboard/transporter/wallet', icon: CreditCard },
   { title: 'Messages', href: '/dashboard/transporter/messages', icon: MessageSquare },
   { title: 'Reviews', href: '/dashboard/transporter/reviews', icon: Star },
