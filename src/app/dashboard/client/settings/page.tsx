@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Save, CheckCircle, Upload } from 'lucide-react'
+import { Save, CheckCircle, Upload, Camera, User, Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 const tabs = [
   { id: 'profile', label: 'Company Profile' },
@@ -18,12 +20,141 @@ const tabs = [
 ]
 
 export default function ClientSettingsPage() {
+  const router = useRouter()
+  const supabase = createClient()
   const [activeTab, setActiveTab] = useState('profile')
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  
+  const [profile, setProfile] = useState({
+    company_name: '',
+    company_cif: '',
+    company_country: '',
+    company_address: '',
+    phone: '',
+    contact_person: '',
+    avatar_url: ''
+  })
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  useEffect(() => {
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (profileData) {
+        setProfile({
+          company_name: profileData.company_name || '',
+          company_cif: profileData.company_cif || '',
+          company_country: profileData.company_country || '',
+          company_address: profileData.company_address || '',
+          phone: profileData.phone || '',
+          contact_person: profileData.contact_person || '',
+          avatar_url: profileData.avatar_url || ''
+        })
+      }
+
+      setLoading(false)
+    }
+
+    loadProfile()
+  }, [])
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingAvatar(true)
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('public')
+        .getPublicUrl(filePath)
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }))
+      
+      setTimeout(() => {
+        window.location.reload()
+      }, 500)
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      alert('Error uploading avatar. Please try again.')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          company_name: profile.company_name,
+          company_cif: profile.company_cif,
+          company_country: profile.company_country,
+          company_address: profile.company_address,
+          phone: profile.phone,
+          contact_person: profile.contact_person
+        })
+        .eq('id', user.id)
+
+      if (profileError) throw profileError
+
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error saving profile. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <ClientHeader title="Settings" subtitle="Loading..." />
+        <div className="flex items-center justify-center flex-1">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -52,40 +183,93 @@ export default function ClientSettingsPage() {
 
           <div className="flex-1 space-y-6">
             {activeTab === 'profile' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Company Profile</CardTitle>
-                  <CardDescription>Update your company information visible to transporters</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Company Name</Label>
-                      <Input defaultValue="Client Test SRL" />
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Profile Picture</CardTitle>
+                    <CardDescription>Upload a photo for your company profile</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-6">
+                      <div className="relative">
+                        <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                          {profile.avatar_url ? (
+                            <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                          ) : (
+                            <User className="h-12 w-12 text-gray-400" />
+                          )}
+                        </div>
+                        <label className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-emerald-600 flex items-center justify-center cursor-pointer hover:bg-emerald-700 transition-colors">
+                          <Camera className="h-4 w-4 text-white" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleAvatarUpload}
+                            disabled={uploadingAvatar}
+                          />
+                        </label>
+                      </div>
+                      {uploadingAvatar && (
+                        <p className="text-sm text-emerald-600">Uploading...</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Company Profile</CardTitle>
+                    <CardDescription>Update your company information visible to transporters</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Company Name</Label>
+                        <Input 
+                          value={profile.company_name}
+                          onChange={e => setProfile(prev => ({ ...prev, company_name: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>CIF / Registration Number</Label>
+                        <Input 
+                          value={profile.company_cif}
+                          onChange={e => setProfile(prev => ({ ...prev, company_cif: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Country</Label>
+                        <Input 
+                          value={profile.company_country}
+                          onChange={e => setProfile(prev => ({ ...prev, company_country: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Phone</Label>
+                        <Input 
+                          value={profile.phone}
+                          onChange={e => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Contact Person</Label>
+                        <Input 
+                          value={profile.contact_person}
+                          onChange={e => setProfile(prev => ({ ...prev, contact_person: e.target.value }))}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>CIF / Registration Number</Label>
-                      <Input defaultValue="RO87654321" />
+                      <Label>Company Address</Label>
+                      <Input 
+                        value={profile.company_address}
+                        onChange={e => setProfile(prev => ({ ...prev, company_address: e.target.value }))}
+                      />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Country</Label>
-                      <Input defaultValue="Romania" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Phone</Label>
-                      <Input defaultValue="+40 700 111 222" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Contact Person</Label>
-                      <Input defaultValue="Maria Ionescu" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Company Address</Label>
-                    <Input defaultValue="Str. Test nr. 5, Cluj-Napoca" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </>
             )}
 
             {activeTab === 'kyc' && (
@@ -199,9 +383,18 @@ export default function ClientSettingsPage() {
             )}
 
             <div className="flex justify-end">
-              <Button onClick={handleSave} className="gap-2 min-w-32 bg-emerald-600 hover:bg-emerald-700">
-                <Save className="h-4 w-4" />
-                {saved ? 'Saved!' : 'Save Changes'}
+              <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-32 bg-emerald-600 hover:bg-emerald-700">
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    {saved ? 'Saved!' : 'Save Changes'}
+                  </>
+                )}
               </Button>
             </div>
           </div>
