@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +10,8 @@ import { CheckCircle, XCircle, Star, ArrowLeft, Package, MapPin, Calendar, Weigh
 import Link from 'next/link'
 import { acceptOffer, rejectOffer } from '@/lib/actions/offers'
 import { ShipmentDocuments } from '@/components/shipment-documents'
+import { RatingModal } from '@/components/rating-modal'
+import { createClient } from '@/lib/supabase/client'
 import type { ShipmentDocument } from '@/lib/types'
 
 interface Transporter {
@@ -181,12 +183,47 @@ const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' 
 
 export default function ShipmentDetailClient({ shipment, initialDocuments = [] }: { shipment: Shipment; initialDocuments?: ShipmentDocument[] }) {
   const router = useRouter()
+  const supabase = createClient()
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [hasRated, setHasRated] = useState(false)
+  const [ratingCheckLoading, setRatingCheckLoading] = useState(true)
+  const [transporterId, setTransporterId] = useState<string | null>(null)
+  const [transporterName, setTransporterName] = useState<string>('Transporter')
 
   const pendingOffers = shipment.offers.filter(o => o.status === 'pending').sort((a, b) => a.price - b.price)
   const acceptedOffers = shipment.offers.filter(o => o.status === 'accepted')
   const cfg = statusConfig[shipment.status] ?? { label: shipment.status, variant: 'secondary' as const }
+
+  useEffect(() => {
+    async function checkExistingRating() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: rating } = await supabase
+        .from('ratings')
+        .select('id')
+        .eq('shipment_id', shipment.id)
+        .eq('from_user_id', user.id)
+        .single()
+
+      setHasRated(!!rating)
+
+      if (acceptedOffers.length > 0) {
+        const transporter = acceptedOffers[0].transporter
+        setTransporterId(transporter.id)
+        setTransporterName(transporter.company_name || transporter.full_name || 'Transporter')
+      }
+
+      setRatingCheckLoading(false)
+    }
+
+    checkExistingRating()
+  }, [shipment.id, acceptedOffers])
+
+  const canRate = shipment.status === 'completed' && !hasRated && transporterId
+  const isRatingDisabled = shipment.status !== 'completed' || hasRated || !transporterId
   
   // Parse special instructions
   const manualInstructions = parseManualInstructions(shipment.special_instructions)
@@ -233,14 +270,33 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
       <ClientHeader title="Shipment Details" subtitle={`ID: ${shipment.id.slice(0, 8)}…`} />
 
       <main className="flex-1 p-6 space-y-6">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/client/shipments">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Shipments
-            </Button>
-          </Link>
-          <Badge variant={cfg.variant} className="text-sm px-3 py-1">{cfg.label}</Badge>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/client/shipments">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Shipments
+              </Button>
+            </Link>
+            <Badge variant={cfg.variant} className="text-sm px-3 py-1">{cfg.label}</Badge>
+          </div>
+          <Button
+            onClick={() => setShowRatingModal(true)}
+            disabled={isRatingDisabled || ratingCheckLoading}
+            className="gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            title={
+              hasRated
+                ? 'You have already rated this shipment'
+                : shipment.status !== 'completed'
+                ? 'Rating available when shipment is completed'
+                : !transporterId
+                ? 'No transporter assigned'
+                : 'Rate your experience'
+            }
+          >
+            <Star className="h-4 w-4" />
+            {hasRated ? 'Rated' : 'Rate it!'}
+          </Button>
         </div>
 
         {error && (
@@ -511,6 +567,19 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
           </div>
         </div>
       </main>
+
+      {showRatingModal && transporterId && (
+        <RatingModal
+          shipmentId={shipment.id}
+          toUserId={transporterId}
+          toUserName={transporterName}
+          onClose={() => setShowRatingModal(false)}
+          onSuccess={() => {
+            setHasRated(true)
+            setShowRatingModal(false)
+          }}
+        />
+      )}
     </div>
   )
 }

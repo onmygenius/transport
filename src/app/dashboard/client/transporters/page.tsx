@@ -24,6 +24,7 @@ interface Transporter {
     company_name: string
     company_country: string
     kyc_status: string
+    avatar_url: string | null
   }
 }
 
@@ -43,7 +44,8 @@ export default function ClientTransportersPage() {
           profile:profiles!transporter_profiles_profile_id_fkey(
             company_name,
             company_country,
-            kyc_status
+            kyc_status,
+            avatar_url
           )
         `)
         .order('rating_average', { ascending: false })
@@ -93,9 +95,17 @@ export default function ClientTransportersPage() {
               <Card key={t.id} className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100">
-                      <Truck className="h-5 w-5 text-blue-600" />
-                    </div>
+                    {t.profile?.avatar_url ? (
+                      <img
+                        src={t.profile.avatar_url}
+                        alt={t.profile?.company_name || 'Transporter'}
+                        className="h-11 w-11 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100">
+                        <Truck className="h-5 w-5 text-blue-600" />
+                      </div>
+                    )}
                     {t.profile?.kyc_status === 'approved' && (
                       <div className="flex items-center gap-1 text-xs text-blue-600 font-semibold">
                         <CheckCircle className="h-3.5 w-3.5" />

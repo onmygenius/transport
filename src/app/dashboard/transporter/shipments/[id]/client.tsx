@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label'
 import { 
   ArrowLeft, ArrowRight, Truck, Building2, Package, Calendar, 
   MapPin, Euro, CheckCircle, Clock, User, Mail, Globe, 
-  X, Loader2, AlertCircle
+  X, Loader2, AlertCircle, Star
 } from 'lucide-react'
 import { createOffer } from '@/lib/actions/offers'
 import Link from 'next/link'
 import { ShipmentRouteMap } from '@/components/ui/shipment-route-map'
 import { ShipmentDocuments } from '@/components/shipment-documents'
+import { RatingModal } from '@/components/rating-modal'
+import { createClient } from '@/lib/supabase/client'
 import type { ShipmentDocument } from '@/lib/types'
 
 // Helper functions
@@ -181,6 +183,7 @@ interface Props {
 
 export default function ShipmentDetailsClient({ shipment, existingOffer, initialDocuments = [], canViewDocuments = false }: Props) {
   const router = useRouter()
+  const supabase = createClient()
   const [showAcceptModal, setShowAcceptModal] = useState(false)
   const [offerForm, setOfferForm] = useState({
     estimated_days: '',
@@ -190,6 +193,11 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [hasRated, setHasRated] = useState(false)
+  const [ratingCheckLoading, setRatingCheckLoading] = useState(true)
+  const [clientId, setClientId] = useState<string | null>(null)
+  const [clientName, setClientName] = useState<string>('Client')
 
   const weight = parseWeight(shipment.special_instructions)
   const category = parseCategory(shipment.special_instructions)
@@ -212,7 +220,35 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
   const dropContainerRef = shipment.destination_address?.split(' | ')[1] || ''
   const dropSeal = shipment.destination_address?.split(' | ')[2] || ''
 
-  const clientName = shipment.client?.company_name || shipment.client?.full_name || 'Unknown'
+  const shipmentClientName = shipment.client?.company_name || shipment.client?.full_name || 'Unknown'
+
+  useEffect(() => {
+    async function checkExistingRating() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: rating } = await supabase
+        .from('ratings')
+        .select('id')
+        .eq('shipment_id', shipment.id)
+        .eq('from_user_id', user.id)
+        .single()
+
+      setHasRated(!!rating)
+
+      if (shipment.client) {
+        setClientId(shipment.client.id)
+        setClientName(shipment.client.company_name || shipment.client.full_name || 'Client')
+      }
+
+      setRatingCheckLoading(false)
+    }
+
+    checkExistingRating()
+  }, [shipment.id, shipment.client])
+
+  const canRate = shipment.status === 'completed' && !hasRated && clientId
+  const isRatingDisabled = shipment.status !== 'completed' || hasRated || !clientId
 
   // Build locations array for map - simplified to just origin and destination
   const mapLocations = [
@@ -278,13 +314,32 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
       />
 
       <main className="flex-1 p-6 space-y-6">
-        {/* Back button */}
-        <Link href="/dashboard/transporter/shipments">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Available Shipments
+        {/* Back button and Rate button */}
+        <div className="flex items-center justify-between">
+          <Link href="/dashboard/transporter/shipments">
+            <Button variant="ghost" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Available Shipments
+            </Button>
+          </Link>
+          <Button
+            onClick={() => setShowRatingModal(true)}
+            disabled={isRatingDisabled || ratingCheckLoading}
+            className="gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            title={
+              hasRated
+                ? 'You have already rated this shipment'
+                : shipment.status !== 'completed'
+                ? 'Rating available when shipment is completed'
+                : !clientId
+                ? 'No client assigned'
+                : 'Rate your experience'
+            }
+          >
+            <Star className="h-4 w-4" />
+            {hasRated ? 'Rated' : 'Rate it!'}
           </Button>
-        </Link>
+        </div>
 
         {/* Status banner */}
         {existingOffer && (
@@ -702,6 +757,19 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
             )}
           </div>
         </div>
+      )}
+
+      {showRatingModal && clientId && (
+        <RatingModal
+          shipmentId={shipment.id}
+          toUserId={clientId}
+          toUserName={clientName}
+          onClose={() => setShowRatingModal(false)}
+          onSuccess={() => {
+            setHasRated(true)
+            setShowRatingModal(false)
+          }}
+        />
       )}
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Package, ChevronLeft, ChevronRight, Eye, MessageSquare, CheckCircle, Anchor, MapPin, ArrowRight } from 'lucide-react'
+import { Search, Package, ChevronLeft, ChevronRight, Eye, MessageSquare, CheckCircle, Anchor, MapPin, ArrowRight, Star } from 'lucide-react'
 import Link from 'next/link'
 import { updateShipmentStatus } from '@/lib/actions/shipments'
+import { RatingModal } from '@/components/rating-modal'
+import { createClient } from '@/lib/supabase/client'
 
 interface Shipment {
   id: string
@@ -43,10 +45,15 @@ const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' 
 
 export default function ClientShipmentsClient({ shipments }: { shipments: Shipment[] }) {
   const router = useRouter()
+  const supabase = createClient()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [confirming, setConfirming] = useState<string | null>(null)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [selectedShipment, setSelectedShipment] = useState<{ id: string; transporterId: string; transporterName: string } | null>(null)
+  const [ratedShipments, setRatedShipments] = useState<Set<string>>(new Set())
+  const [shipmentTransporters, setShipmentTransporters] = useState<Map<string, { id: string; name: string }>>(new Map())
   const perPage = 10
 
   const filtered = shipments.filter(s => {
@@ -71,6 +78,59 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
   }
 
   const offerCount = (s: Shipment) => s.offers?.[0]?.count ?? 0
+
+  useEffect(() => {
+    async function loadRatingsAndTransporters() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const shipmentIds = shipments.map(s => s.id)
+
+      const { data: ratings } = await supabase
+        .from('ratings')
+        .select('shipment_id')
+        .eq('from_user_id', user.id)
+        .in('shipment_id', shipmentIds)
+
+      const rated = new Set(ratings?.map(r => r.shipment_id) || [])
+      setRatedShipments(rated)
+
+      const { data: offers } = await supabase
+        .from('offers')
+        .select(`
+          shipment_id,
+          transporter:profiles!offers_transporter_id_fkey(id, company_name, full_name)
+        `)
+        .eq('status', 'accepted')
+        .in('shipment_id', shipmentIds)
+
+      const transporterMap = new Map()
+      offers?.forEach(offer => {
+        const transporter = Array.isArray(offer.transporter) ? offer.transporter[0] : offer.transporter
+        if (transporter && !transporterMap.has(offer.shipment_id)) {
+          transporterMap.set(offer.shipment_id, {
+            id: transporter.id,
+            name: transporter.company_name || transporter.full_name || 'Transporter'
+          })
+        }
+      })
+      setShipmentTransporters(transporterMap)
+    }
+
+    loadRatingsAndTransporters()
+  }, [shipments])
+
+  const handleRateClick = (shipmentId: string) => {
+    const transporter = shipmentTransporters.get(shipmentId)
+    if (transporter) {
+      setSelectedShipment({
+        id: shipmentId,
+        transporterId: transporter.id,
+        transporterName: transporter.name
+      })
+      setShowRatingModal(true)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
@@ -145,6 +205,7 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Price / Offers</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Rate</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -210,6 +271,26 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                             )}
                           </div>
                         </td>
+                        <td className="px-6 py-4">
+                          <Button
+                            size="sm"
+                            onClick={() => handleRateClick(s.id)}
+                            disabled={s.status !== 'completed' || ratedShipments.has(s.id) || !shipmentTransporters.has(s.id)}
+                            className="h-7 text-xs gap-1 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            title={
+                              ratedShipments.has(s.id)
+                                ? 'Already rated'
+                                : s.status !== 'completed'
+                                ? 'Available when completed'
+                                : !shipmentTransporters.has(s.id)
+                                ? 'No transporter assigned'
+                                : 'Rate transporter'
+                            }
+                          >
+                            <Star className="h-3.5 w-3.5" />
+                            {ratedShipments.has(s.id) ? 'Rated' : 'Rate it!'}
+                          </Button>
+                        </td>
                       </tr>
                     )
                   })}
@@ -246,6 +327,23 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
           </CardContent>
         </Card>
       </main>
+
+      {showRatingModal && selectedShipment && (
+        <RatingModal
+          shipmentId={selectedShipment.id}
+          toUserId={selectedShipment.transporterId}
+          toUserName={selectedShipment.transporterName}
+          onClose={() => {
+            setShowRatingModal(false)
+            setSelectedShipment(null)
+          }}
+          onSuccess={() => {
+            setRatedShipments(prev => new Set(prev).add(selectedShipment.id))
+            setShowRatingModal(false)
+            setSelectedShipment(null)
+          }}
+        />
+      )}
     </div>
   )
 }

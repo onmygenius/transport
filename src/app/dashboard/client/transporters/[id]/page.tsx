@@ -38,6 +38,7 @@ interface TransporterProfile {
     phone: string
     email: string
     kyc_status: string
+    avatar_url: string | null
   }
 }
 
@@ -75,7 +76,8 @@ export default function TransporterProfilePage() {
             company_address,
             phone,
             email,
-            kyc_status
+            kyc_status,
+            avatar_url
           )
         `)
         .eq('profile_id', params.id)
@@ -161,9 +163,17 @@ export default function TransporterProfilePage() {
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
-                  <Truck className="h-8 w-8 text-blue-600" />
-                </div>
+                {transporter.profile?.avatar_url ? (
+                  <img
+                    src={transporter.profile.avatar_url}
+                    alt={transporter.profile?.company_name || 'Transporter'}
+                    className="h-16 w-16 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
+                    <Truck className="h-8 w-8 text-blue-600" />
+                  </div>
+                )}
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-2xl font-bold text-gray-900">
