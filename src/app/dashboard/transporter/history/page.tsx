@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ClientHeader } from '@/components/client/header'
+import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,13 +19,13 @@ interface HistoryShipment {
   agreed_price: number
   status: string
   updated_at: string
-  transporter: {
+  client: {
     company_name: string | null
     full_name: string | null
   } | null
 }
 
-export default function ClientHistoryPage() {
+export default function TransporterHistoryPage() {
   const router = useRouter()
   const supabase = createClient()
   const [period, setPeriod] = useState('all')
@@ -51,9 +51,9 @@ export default function ClientHistoryPage() {
           agreed_price,
           status,
           updated_at,
-          transporter:profiles!shipments_transporter_id_fkey(company_name, full_name)
+          client:profiles!shipments_client_id_fkey(company_name, full_name)
         `)
-        .eq('client_id', user.id)
+        .eq('transporter_id', user.id)
         .in('status', ['completed', 'cancelled'])
         .order('updated_at', { ascending: false })
 
@@ -62,7 +62,7 @@ export default function ClientHistoryPage() {
       } else {
         const normalized = (data || []).map(s => ({
           ...s,
-          transporter: Array.isArray(s.transporter) ? s.transporter[0] : s.transporter
+          client: Array.isArray(s.client) ? s.client[0] : s.client
         }))
         setShipments(normalized)
       }
@@ -99,10 +99,10 @@ export default function ClientHistoryPage() {
   const handleExportCSV = () => {
     const filtered = filterByPeriod(shipments)
     const csvContent = [
-      ['ID', 'Transporter', 'Origin', 'Destination', 'Date', 'Amount', 'Status'].join(','),
+      ['ID', 'Client', 'Origin', 'Destination', 'Date', 'Amount', 'Status'].join(','),
       ...filtered.map(s => [
         s.id,
-        `"${s.transporter?.company_name || s.transporter?.full_name || 'Unknown'}"`,
+        `"${s.client?.company_name || s.client?.full_name || 'Unknown'}"`,
         `"${s.origin_city}, ${s.origin_country}"`,
         `"${s.destination_city}, ${s.destination_country}"`,
         new Date(s.updated_at).toLocaleDateString(),
@@ -115,7 +115,7 @@ export default function ClientHistoryPage() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `shipments-history-${period}-${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `earnings-history-${period}-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
@@ -126,12 +126,12 @@ export default function ClientHistoryPage() {
 
   const filteredShipments = filterByPeriod(shipments)
   const completed = filteredShipments.filter(s => s.status === 'completed')
-  const totalSpent = completed.reduce((s, h) => s + (h.agreed_price || 0), 0)
+  const totalEarned = completed.reduce((s, h) => s + (h.agreed_price || 0), 0)
 
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
-        <ClientHeader title="History & Reports" subtitle="View past shipments and expense reports" />
+        <TransporterHeader title="History & Reports" subtitle="View past shipments and earnings reports" />
         <div className="flex items-center justify-center flex-1">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
@@ -141,13 +141,13 @@ export default function ClientHistoryPage() {
 
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
-      <ClientHeader title="History & Reports" subtitle="View past shipments and expense reports" />
+      <TransporterHeader title="History & Reports" subtitle="View past shipments and earnings reports" />
       <main className="flex-1 p-6 space-y-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {[
-            { label: 'Total Spent', value: `€${totalSpent.toLocaleString()}`, icon: CreditCard, color: 'bg-blue-100 text-blue-700' },
-            { label: 'Completed Shipments', value: completed.length, icon: Package, color: 'bg-emerald-100 text-emerald-700' },
-            { label: 'Avg. Cost per Shipment', value: `€${completed.length > 0 ? Math.round(totalSpent / completed.length).toLocaleString() : '0'}`, icon: TrendingUp, color: 'bg-violet-100 text-violet-700' },
+            { label: 'Total Earned', value: `€${totalEarned.toLocaleString()}`, icon: CreditCard, color: 'bg-emerald-100 text-emerald-700' },
+            { label: 'Completed Shipments', value: completed.length, icon: Package, color: 'bg-blue-100 text-blue-700' },
+            { label: 'Avg. Earnings per Shipment', value: `€${completed.length > 0 ? Math.round(totalEarned / completed.length).toLocaleString() : '0'}`, icon: TrendingUp, color: 'bg-violet-100 text-violet-700' },
           ].map(s => (
             <Card key={s.label}>
               <CardContent className="flex items-center gap-4 p-5">
@@ -191,7 +191,7 @@ export default function ClientHistoryPage() {
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Transporter</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Client</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Route</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Amount</th>
@@ -211,7 +211,7 @@ export default function ClientHistoryPage() {
                     <tr key={h.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 font-mono text-xs font-bold text-gray-600">{h.id.slice(0, 8)}…</td>
                       <td className="px-6 py-4 text-sm text-gray-700">
-                        {h.transporter?.company_name || h.transporter?.full_name || 'Unknown'}
+                        {h.client?.company_name || h.client?.full_name || 'Unknown'}
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-xs text-gray-900">{h.origin_city}, {h.origin_country}</p>
