@@ -425,7 +425,7 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
               <Card>
                 <CardHeader><CardTitle className="text-base">Special Instructions</CardTitle></CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{manualInstructions}</p>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap break-words">{manualInstructions}</p>
                 </CardContent>
               </Card>
             )}
