@@ -392,18 +392,28 @@ CREATE TRIGGER update_truck_availability_updated_at BEFORE UPDATE ON truck_avail
 CREATE TRIGGER update_offers_updated_at BEFORE UPDATE ON offers FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_disputes_updated_at BEFORE UPDATE ON disputes FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = ''
+AS $$
 BEGIN
-  INSERT INTO profiles (id, email, role)
-  VALUES (NEW.id, NEW.email, COALESCE(NEW.raw_user_meta_data->>'role', 'client')::user_role);
+  INSERT INTO public.profiles (id, email, role, full_name, company_name, phone)
+  VALUES (
+    NEW.id, 
+    NEW.email, 
+    COALESCE((NEW.raw_user_meta_data->>'role')::text, 'client')::public.user_role,
+    (NEW.raw_user_meta_data->>'full_name')::text,
+    (NEW.raw_user_meta_data->>'company_name')::text,
+    (NEW.raw_user_meta_data->>'phone')::text
+  );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 CREATE OR REPLACE FUNCTION update_transporter_rating()
 RETURNS TRIGGER AS $$

@@ -75,10 +75,10 @@ export default function RegisterPage() {
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Check your email!</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Congratulations!</h2>
           <p className="mt-2 text-gray-500">
-            We sent a confirmation link to <span className="font-medium text-gray-900">{email}</span>.
-            Click the link to activate your account.
+            Your account <span className="font-medium text-gray-900">{email}</span> has been created successfully.
+            You can now log in to access your dashboard.
           </p>
           <Button className="mt-6 w-full" onClick={() => router.push('/login')}>
             Go to Login
