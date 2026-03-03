@@ -4,7 +4,7 @@ export async function GET() {
   const manifest = {
     name: 'TRADE CONTAINER - European Freight Exchange',
     short_name: 'TRADE CONTAINER',
-    description: 'European Container Freight Exchange Platform',
+    description: 'Trade Container - European Freight Exchange Platform',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

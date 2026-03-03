@@ -266,7 +266,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Support Email</Label>
-                    <Input type="email" defaultValue="support@freightex.eu" />
+                    <Input type="email" defaultValue="support@tradecontainer.eu" />
                   </div>
                   <div className="space-y-2">
                     <Label>Support Phone</Label>

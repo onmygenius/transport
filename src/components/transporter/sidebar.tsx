@@ -93,7 +93,7 @@ export function TransporterSidebar({ companyName, email, unreadMessagesCount = 0
           )}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-gray-900">{companyName || 'FreightEx'}</p>
+          <p className="truncate text-sm font-bold text-gray-900">{companyName || 'Trade Container'}</p>
           <p className="text-xs text-gray-400">Transporter</p>
         </div>
       </div>

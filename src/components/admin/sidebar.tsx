@@ -95,7 +95,7 @@ export function AdminSidebar() {
           <Truck className="h-5 w-5 text-white" />
         </div>
         <div>
-          <p className="text-sm font-bold text-white">FreightEx</p>
+          <p className="text-sm font-bold text-white">Trade Container</p>
           <p className="text-xs text-gray-400">Admin Panel</p>
         </div>
       </div>

@@ -21,10 +21,10 @@ export default function TransporterBillingPage() {
         <div className="rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-blue-800">How payments work on FreightEx</p>
+            <p className="text-sm font-semibold text-blue-800">How payments work on Trade Container</p>
             <p className="text-sm text-blue-700 mt-0.5">
               Payments between clients and transporters are settled <strong>directly between the parties</strong> (bank transfer, cash, etc.).
-              FreightEx only charges a <strong>monthly subscription fee</strong> for platform access.
+              Trade Container only charges a <strong>monthly subscription fee</strong> for platform access.
             </p>
           </div>
         </div>

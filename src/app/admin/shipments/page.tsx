@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminHeader } from '@/components/admin/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,23 +8,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import { ShipmentDetailsModal } from '@/components/admin/shipment-details-modal'
+import type { Shipment } from '@/lib/types'
 import {
   Search, Download, Package, CheckCircle, Clock,
-  Truck, XCircle, Eye, ChevronLeft, ChevronRight, AlertTriangle
+  Truck, XCircle, Eye, ChevronLeft, ChevronRight, AlertTriangle, Loader2
 } from 'lucide-react'
 
-const mockShipments = [
-  { id: 'SHP-1842', client: 'EuroShip GmbH', transporter: 'Trans Cargo SRL', origin: 'Bucharest, RO', destination: 'Berlin, DE', container: '40ft', weight: 24, pickup: '2026-02-22', status: 'confirmed', price: 2400, commission: 72 },
-  { id: 'SHP-1841', client: 'Nordic Freight AS', transporter: null, origin: 'Oslo, NO', destination: 'Paris, FR', container: '20ft', weight: 12, pickup: '2026-02-25', status: 'pending', price: null, commission: null },
-  { id: 'SHP-1840', client: 'Container Plus Ltd', transporter: 'Fast Logistics SA', origin: 'London, GB', destination: 'Madrid, ES', container: '40ft_hc', weight: 28, pickup: '2026-02-20', status: 'in_transit', price: 3200, commission: 96 },
-  { id: 'SHP-1839', client: 'Nordic Freight AS', transporter: 'Balkan Transport DOO', origin: 'Stockholm, SE', destination: 'Athens, GR', container: '20ft', weight: 10, pickup: '2026-02-18', status: 'disputed', price: 1850, commission: 55 },
-  { id: 'SHP-1838', client: 'Alpine Logistics AG', transporter: 'Iberian Cargo SL', origin: 'Zurich, CH', destination: 'Lisbon, PT', container: '40ft', weight: 22, pickup: '2026-02-15', status: 'completed', price: 2800, commission: 84 },
-  { id: 'SHP-1837', client: 'Adriatic Shipping DOO', transporter: 'Nordic Freight AS', origin: 'Zagreb, HR', destination: 'Amsterdam, NL', container: 'reefer_40ft', weight: 18, pickup: '2026-02-14', status: 'delivered', price: 3600, commission: 108 },
-  { id: 'SHP-1836', client: 'Vistula Trans SP', transporter: null, origin: 'Warsaw, PL', destination: 'Rome, IT', container: '20ft', weight: 8, pickup: '2026-02-28', status: 'pending', price: null, commission: null },
-  { id: 'SHP-1835', client: 'Container Plus Ltd', transporter: 'Fast Logistics SA', origin: 'Manchester, GB', destination: 'Lyon, FR', container: '40ft_hc', weight: 30, pickup: '2026-02-17', status: 'disputed', price: 3200, commission: 96 },
-  { id: 'SHP-1834', client: 'EuroShip GmbH', transporter: 'Trans Cargo SRL', origin: 'Hamburg, DE', destination: 'Warsaw, PL', container: '40ft', weight: 26, pickup: '2026-02-12', status: 'completed', price: 1900, commission: 57 },
-  { id: 'SHP-1833', client: 'Nordic Freight AS', transporter: 'Alpine Logistics AG', origin: 'Oslo, NO', destination: 'Vienna, AT', container: '20ft', weight: 14, pickup: '2026-02-10', status: 'cancelled', price: 1400, commission: 0 },
-]
+interface ShipmentWithNames extends Shipment {
+  client_name?: string
+  transporter_name?: string
+}
 
 const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' | 'default' | 'success' | 'destructive' | 'secondary'; icon: React.ElementType }> = {
   pending: { label: 'Pending', variant: 'warning', icon: Clock },
@@ -50,18 +45,48 @@ const containerLabels: Record<string, string> = {
 }
 
 export default function ShipmentsPage() {
+  const supabase = createClient()
+  const [shipments, setShipments] = useState<ShipmentWithNames[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
+  const [showDetails, setShowDetails] = useState(false)
+  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null)
   const perPage = 10
 
-  const filtered = mockShipments.filter(s => {
+  useEffect(() => {
+    loadShipments()
+  }, [])
+
+  async function loadShipments() {
+    setLoading(true)
+    const { data: shipmentsData } = await supabase
+      .from('shipments')
+      .select(`
+        *,
+        client:profiles!shipments_client_id_fkey(company_name, email),
+        transporter:profiles!shipments_transporter_id_fkey(company_name, email)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (shipmentsData) {
+      const formatted = shipmentsData.map((s: any) => ({
+        ...s,
+        client_name: s.client?.company_name || s.client?.email || 'Unknown',
+        transporter_name: s.transporter?.company_name || s.transporter?.email || null
+      }))
+      setShipments(formatted)
+    }
+    setLoading(false)
+  }
+
+  const filtered = shipments.filter(s => {
     const matchSearch =
-      s.id.toLowerCase().includes(search.toLowerCase()) ||
-      s.client.toLowerCase().includes(search.toLowerCase()) ||
-      (s.transporter?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-      s.origin.toLowerCase().includes(search.toLowerCase()) ||
-      s.destination.toLowerCase().includes(search.toLowerCase())
+      (s.client_name?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
+      (s.transporter_name?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
+      s.origin_city?.toLowerCase().includes(search.toLowerCase()) ||
+      s.destination_city?.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'all' || s.status === statusFilter
     return matchSearch && matchStatus
   })
@@ -70,10 +95,10 @@ export default function ShipmentsPage() {
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
   const stats = {
-    total: mockShipments.length,
-    active: mockShipments.filter(s => ['confirmed', 'picked_up', 'in_transit'].includes(s.status)).length,
-    completed: mockShipments.filter(s => s.status === 'completed').length,
-    disputed: mockShipments.filter(s => s.status === 'disputed').length,
+    total: shipments.length,
+    active: shipments.filter(s => ['confirmed', 'picked_up', 'in_transit'].includes(s.status)).length,
+    completed: shipments.filter(s => s.status === 'completed').length,
+    disputed: shipments.filter(s => s.status === 'disputed').length,
   }
 
   return (
@@ -158,33 +183,31 @@ export default function ShipmentsPage() {
                       <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-mono text-xs font-bold text-gray-600">{s.id}</td>
                         <td className="px-6 py-4">
-                          <p className="font-medium text-gray-900 text-xs">{s.client}</p>
+                          <p className="font-medium text-gray-900 text-xs">{s.client_name}</p>
                         </td>
                         <td className="px-6 py-4">
-                          {s.transporter ? (
-                            <p className="text-xs text-gray-700">{s.transporter}</p>
+                          {s.transporter_name ? (
+                            <p className="text-xs text-gray-700">{s.transporter_name}</p>
                           ) : (
                             <span className="text-xs text-gray-400 italic">Unassigned</span>
                           )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-xs font-medium text-gray-900">{s.origin}</span>
-                            <span className="text-xs text-gray-400">→ {s.destination}</span>
+                            <span className="text-xs font-medium text-gray-900">{s.origin_city}, {s.origin_country}</span>
+                            <span className="text-xs text-gray-400">→ {s.destination_city}, {s.destination_country}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs text-gray-700">{containerLabels[s.container] || s.container}</span>
-                          <p className="text-xs text-gray-400">{s.weight}t</p>
+                          <span className="text-xs text-gray-700">{containerLabels[s.container_type] || s.container_type}</span>
+                          <p className="text-xs text-gray-400">{s.cargo_weight}t</p>
                         </td>
-                        <td className="px-6 py-4 text-xs text-gray-500">{formatDate(s.pickup)}</td>
+                        <td className="px-6 py-4 text-xs text-gray-500">{formatDate(s.pickup_date)}</td>
                         <td className="px-6 py-4">
-                          {s.price ? (
+                          {s.agreed_price ? (
                             <div>
-                              <p className="text-xs font-semibold text-gray-900">{formatCurrency(s.price)}</p>
-                              {s.commission !== null && s.commission > 0 && (
-                                <p className="text-xs text-gray-400">Fee: {formatCurrency(s.commission)}</p>
-                              )}
+                              <p className="text-xs font-semibold text-gray-900">{formatCurrency(s.agreed_price)}</p>
+                              <p className="text-xs text-gray-400">Fee: {formatCurrency(s.agreed_price * 0.03)}</p>
                             </div>
                           ) : (
                             <span className="text-xs text-gray-400">—</span>
@@ -197,7 +220,15 @@ export default function ShipmentsPage() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7"
+                            onClick={() => {
+                              setSelectedShipmentId(s.id)
+                              setShowDetails(true)
+                            }}
+                          >
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
                         </td>
@@ -208,7 +239,14 @@ export default function ShipmentsPage() {
               </table>
             </div>
 
-            {filtered.length === 0 && (
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <Loader2 className="h-10 w-10 mb-3 animate-spin" />
+                <p className="text-sm font-medium">Loading shipments...</p>
+              </div>
+            )}
+
+            {!loading && filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                 <Package className="h-10 w-10 mb-3 opacity-30" />
                 <p className="text-sm font-medium">No shipments found</p>
@@ -232,6 +270,17 @@ export default function ShipmentsPage() {
           </CardContent>
         </Card>
       </main>
+
+      {showDetails && selectedShipmentId && (
+        <ShipmentDetailsModal
+          shipmentId={selectedShipmentId}
+          onClose={() => {
+            setShowDetails(false)
+            setSelectedShipmentId(null)
+          }}
+          onUpdate={loadShipments}
+        />
+      )}
     </div>
   )
 }

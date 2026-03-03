@@ -92,7 +92,7 @@ export function ClientSidebar({ companyName, email, unreadMessagesCount = 0 }: C
           )}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-gray-900">{companyName || 'FreightEx'}</p>
+          <p className="truncate text-sm font-bold text-gray-900">{companyName || 'Trade Container'}</p>
           <p className="text-xs text-gray-400">Client / Shipper</p>
         </div>
       </div>

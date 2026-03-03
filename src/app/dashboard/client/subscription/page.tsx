@@ -16,7 +16,7 @@ const mockPaymentHistory = [
 export default function ClientSubscriptionPage() {
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
-      <ClientHeader title="Subscription" subtitle="Manage your FreightEx subscription plan" />
+      <ClientHeader title="Subscription" subtitle="Manage your Trade Container subscription plan" />
 
       <main className="flex-1 p-6 space-y-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
