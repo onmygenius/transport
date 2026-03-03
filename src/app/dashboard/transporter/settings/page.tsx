@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Save, CheckCircle, AlertTriangle, Upload, Camera, User, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { KycUpload } from '@/components/kyc-upload'
+import type { KycStatus } from '@/lib/types'
 
 const tabs = [
   { id: 'profile', label: 'Company Profile' },
@@ -39,7 +41,9 @@ export default function TransporterSettingsPage() {
     company_address: '',
     phone: '',
     contact_person: '',
-    avatar_url: ''
+    avatar_url: '',
+    kyc_status: 'pending' as KycStatus,
+    kyc_rejection_reason: null as string | null
   })
   
   const [transporterProfile, setTransporterProfile] = useState({
@@ -74,7 +78,9 @@ export default function TransporterSettingsPage() {
           company_address: profileData.company_address || '',
           phone: profileData.phone || '',
           contact_person: profileData.contact_person || '',
-          avatar_url: profileData.avatar_url || ''
+          avatar_url: profileData.avatar_url || '',
+          kyc_status: profileData.kyc_status || 'pending',
+          kyc_rejection_reason: profileData.kyc_rejection_reason || null
         })
       }
 
@@ -430,42 +436,10 @@ export default function TransporterSettingsPage() {
             )}
 
             {activeTab === 'kyc' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">KYC Verification</CardTitle>
-                  <CardDescription>Upload your company documents for verification</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-4">
-                    <CheckCircle className="h-5 w-5 text-emerald-600 shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-800">KYC Approved</p>
-                      <p className="text-xs text-emerald-600">Your company is verified. Verified badge is active on your profile.</p>
-                    </div>
-                    <Badge variant="success" className="ml-auto">Approved</Badge>
-                  </div>
-                  <Separator />
-                  {[
-                    { label: 'Company Registration Certificate', status: 'verified', file: 'registration.pdf' },
-                    { label: 'Transport License', status: 'verified', file: 'license.pdf' },
-                    { label: 'CMR Insurance', status: 'verified', file: 'insurance.pdf' },
-                  ].map(doc => (
-                    <div key={doc.label} className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{doc.label}</p>
-                        <p className="text-xs text-gray-400">{doc.file}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="success">Verified</Badge>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
-                          <Upload className="h-3.5 w-3.5" />
-                          Replace
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <KycUpload 
+                kycStatus={profile.kyc_status} 
+                kycRejectionReason={profile.kyc_rejection_reason}
+              />
             )}
 
             {activeTab === 'bank' && (

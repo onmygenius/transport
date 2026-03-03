@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminHeader } from '@/components/admin/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,24 +9,20 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { formatDate, getInitials } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import { KycActions } from '@/components/admin/kyc-actions'
+import { KycDocumentsViewer } from '@/components/admin/kyc-documents-viewer'
+import type { Profile } from '@/lib/types'
 import {
   Search, Filter, Download, UserCheck, UserX, Ban,
   Eye, MoreHorizontal, ChevronLeft, ChevronRight,
-  Users, Truck, Building2, Clock, CheckCircle, XCircle
+  Users, Truck, Building2, Clock, CheckCircle, XCircle, Loader2, FileText
 } from 'lucide-react'
 
-const mockUsers = [
-  { id: '1', name: 'Trans Cargo SRL', email: 'office@transcargo.ro', role: 'transporter', country: 'RO', kyc: 'pending', subscription: 'active', plan: 'monthly', joined: '2026-02-20', lastActive: '2026-02-20' },
-  { id: '2', name: 'EuroShip GmbH', email: 'info@euroship.de', role: 'client', country: 'DE', kyc: 'approved', subscription: 'active', plan: 'annual', joined: '2026-02-19', lastActive: '2026-02-20' },
-  { id: '3', name: 'Fast Logistics SA', email: 'contact@fastlogistics.fr', role: 'transporter', country: 'FR', kyc: 'pending', subscription: 'active', plan: 'annual', joined: '2026-02-19', lastActive: '2026-02-19' },
-  { id: '4', name: 'Container Plus Ltd', email: 'ops@containerplus.co.uk', role: 'client', country: 'GB', kyc: 'approved', subscription: 'active', plan: 'monthly', joined: '2026-02-18', lastActive: '2026-02-20' },
-  { id: '5', name: 'Balkan Transport DOO', email: 'info@balkantransport.rs', role: 'transporter', country: 'RS', kyc: 'rejected', subscription: 'expired', plan: 'monthly', joined: '2026-02-18', lastActive: '2026-02-18' },
-  { id: '6', name: 'Nordic Freight AS', email: 'freight@nordic.no', role: 'client', country: 'NO', kyc: 'approved', subscription: 'active', plan: 'annual', joined: '2026-02-17', lastActive: '2026-02-19' },
-  { id: '7', name: 'Iberian Cargo SL', email: 'cargo@iberian.es', role: 'transporter', country: 'ES', kyc: 'approved', subscription: 'active', plan: 'monthly', joined: '2026-02-16', lastActive: '2026-02-18' },
-  { id: '8', name: 'Alpine Logistics AG', email: 'info@alpine-log.ch', role: 'transporter', country: 'CH', kyc: 'pending', subscription: 'expired', plan: 'monthly', joined: '2026-02-15', lastActive: '2026-02-15' },
-  { id: '9', name: 'Adriatic Shipping DOO', email: 'ship@adriatic.hr', role: 'client', country: 'HR', kyc: 'approved', subscription: 'active', plan: 'monthly', joined: '2026-02-14', lastActive: '2026-02-20' },
-  { id: '10', name: 'Vistula Trans SP', email: 'trans@vistula.pl', role: 'transporter', country: 'PL', kyc: 'approved', subscription: 'suspended', plan: 'annual', joined: '2026-02-13', lastActive: '2026-02-16' },
-]
+interface UserWithSubscription extends Profile {
+  subscription_status?: string
+  subscription_plan?: string
+}
 
 const kycLabels: Record<string, { label: string; variant: 'warning' | 'success' | 'destructive' }> = {
   pending: { label: 'Pending', variant: 'warning' },
@@ -42,30 +38,53 @@ const subscriptionLabels: Record<string, { label: string; variant: 'success' | '
 }
 
 export default function UsersPage() {
+  const supabase = createClient()
+  const [users, setUsers] = useState<UserWithSubscription[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [kycFilter, setKycFilter] = useState('all')
   const [subFilter, setSubFilter] = useState('all')
   const [page, setPage] = useState(1)
+  const [showDocuments, setShowDocuments] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<UserWithSubscription | null>(null)
   const perPage = 10
 
-  const filtered = mockUsers.filter(u => {
-    const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
+  async function loadUsers() {
+    setLoading(true)
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('*')
+      .neq('role', 'admin')
+      .order('created_at', { ascending: false })
+
+    if (profiles) {
+      setUsers(profiles)
+    }
+    setLoading(false)
+  }
+
+  const filtered = users.filter(u => {
+    const matchSearch = (u.company_name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      (u.company_cif?.toLowerCase() || '').includes(search.toLowerCase())
     const matchRole = roleFilter === 'all' || u.role === roleFilter
-    const matchKyc = kycFilter === 'all' || u.kyc === kycFilter
-    const matchSub = subFilter === 'all' || u.subscription === subFilter
-    return matchSearch && matchRole && matchKyc && matchSub
+    const matchKyc = kycFilter === 'all' || u.kyc_status === kycFilter
+    return matchSearch && matchRole && matchKyc
   })
 
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
   const stats = {
-    total: mockUsers.length,
-    transporters: mockUsers.filter(u => u.role === 'transporter').length,
-    clients: mockUsers.filter(u => u.role === 'client').length,
-    pendingKyc: mockUsers.filter(u => u.kyc === 'pending').length,
+    total: users.length,
+    transporters: users.filter(u => u.role === 'transporter').length,
+    clients: users.filter(u => u.role === 'client').length,
+    pendingKyc: users.filter(u => u.kyc_status === 'pending').length,
   }
 
   return (
@@ -171,11 +190,11 @@ export default function UsersPage() {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback className={`text-xs font-bold ${user.role === 'transporter' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                              {getInitials(user.name)}
+                              {getInitials(user.company_name || user.email)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium text-gray-900">{user.name}</p>
+                            <p className="font-medium text-gray-900">{user.company_name || user.email}</p>
                             <p className="text-xs text-gray-500">{user.email}</p>
                           </div>
                         </div>
@@ -187,40 +206,46 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-mono text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
-                          {user.country}
+                          {user.company_country || '-'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant={kycLabels[user.kyc].variant}>
-                          {kycLabels[user.kyc].label}
+                        <Badge variant={kycLabels[user.kyc_status].variant}>
+                          {kycLabels[user.kyc_status].label}
                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-0.5">
-                          <Badge variant={subscriptionLabels[user.subscription].variant}>
-                            {subscriptionLabels[user.subscription].label}
-                          </Badge>
-                          {user.subscription === 'active' && (
-                            <span className="text-[10px] text-gray-400 capitalize">{user.plan === 'monthly' ? 'Monthly' : 'Annual'}</span>
-                          )}
-                        </div>
+                        <Badge variant="secondary">
+                          N/A
+                        </Badge>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.joined)}</td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.lastActive)}</td>
+                      <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.created_at)}</td>
+                      <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.updated_at)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1">
+                          {user.kyc_status === 'pending' && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50" 
+                              title="View KYC Documents"
+                              onClick={() => {
+                                setSelectedUser(user)
+                                setShowDocuments(true)
+                              }}
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
                           <Button variant="ghost" size="icon" className="h-7 w-7" title="View profile">
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
-                          {user.kyc === 'pending' && (
-                            <>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-50" title="Approve KYC">
-                                <UserCheck className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600 hover:text-red-700 hover:bg-red-50" title="Reject KYC">
-                                <UserX className="h-3.5 w-3.5" />
-                              </Button>
-                            </>
+                          {user.kyc_status === 'pending' && (
+                            <KycActions 
+                              userId={user.id} 
+                              userName={user.company_name || user.email}
+                              onSuccess={loadUsers}
+                            />
                           )}
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-gray-600" title="More actions">
                             <MoreHorizontal className="h-3.5 w-3.5" />
@@ -233,7 +258,14 @@ export default function UsersPage() {
               </table>
             </div>
 
-            {filtered.length === 0 && (
+            {loading && (
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <Loader2 className="h-10 w-10 mb-3 animate-spin" />
+                <p className="text-sm font-medium">Loading users...</p>
+              </div>
+            )}
+
+            {!loading && filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                 <Users className="h-10 w-10 mb-3 opacity-30" />
                 <p className="text-sm font-medium">No users found</p>
@@ -272,6 +304,17 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       </main>
+
+      {showDocuments && selectedUser && (
+        <KycDocumentsViewer
+          userId={selectedUser.id}
+          userName={selectedUser.company_name || selectedUser.email}
+          onClose={() => {
+            setShowDocuments(false)
+            setSelectedUser(null)
+          }}
+        />
+      )}
     </div>
   )
 }
