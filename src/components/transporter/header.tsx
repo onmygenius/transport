@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Bell, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { NotificationBell } from '@/components/notifications/notification-bell'
+import { NotificationMarquee } from '@/components/notifications/notification-marquee'
 
 interface TransporterHeaderProps {
   title: string
@@ -59,16 +60,16 @@ export function TransporterHeader({ title, subtitle, companyName }: TransporterH
   }, [])
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
+    <header className="grid grid-cols-3 h-16 items-center border-b border-gray-200 bg-white px-6">
       <div>
         <h1 className="text-lg font-bold text-gray-900">{title}</h1>
         {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
       </div>
-      <div className="flex items-center gap-3">
-        <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">2</span>
-        </button>
+      <div className="flex justify-center">
+        <NotificationMarquee />
+      </div>
+      <div className="flex items-center gap-3 justify-end">
+        <NotificationBell variant="transporter" />
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white cursor-pointer overflow-hidden">
           {avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
