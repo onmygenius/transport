@@ -16,6 +16,7 @@ const navItems = [
   { title: 'Post Shipment', href: '/dashboard/client/post', icon: PlusCircle },
   { title: 'My Shipments', href: '/dashboard/client/shipments', icon: Package },
   { title: 'Browse Transporters', href: '/dashboard/client/transporters', icon: Truck },
+  { title: 'Reviews', href: '/dashboard/client/reviews', icon: Star },
   // { title: 'Documents', href: '/dashboard/client/documents', icon: FileText },
   { title: 'Disputes', href: '/dashboard/client/disputes', icon: AlertTriangle },
   { title: 'Messages', href: '/dashboard/client/messages', icon: MessageSquare },

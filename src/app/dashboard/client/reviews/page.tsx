@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { TransporterHeader } from '@/components/transporter/header'
+import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Star, Loader2, MessageSquare } from 'lucide-react'
@@ -39,7 +39,7 @@ function StarRating({ value }: { value: number }) {
   )
 }
 
-export default function TransporterReviewsPage() {
+export default function ClientReviewsPage() {
   const router = useRouter()
   const supabase = createClient()
   const [reviews, setReviews] = useState<Review[]>([])
@@ -105,7 +105,7 @@ export default function TransporterReviewsPage() {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
-        <TransporterHeader title="Reviews" subtitle="Ratings received from clients" />
+        <ClientHeader title="Reviews" subtitle="Ratings received from transporters" />
         <div className="flex items-center justify-center flex-1">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
@@ -124,14 +124,14 @@ export default function TransporterReviewsPage() {
 
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
-      <TransporterHeader title="Reviews" subtitle="Ratings received from clients" />
+      <ClientHeader title="Reviews" subtitle="Ratings received from transporters" />
       <main className="flex-1 p-6 space-y-6">
         {reviews.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
               <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <p className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</p>
-              <p className="text-sm text-gray-500">Complete shipments to start receiving reviews from clients</p>
+              <p className="text-sm text-gray-500">Complete shipments to start receiving reviews from transporters</p>
             </CardContent>
           </Card>
         ) : (
@@ -211,7 +211,7 @@ export default function TransporterReviewsPage() {
                           size="sm"
                           onClick={() => handleReplyClick(
                             review.id,
-                            review.from_user?.company_name || review.from_user?.full_name || 'Client'
+                            review.from_user?.company_name || review.from_user?.full_name || 'Transporter'
                           )}
                           className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                         >

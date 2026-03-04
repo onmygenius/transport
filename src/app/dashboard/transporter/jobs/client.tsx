@@ -44,6 +44,7 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const perPage = 10
 
   const filtered = jobs.filter(j => statusFilter === 'all' || j.status === statusFilter)
@@ -55,9 +56,18 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
   const completedJobs = jobs.filter(j => j.status === 'completed')
   const totalEarned = completedJobs.reduce((sum, j) => sum + (j.agreed_price ?? 0), 0)
 
-  const handleStatusUpdate = async (jobId: string, newStatus: 'picked_up' | 'delivered') => {
+  const handleStatusUpdate = async (jobId: string, newStatus: 'picked_up' | 'in_transit' | 'delivered') => {
     setUpdating(jobId)
-    await updateShipmentStatus(jobId, newStatus)
+    setError(null)
+    
+    const result = await updateShipmentStatus(jobId, newStatus)
+    
+    if (!result.success) {
+      setError(result.error || 'Failed to update status')
+      setUpdating(null)
+      return
+    }
+    
     setUpdating(null)
     router.refresh()
   }
@@ -67,6 +77,12 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
       <TransporterHeader title="Active Jobs" subtitle="Manage your current and past shipments" />
 
       <main className="flex-1 p-6 space-y-6">
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+        
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
             { label: 'Active', value: activeJobs.length, color: 'bg-blue-100 text-blue-700' },
@@ -164,9 +180,9 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-7 text-xs gap-1"
+                                className="h-7 text-xs gap-1 text-blue-600 border-blue-200 hover:bg-blue-50"
                                 disabled={isUpdating}
-                                onClick={() => handleStatusUpdate(job.id, 'delivered')}
+                                onClick={() => handleStatusUpdate(job.id, 'in_transit')}
                               >
                                 {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5" />}
                                 In Transit

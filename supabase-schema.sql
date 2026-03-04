@@ -505,6 +505,10 @@ CREATE POLICY "Clients can insert shipments" ON shipments FOR INSERT WITH CHECK 
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'client')
 );
 CREATE POLICY "Clients can update own shipments" ON shipments FOR UPDATE USING (client_id = auth.uid());
+CREATE POLICY "Transporters can update assigned shipments" ON shipments FOR UPDATE USING (
+  transporter_id = auth.uid() AND
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'transporter')
+);
 CREATE POLICY "Admins can update any shipment" ON shipments FOR UPDATE USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
