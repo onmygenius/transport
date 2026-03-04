@@ -340,14 +340,6 @@ export default function ClientSettingsPage() {
                     <Input type="password" placeholder="Repeat new password" />
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                      <p className="text-xs text-gray-500">Add an extra layer of security to your account</p>
-                    </div>
-                    <Button variant="outline" size="sm">Enable 2FA</Button>
-                  </div>
-                  <Separator />
                   <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                     <p className="text-sm font-semibold text-red-800">Delete Account</p>
                     <p className="text-xs text-red-600 mt-1">This action is irreversible. All data will be permanently deleted.</p>

@@ -17,7 +17,6 @@ import type { KycStatus } from '@/lib/types'
 const tabs = [
   { id: 'profile', label: 'Company Profile' },
   { id: 'kyc', label: 'KYC Verification' },
-  { id: 'bank', label: 'Bank Account' },
   { id: 'notifications', label: 'Notifications' },
   { id: 'security', label: 'Security' },
 ]
@@ -442,29 +441,6 @@ export default function TransporterSettingsPage() {
               />
             )}
 
-            {activeTab === 'bank' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Bank Account</CardTitle>
-                  <CardDescription>IBAN used for payouts from your wallet</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>IBAN</Label>
-                    <Input defaultValue="RO49AAAA1B31007593840000" />
-                    <p className="text-xs text-gray-500">Funds will be transferred to this account when you request a payout</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Account Holder Name</Label>
-                    <Input defaultValue="Trans Test SRL" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Bank Name</Label>
-                    <Input defaultValue="Banca Transilvania" />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {activeTab === 'notifications' && (
               <Card>
@@ -518,14 +494,6 @@ export default function TransporterSettingsPage() {
                   <div className="space-y-2">
                     <Label>Confirm New Password</Label>
                     <Input type="password" placeholder="Repeat new password" />
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                      <p className="text-xs text-gray-500">Add an extra layer of security to your account</p>
-                    </div>
-                    <Button variant="outline" size="sm">Enable 2FA</Button>
                   </div>
                   <Separator />
                   <div className="rounded-lg border border-red-200 bg-red-50 p-4">
