@@ -585,3 +585,47 @@ CREATE POLICY "System settings viewable by all authenticated" ON system_settings
 CREATE POLICY "Only admins can update system settings" ON system_settings FOR UPDATE USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
+
+-- =============================================
+-- EMAIL QUEUE (for async email sending)
+-- =============================================
+
+CREATE TABLE email_queue (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  email_type TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  template_data JSONB NOT NULL,
+  status TEXT DEFAULT 'pending',
+  attempts INTEGER DEFAULT 0,
+  error_message TEXT,
+  sent_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_email_queue_status ON email_queue(status, created_at);
+CREATE INDEX idx_email_queue_user ON email_queue(user_id);
+
+-- =============================================
+-- EMAIL PREFERENCES
+-- =============================================
+
+CREATE TABLE email_preferences (
+  user_id UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  email_offer_new BOOLEAN DEFAULT true,
+  email_offer_accepted BOOLEAN DEFAULT true,
+  email_shipment_status BOOLEAN DEFAULT true,
+  email_message_new BOOLEAN DEFAULT true,
+  email_kyc_status BOOLEAN DEFAULT true,
+  email_subscription BOOLEAN DEFAULT true,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Email queue policies
+CREATE POLICY "Only system can manage email queue" ON email_queue FOR ALL USING (false);
+
+-- Email preferences policies
+CREATE POLICY "Users can view own email preferences" ON email_preferences FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY "Users can update own email preferences" ON email_preferences FOR UPDATE USING (user_id = auth.uid());
+CREATE POLICY "Users can insert own email preferences" ON email_preferences FOR INSERT WITH CHECK (user_id = auth.uid());
