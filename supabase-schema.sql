@@ -514,7 +514,7 @@ CREATE POLICY "Admins can update any shipment" ON shipments FOR UPDATE USING (
 );
 
 -- Truck availability policies
-CREATE POLICY "Truck availability viewable by all authenticated" ON truck_availability FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY "Truck availability viewable by all" ON truck_availability FOR SELECT USING (true);
 CREATE POLICY "Transporters can manage own availability" ON truck_availability FOR ALL USING (transporter_id = auth.uid());
 
 -- Offers policies

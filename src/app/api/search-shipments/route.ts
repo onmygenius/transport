@@ -2,38 +2,44 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const originCountry = searchParams.get('originCountry') || ''
-  const originCity = searchParams.get('originCity') || ''
-  const destinationCountry = searchParams.get('destinationCountry') || ''
-  const destinationCity = searchParams.get('destinationCity') || ''
-  const date = searchParams.get('date') || ''
-  const containerType = searchParams.get('containerType') || ''
-  const shippingType = searchParams.get('shippingType') || ''
-  const searchType = searchParams.get('searchType') || 'transporter'
-  const sortBy = searchParams.get('sortBy') || 'relevance'
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const originCountry = searchParams.get('originCountry') || ''
+    const originCity = searchParams.get('originCity') || ''
+    const destinationCountry = searchParams.get('destinationCountry') || ''
+    const destinationCity = searchParams.get('destinationCity') || ''
+    const date = searchParams.get('date') || ''
+    const containerType = searchParams.get('containerType') || ''
+    const shippingType = searchParams.get('shippingType') || ''
+    const searchType = searchParams.get('searchType') || 'transporter'
+    const sortBy = searchParams.get('sortBy') || 'relevance'
 
-  const supabase = await createClient()
+    const supabase = await createClient()
 
-  // Check if user is authenticated and has active subscription
-  const { data: { user } } = await supabase.auth.getUser()
-  let hasActiveSubscription = false
+    // Check if user is authenticated and has active subscription
+    let hasActiveSubscription = false
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('status, expires_at')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .single()
 
-  if (user) {
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('status, expires_at')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .single()
-
-    if (subscription && new Date(subscription.expires_at) > new Date()) {
-      hasActiveSubscription = true
+        if (subscription && new Date(subscription.expires_at) > new Date()) {
+          hasActiveSubscription = true
+        }
+      }
+    } catch (authError) {
+      // User not authenticated - continue with hasActiveSubscription = false
+      console.log('User not authenticated, continuing with public search')
     }
-  }
 
-  let results: any[] = []
-  let error: any = null
+    let results: any[] = []
+    let error: any = null
 
   if (searchType === 'client') {
     let query = supabase
@@ -181,9 +187,17 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-  return NextResponse.json({ results, hasActiveSubscription })
+    return NextResponse.json({ results, hasActiveSubscription })
+  } catch (error) {
+    console.error('Search API error:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      results: [], 
+      hasActiveSubscription: false 
+    }, { status: 500 })
+  }
 }

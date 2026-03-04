@@ -34,8 +34,9 @@ export async function middleware(request: NextRequest) {
 
   const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email']
   const isPublicPath = publicPaths.some(p => pathname.startsWith(p))
+  const isApiRoute = pathname.startsWith('/api/')
 
-  if (!user && !isPublicPath && pathname !== '/') {
+  if (!user && !isPublicPath && !isApiRoute && pathname !== '/') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
