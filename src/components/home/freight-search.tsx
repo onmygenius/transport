@@ -32,13 +32,34 @@ export default function FreightSearch() {
   const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [sortBy, setSortBy] = useState('relevance')
   const [filters, setFilters] = useState({
-    origin: '',
-    destination: '',
+    originCountry: '',
+    originCity: '',
+    destinationCountry: '',
+    destinationCity: '',
     date: '',
     containerType: '',
     shippingType: 'fcl'
   })
+
+  const europeanCountries = [
+    { code: 'NL', name: 'Netherlands' },
+    { code: 'DE', name: 'Germany' },
+    { code: 'BE', name: 'Belgium' },
+    { code: 'FR', name: 'France' },
+    { code: 'PL', name: 'Poland' },
+    { code: 'IT', name: 'Italy' },
+    { code: 'ES', name: 'Spain' },
+    { code: 'RO', name: 'Romania' },
+    { code: 'CZ', name: 'Czech Republic' },
+    { code: 'AT', name: 'Austria' },
+    { code: 'HU', name: 'Hungary' },
+    { code: 'DK', name: 'Denmark' },
+    { code: 'SE', name: 'Sweden' },
+    { code: 'NO', name: 'Norway' },
+    { code: 'FI', name: 'Finland' },
+  ]
 
   const handleSearch = async () => {
     setLoading(true)
@@ -46,21 +67,42 @@ export default function FreightSearch() {
     
     try {
       const params = new URLSearchParams()
-      if (filters.origin) params.append('origin', filters.origin)
-      if (filters.destination) params.append('destination', filters.destination)
+      params.append('searchType', searchType)
+      params.append('sortBy', sortBy)
+      if (filters.originCountry) params.append('originCountry', filters.originCountry)
+      if (filters.originCity) params.append('originCity', filters.originCity)
+      if (filters.destinationCountry) params.append('destinationCountry', filters.destinationCountry)
+      if (filters.destinationCity) params.append('destinationCity', filters.destinationCity)
       if (filters.date) params.append('date', filters.date)
       if (filters.containerType) params.append('containerType', filters.containerType)
       if (filters.shippingType) params.append('shippingType', filters.shippingType)
       
       const response = await fetch(`/api/search-shipments?${params.toString()}`)
+      
+      if (!response.ok) {
+        console.error('API error:', response.status, response.statusText)
+        setResults([])
+        return
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('API returned non-JSON response')
+        setResults([])
+        return
+      }
+
       const data = await response.json()
       
       if (data.results) {
         setResults(data.results)
         setHasActiveSubscription(data.hasActiveSubscription || false)
+      } else {
+        setResults([])
       }
     } catch (error) {
       console.error('Search error:', error)
+      setResults([])
     } finally {
       setLoading(false)
     }
@@ -97,38 +139,64 @@ export default function FreightSearch() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
-              {/* Origin */}
+            {/* Location Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+              {/* Origin Country */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-gray-700">Origin</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Rotterdam, NL"
-                    className="pl-10"
-                    value={filters.origin}
-                    onChange={(e) => setFilters({ ...filters, origin: e.target.value })}
-                  />
-                </div>
+                <Label className="text-xs">Origin Country</Label>
+                <Select value={filters.originCountry} onValueChange={(v) => setFilters({ ...filters, originCountry: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {europeanCountries.map(c => (
+                      <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Destination */}
+              {/* Origin City (Optional) */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-gray-700">Destination</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Hamburg, DE"
-                    className="pl-10"
-                    value={filters.destination}
-                    onChange={(e) => setFilters({ ...filters, destination: e.target.value })}
-                  />
-                </div>
+                <Label className="text-xs">Origin City (optional)</Label>
+                <Input
+                  placeholder="e.g. Rotterdam"
+                  value={filters.originCity}
+                  onChange={(e) => setFilters({ ...filters, originCity: e.target.value })}
+                />
               </div>
 
+              {/* Destination Country */}
+              <div className="space-y-2">
+                <Label className="text-xs">Destination Country</Label>
+                <Select value={filters.destinationCountry} onValueChange={(v) => setFilters({ ...filters, destinationCountry: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {europeanCountries.map(c => (
+                      <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Destination City (Optional) */}
+              <div className="space-y-2">
+                <Label className="text-xs">Destination City (optional)</Label>
+                <Input
+                  placeholder="e.g. Hamburg"
+                  value={filters.destinationCity}
+                  onChange={(e) => setFilters({ ...filters, destinationCity: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Other Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
               {/* Date */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-gray-700">
+                <Label className="text-xs">
                   {searchType === 'client' ? 'Pickup Date' : 'Available From'}
                 </Label>
                 <div className="relative">
@@ -144,7 +212,7 @@ export default function FreightSearch() {
 
               {/* Container Type */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-gray-700">Container Type</Label>
+                <Label className="text-xs">Container Type</Label>
                 <Select value={filters.containerType} onValueChange={(v) => setFilters({ ...filters, containerType: v })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -164,7 +232,7 @@ export default function FreightSearch() {
 
               {/* Shipping Type */}
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-gray-700">Shipping Type</Label>
+                <Label className="text-xs">Shipping Type</Label>
                 <Select value={filters.shippingType} onValueChange={(v) => setFilters({ ...filters, shippingType: v })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -196,7 +264,7 @@ export default function FreightSearch() {
               <p className="text-xs sm:text-sm text-gray-600">
                 <span className="font-semibold text-gray-900">{results.length} results</span> found for your search
               </p>
-              <Select defaultValue="relevance">
+              <Select value={sortBy} onValueChange={(v) => { setSortBy(v); handleSearch(); }}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
@@ -204,7 +272,6 @@ export default function FreightSearch() {
                   <SelectItem value="relevance">Relevance</SelectItem>
                   <SelectItem value="price-low">Price: Low to High</SelectItem>
                   <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
                   <SelectItem value="date">Earliest Date</SelectItem>
                 </SelectContent>
               </Select>
