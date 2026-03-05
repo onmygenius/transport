@@ -46,6 +46,24 @@ export async function getTruckAvailability(): Promise<ActionResult> {
   return { success: true, data: data || [] }
 }
 
+export async function getTruckById(id: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return { success: false, error: 'Not authenticated' }
+
+  const { data, error } = await supabase
+    .from('truck_availability')
+    .select('*')
+    .eq('id', id)
+    .eq('transporter_id', user.id)
+    .single()
+
+  if (error) return { success: false, error: error.message }
+  
+  return { success: true, data }
+}
+
 export async function createTruckAvailability(formData: {
   equipment_type: string
   max_weight?: number

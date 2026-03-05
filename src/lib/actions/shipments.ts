@@ -74,25 +74,34 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
   try {
     const { data: transporters } = await supabase
       .from('profiles')
-      .select('id, email, full_name')
+      .select(`
+        id, 
+        email, 
+        full_name,
+        transporter_profiles!inner(operating_countries)
+      `)
       .eq('role', 'transporter')
       .eq('kyc_status', 'approved')
 
     if (transporters && transporters.length > 0) {
       for (const transporter of transporters) {
-        await sendTemplateEmail(
-          transporter.email,
-          'shipment_new_available',
-          {
-            recipientName: transporter.full_name,
-            route: `${data.origin_city} → ${data.destination_city}`,
-            containerType: data.container_type,
-            pickupDate: new Date(data.pickup_date).toLocaleDateString('en-GB'),
-            budget: data.budget || 0,
-            currency: data.currency,
-            shipmentId: shipment.id,
-          }
-        ).catch(err => console.error('Failed to send shipment notification:', err))
+        const operatingCountries = (transporter as any).transporter_profiles?.operating_countries || []
+        
+        if (operatingCountries.includes(data.origin_country)) {
+          await sendTemplateEmail(
+            transporter.email,
+            'shipment_new_available',
+            {
+              recipientName: transporter.full_name,
+              route: `${data.origin_city} → ${data.destination_city}`,
+              containerType: data.container_type,
+              pickupDate: new Date(data.pickup_date).toLocaleDateString('en-GB'),
+              budget: data.budget || 0,
+              currency: data.currency,
+              shipmentId: shipment.id,
+            }
+          ).catch(err => console.error('Failed to send shipment notification:', err))
+        }
       }
     }
   } catch (emailError) {
