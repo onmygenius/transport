@@ -37,11 +37,13 @@ export default async function TransporterShipmentsPage() {
 
   const { data: myOffers } = await supabase
     .from('offers')
-    .select('shipment_id')
+    .select('shipment_id, status')
     .eq('transporter_id', user.id)
-    .in('status', ['pending', 'accepted'])
 
-  const myOfferShipmentIds = new Set((myOffers || []).map(o => o.shipment_id))
+  const myOffersMap: Record<string, string> = {}
+  ;(myOffers || []).forEach((offer: any) => {
+    myOffersMap[offer.shipment_id] = offer.status
+  })
 
   // Transform client array to object (Supabase returns array for foreign key relations)
   const transformedShipments = (shipments || []).map((s: any) => ({
@@ -52,7 +54,7 @@ export default async function TransporterShipmentsPage() {
   return (
     <TransporterShipmentsClient
       shipments={transformedShipments}
-      myOfferShipmentIds={Array.from(myOfferShipmentIds)}
+      myOffers={myOffersMap}
     />
   )
 }

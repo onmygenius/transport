@@ -135,10 +135,10 @@ interface Shipment {
 
 interface Props {
   shipments: Shipment[]
-  myOfferShipmentIds: string[]
+  myOffers: Record<string, string>
 }
 
-export default function TransporterShipmentsClient({ shipments, myOfferShipmentIds }: Props) {
+export default function TransporterShipmentsClient({ shipments, myOffers }: Props) {
   const router = useRouter()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -148,8 +148,9 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
   const [originFilter, setOriginFilter] = useState('')
   const [destinationFilter, setDestinationFilter] = useState('')
   const [availableFromFilter, setAvailableFromFilter] = useState('')
-  const [containerTypeFilter, setContainerTypeFilter] = useState('')
-  const [shippingTypeFilter, setShippingTypeFilter] = useState('')
+  const [containerTypeFilter, setContainerTypeFilter] = useState('all')
+  const [shippingTypeFilter, setShippingTypeFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const [modalShipment, setModalShipment] = useState<Shipment | null>(null)
   const [offerForm, setOfferForm] = useState({
@@ -160,7 +161,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
   const [submitting, setSubmitting] = useState(false)
   const [offerError, setOfferError] = useState<string | null>(null)
   const [offerSuccess, setOfferSuccess] = useState(false)
-  const [acceptedShipmentIds, setAcceptedShipmentIds] = useState<string[]>(myOfferShipmentIds)
+  const [acceptedShipmentIds, setAcceptedShipmentIds] = useState<string[]>(Object.keys(myOffers))
 
   const myOfferSet = new Set(acceptedShipmentIds)
 
@@ -192,7 +193,18 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
     // Shipping Type filter
     const matchesShippingType = !shippingTypeFilter || shippingTypeFilter === 'all' || s.transport_type === shippingTypeFilter
     
-    return matchesSearch && matchesOrigin && matchesDestination && matchesAvailableFrom && matchesContainerType && matchesShippingType
+    // Status filter
+    const myStatus = myOffers[s.id]
+    let matchesStatus = true
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'available') {
+        matchesStatus = !myStatus
+      } else {
+        matchesStatus = myStatus === statusFilter
+      }
+    }
+    
+    return matchesSearch && matchesOrigin && matchesDestination && matchesAvailableFrom && matchesContainerType && matchesShippingType && matchesStatus
   })
 
   const totalPages = Math.ceil(filtered.length / perPage)
@@ -286,7 +298,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
             </div>
             
             {/* Filters */}
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-6 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs text-gray-600">Origin</Label>
                 <Input
@@ -346,6 +358,23 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-gray-600">All Statuses</Label>
+                <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setPage(1) }}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
 
@@ -361,6 +390,7 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">From - until</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Price</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">All Statuses</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -471,6 +501,30 @@ export default function TransporterShipmentsClient({ shipments, myOfferShipmentI
                               </Button>
                             )}
                           </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          {(() => {
+                            const status = myOffers[s.id]
+                            if (!status) {
+                              return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">Available</Badge>
+                            }
+                            if (status === 'pending') {
+                              return <Badge variant="secondary" className="bg-amber-100 text-amber-700 text-xs">⏳ Pending</Badge>
+                            }
+                            if (status === 'accepted') {
+                              return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-xs">✓ Accepted</Badge>
+                            }
+                            if (status === 'rejected') {
+                              return <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">✗ Rejected</Badge>
+                            }
+                            if (status === 'expired') {
+                              return <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">⌛ Expired</Badge>
+                            }
+                            if (status === 'withdrawn') {
+                              return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 text-xs">↩ Withdrawn</Badge>
+                            }
+                            return null
+                          })()}
                         </td>
                       </tr>
                     )
