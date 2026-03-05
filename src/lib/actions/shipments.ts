@@ -96,7 +96,14 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
         const operatingCountries = (transporter as any).transporter_profiles?.operating_countries 
           || EUROPEAN_COUNTRIES
         
-        if (operatingCountries.includes(data.origin_country)) {
+        console.log(`🚚 Transporter ${transporter.email}:`, {
+          hasProfile: !!(transporter as any).transporter_profiles,
+          operatingCountries: operatingCountries.length,
+          matchesOrigin: data.origin_country === 'EU' || operatingCountries.includes(data.origin_country)
+        })
+        
+        if (data.origin_country === 'EU' || operatingCountries.includes(data.origin_country)) {
+          console.log(`✅ Sending email to ${transporter.email}`)
           await sendTemplateEmail(
             transporter.email,
             'shipment_new_available',
