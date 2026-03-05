@@ -171,13 +171,15 @@ export default function TransporterSettingsPage() {
 
       const { error: transporterError } = await supabase
         .from('transporter_profiles')
-        .update({
+        .upsert({
+          profile_id: user.id,
           fleet_size: transporterProfile.fleet_size,
           equipment_types: transporterProfile.equipment_types,
           container_types: transporterProfile.container_types,
           operating_countries: transporterProfile.operating_countries
+        }, {
+          onConflict: 'profile_id'
         })
-        .eq('profile_id', user.id)
 
       if (transporterError) throw transporterError
 
