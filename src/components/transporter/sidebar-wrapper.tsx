@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { TransporterSidebar } from './sidebar'
 import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
@@ -8,13 +9,17 @@ interface TransporterSidebarWrapperProps {
   email?: string
   userId: string
   initialUnreadCount: number
+  isOpen: boolean
+  onClose: () => void
 }
 
 export function TransporterSidebarWrapper({ 
   companyName, 
   email, 
   userId,
-  initialUnreadCount 
+  initialUnreadCount,
+  isOpen,
+  onClose
 }: TransporterSidebarWrapperProps) {
   const unreadCount = useUnreadMessages(userId, initialUnreadCount)
 
@@ -23,6 +28,8 @@ export function TransporterSidebarWrapper({
       companyName={companyName}
       email={email}
       unreadMessagesCount={unreadCount}
+      isOpen={isOpen}
+      onClose={onClose}
     />
   )
 }

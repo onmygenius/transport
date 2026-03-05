@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { TransporterSidebarWrapper } from '@/components/transporter/sidebar-wrapper'
+import { TransporterLayoutClient } from '@/components/transporter/layout-client'
 import { getUnreadMessagesCount } from '@/lib/actions/messages'
 
 export default async function TransporterLayout({ children }: { children: React.ReactNode }) {
@@ -20,16 +20,13 @@ export default async function TransporterLayout({ children }: { children: React.
   const unreadCount = await getUnreadMessagesCount()
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <TransporterSidebarWrapper
-        companyName={profile.company_name || profile.full_name || 'My Company'}
-        email={profile.email}
-        userId={user.id}
-        initialUnreadCount={unreadCount}
-      />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {children}
-      </div>
-    </div>
+    <TransporterLayoutClient
+      companyName={profile.company_name || profile.full_name || 'My Company'}
+      email={profile.email}
+      userId={user.id}
+      initialUnreadCount={unreadCount}
+    >
+      {children}
+    </TransporterLayoutClient>
   )
 }
