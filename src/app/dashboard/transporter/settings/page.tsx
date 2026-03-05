@@ -23,6 +23,13 @@ const tabs = [
 
 const EQUIPMENT_TYPES = ['flatbed', 'curtainsider', 'reefer', 'tank', 'lowbed', 'mega_trailer', 'other']
 const CONTAINER_TYPES = ['20ft', '40ft', '40ft_hc', '45ft', 'reefer_20ft', 'reefer_40ft', 'open_top', 'flat_rack']
+const EUROPEAN_COUNTRIES = [
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+  'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+  'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB', 'NO', 'CH',
+  'IS', 'LI', 'MC', 'AD', 'SM', 'VA', 'AL', 'BA', 'XK', 'ME',
+  'MK', 'RS', 'TR', 'UA', 'BY', 'MD'
+]
 
 export default function TransporterSettingsPage() {
   const router = useRouter()
@@ -94,8 +101,15 @@ export default function TransporterSettingsPage() {
           fleet_size: transporterData.fleet_size || 1,
           equipment_types: transporterData.equipment_types || [],
           container_types: transporterData.container_types || [],
-          operating_countries: transporterData.operating_countries || []
+          operating_countries: transporterData.operating_countries && transporterData.operating_countries.length > 0 
+            ? transporterData.operating_countries 
+            : EUROPEAN_COUNTRIES
         })
+      } else {
+        setTransporterProfile(prev => ({
+          ...prev,
+          operating_countries: EUROPEAN_COUNTRIES
+        }))
       }
 
       setLoading(false)
