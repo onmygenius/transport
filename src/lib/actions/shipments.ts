@@ -71,6 +71,14 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
 
   if (error) return { success: false, error: error.message }
 
+  const EUROPEAN_COUNTRIES = [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+    'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'GB', 'NO', 'CH',
+    'IS', 'LI', 'MC', 'AD', 'SM', 'VA', 'AL', 'BA', 'XK', 'ME',
+    'MK', 'RS', 'TR', 'UA', 'BY', 'MD'
+  ]
+
   try {
     const { data: transporters } = await supabase
       .from('profiles')
@@ -78,14 +86,15 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
         id, 
         email, 
         full_name,
-        transporter_profiles!inner(operating_countries)
+        transporter_profiles(operating_countries)
       `)
       .eq('role', 'transporter')
       .eq('kyc_status', 'approved')
 
     if (transporters && transporters.length > 0) {
       for (const transporter of transporters) {
-        const operatingCountries = (transporter as any).transporter_profiles?.operating_countries || []
+        const operatingCountries = (transporter as any).transporter_profiles?.operating_countries 
+          || EUROPEAN_COUNTRIES
         
         if (operatingCountries.includes(data.origin_country)) {
           await sendTemplateEmail(
