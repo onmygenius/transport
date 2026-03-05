@@ -3,6 +3,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { ActionResult, DocumentType } from '@/lib/types'
+import { sendTemplateEmail } from '@/lib/emails'
 
 export interface KycDocument {
   id: string
@@ -195,6 +196,13 @@ export async function approveKyc(userId: string): Promise<ActionResult> {
   }
 
   try {
+    // Get user profile for email
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name, company_name, role')
+      .eq('id', userId)
+      .single()
+
     // Update user KYC status to approved
     const { error: updateError } = await supabase
       .from('profiles')
@@ -219,6 +227,23 @@ export async function approveKyc(userId: string): Promise<ActionResult> {
 
     if (docsError) {
       console.error('Update documents error:', docsError)
+    }
+
+    // Send KYC approval email
+    if (userProfile?.email) {
+      try {
+        await sendTemplateEmail(
+          userProfile.email,
+          'kyc_approved',
+          {
+            recipientName: userProfile.full_name || userProfile.company_name || 'User',
+            companyName: userProfile.company_name || '',
+            role: userProfile.role || 'client',
+          }
+        )
+      } catch (emailError) {
+        console.error('Failed to send KYC approval email:', emailError)
+      }
     }
 
     revalidatePath('/admin/users')
@@ -255,6 +280,13 @@ export async function rejectKyc(userId: string, reason: string): Promise<ActionR
   }
 
   try {
+    // Get user profile for email
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name, company_name')
+      .eq('id', userId)
+      .single()
+
     // Update user KYC status to rejected with reason
     const { error: updateError } = await supabase
       .from('profiles')
@@ -268,6 +300,22 @@ export async function rejectKyc(userId: string, reason: string): Promise<ActionR
     if (updateError) {
       console.error('Reject KYC error:', updateError)
       return { success: false, error: updateError.message }
+    }
+
+    // Send KYC rejection email
+    if (userProfile?.email) {
+      try {
+        await sendTemplateEmail(
+          userProfile.email,
+          'kyc_rejected',
+          {
+            recipientName: userProfile.full_name || userProfile.company_name || 'User',
+            rejectionReason: reason,
+          }
+        )
+      } catch (emailError) {
+        console.error('Failed to send KYC rejection email:', emailError)
+      }
     }
 
     revalidatePath('/admin/users')
