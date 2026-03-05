@@ -411,6 +411,12 @@ export default function TransporterSettingsPage() {
                       <Input
                         value={operatingCountry}
                         onChange={e => setOperatingCountry(e.target.value.toUpperCase())}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            addOperatingCountry()
+                          }
+                        }}
                         placeholder="Enter country code (e.g., RO, DE, FR)"
                         maxLength={2}
                       />
