@@ -62,6 +62,21 @@ export default function RegisterPage() {
       return
     }
 
+    try {
+      await fetch('/api/send-welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          fullName,
+          companyName,
+          role,
+        }),
+      })
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError)
+    }
+
     setSuccess(true)
     setLoading(false)
   }
