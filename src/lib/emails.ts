@@ -1,4 +1,4 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { render } from '@react-email/components'
 import {
   OfferNewEmail,
@@ -16,7 +16,13 @@ import {
   StatusUpdateReminderEmail,
 } from '@/emails'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+})
 
 export type EmailType =
   | 'offer_new'
@@ -126,19 +132,14 @@ export async function sendEmail(
   html: string
 ): Promise<{ success: boolean; error?: string; messageId?: string }> {
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'Trade Container <noreply@tradecontainer.eu>',
+    const info = await transporter.sendMail({
+      from: process.env.FROM_EMAIL || 'Trade Container <fam.stancu@gmail.com>',
       to,
       subject,
       html,
     })
 
-    if (error) {
-      console.error('Resend error:', error)
-      return { success: false, error: error.message }
-    }
-
-    return { success: true, messageId: data?.id }
+    return { success: true, messageId: info.messageId }
   } catch (error: any) {
     console.error('Email send error:', error)
     return { success: false, error: error.message }
