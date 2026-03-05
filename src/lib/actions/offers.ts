@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ActionResult, Offer } from '@/lib/types'
+import { sendTemplateEmail } from '@/lib/emails'
 
 export interface CreateOfferData {
   shipment_id: string
@@ -98,6 +99,44 @@ export async function createOffer(data: CreateOfferData): Promise<ActionResult<O
     .eq('id', data.shipment_id)
     .eq('status', 'pending')
 
+  try {
+    const { data: clientProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name, company_name')
+      .eq('id', shipment.client_id)
+      .single()
+
+    const { data: transporterProfile } = await supabase
+      .from('profiles')
+      .select('company_name, full_name')
+      .eq('id', user.id)
+      .single()
+
+    const { data: shipmentDetails } = await supabase
+      .from('shipments')
+      .select('origin_city, destination_city, container_type, pickup_date')
+      .eq('id', data.shipment_id)
+      .single()
+
+    if (clientProfile && transporterProfile && shipmentDetails) {
+      await sendTemplateEmail(
+        clientProfile.email,
+        'offer_new',
+        {
+          recipientName: clientProfile.full_name || clientProfile.company_name,
+          transporterName: transporterProfile.company_name || transporterProfile.full_name,
+          route: `${shipmentDetails.origin_city} → ${shipmentDetails.destination_city}`,
+          price: data.price,
+          currency: data.currency,
+          estimatedDays: data.estimated_days,
+          offerId: offer.id,
+        }
+      ).catch(err => console.error('Failed to send offer notification:', err))
+    }
+  } catch (emailError) {
+    console.error('Failed to notify client of new offer:', emailError)
+  }
+
   revalidatePath('/dashboard/transporter/offers')
   revalidatePath('/dashboard/transporter/shipments')
   revalidatePath('/dashboard/client/shipments')
@@ -192,6 +231,43 @@ export async function acceptOffer(offerId: string, shipmentId: string): Promise<
     .eq('id', shipmentId)
 
   if (shipmentError) return { success: false, error: shipmentError.message }
+
+  try {
+    const { data: transporterProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name, company_name')
+      .eq('id', offer.transporter_id)
+      .single()
+
+    const { data: clientProfile } = await supabase
+      .from('profiles')
+      .select('company_name, full_name')
+      .eq('id', user.id)
+      .single()
+
+    const { data: shipmentDetails } = await supabase
+      .from('shipments')
+      .select('origin_city, destination_city, pickup_date')
+      .eq('id', shipmentId)
+      .single()
+
+    if (transporterProfile && clientProfile && shipmentDetails) {
+      await sendTemplateEmail(
+        transporterProfile.email,
+        'offer_accepted',
+        {
+          recipientName: transporterProfile.full_name || transporterProfile.company_name,
+          clientName: clientProfile.company_name || clientProfile.full_name,
+          route: `${shipmentDetails.origin_city} → ${shipmentDetails.destination_city}`,
+          price: offer.price,
+          pickupDate: new Date(shipmentDetails.pickup_date).toLocaleDateString('en-GB'),
+          shipmentId: shipmentId,
+        }
+      ).catch(err => console.error('Failed to send offer accepted notification:', err))
+    }
+  } catch (emailError) {
+    console.error('Failed to notify transporter of accepted offer:', emailError)
+  }
 
   revalidatePath('/dashboard/client/shipments')
   revalidatePath('/dashboard/transporter/jobs')

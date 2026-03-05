@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import Image from 'next/image'
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { sendTemplateEmail } from '@/lib/emails'
 
 type UserRole = 'transporter' | 'client'
 
@@ -60,6 +61,20 @@ export default function RegisterPage() {
       setError(authError.message)
       setLoading(false)
       return
+    }
+
+    try {
+      await sendTemplateEmail(
+        email,
+        'kyc_approved',
+        {
+          recipientName: fullName,
+          companyName: companyName,
+          role: role,
+        }
+      )
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError)
     }
 
     setSuccess(true)

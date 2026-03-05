@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ActionResult, Shipment, ContainerType, CargoType, TransportType } from '@/lib/types'
+import { sendTemplateEmail } from '@/lib/emails'
 
 export interface CreateShipmentData {
   origin_city: string
@@ -69,6 +70,34 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
     .single()
 
   if (error) return { success: false, error: error.message }
+
+  try {
+    const { data: transporters } = await supabase
+      .from('profiles')
+      .select('id, email, full_name')
+      .eq('role', 'transporter')
+      .eq('kyc_status', 'approved')
+
+    if (transporters && transporters.length > 0) {
+      for (const transporter of transporters) {
+        await sendTemplateEmail(
+          transporter.email,
+          'shipment_new_available',
+          {
+            recipientName: transporter.full_name,
+            route: `${data.origin_city} → ${data.destination_city}`,
+            containerType: data.container_type,
+            pickupDate: new Date(data.pickup_date).toLocaleDateString('en-GB'),
+            budget: data.budget || 0,
+            currency: data.currency,
+            shipmentId: shipment.id,
+          }
+        ).catch(err => console.error('Failed to send shipment notification:', err))
+      }
+    }
+  } catch (emailError) {
+    console.error('Failed to notify transporters:', emailError)
+  }
 
   revalidatePath('/dashboard/client/shipments')
   revalidatePath('/dashboard/transporter/shipments')
@@ -164,12 +193,57 @@ export async function updateShipmentStatus(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Not authenticated' }
 
+  const { data: shipment } = await supabase
+    .from('shipments')
+    .select('client_id, origin_city, destination_city, container_type')
+    .eq('id', shipmentId)
+    .single()
+
+  if (!shipment) return { success: false, error: 'Shipment not found' }
+
   const { error } = await supabase
     .from('shipments')
     .update({ status })
     .eq('id', shipmentId)
 
   if (error) return { success: false, error: error.message }
+
+  try {
+    const { data: clientProfile } = await supabase
+      .from('profiles')
+      .select('email, full_name, company_name')
+      .eq('id', shipment.client_id)
+      .single()
+
+    const { data: transporterProfile } = await supabase
+      .from('profiles')
+      .select('company_name, full_name')
+      .eq('id', user.id)
+      .single()
+
+    if (clientProfile && transporterProfile) {
+      let templateType: 'shipment_picked_up' | 'shipment_delivered' | null = null
+      
+      if (status === 'picked_up') templateType = 'shipment_picked_up'
+      else if (status === 'delivered') templateType = 'shipment_delivered'
+
+      if (templateType) {
+        await sendTemplateEmail(
+          clientProfile.email,
+          templateType,
+          {
+            recipientName: clientProfile.full_name || clientProfile.company_name,
+            transporterName: transporterProfile.company_name || transporterProfile.full_name,
+            route: `${shipment.origin_city} → ${shipment.destination_city}`,
+            containerType: shipment.container_type,
+            shipmentId: shipmentId,
+          }
+        ).catch(err => console.error('Failed to send status update notification:', err))
+      }
+    }
+  } catch (emailError) {
+    console.error('Failed to notify client of status update:', emailError)
+  }
 
   revalidatePath('/dashboard/transporter/jobs')
   revalidatePath('/dashboard/client/shipments')
