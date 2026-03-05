@@ -368,7 +368,6 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                     <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="available">Available</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="accepted">Accepted</SelectItem>
                     <SelectItem value="rejected">Rejected</SelectItem>
                     <SelectItem value="expired">Expired</SelectItem>
                     <SelectItem value="withdrawn">Withdrawn</SelectItem>
