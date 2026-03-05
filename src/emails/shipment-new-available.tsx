@@ -2,9 +2,17 @@ import { Html, Head, Body, Container, Section, Text, Button, Img } from '@react-
 
 interface ShipmentNewAvailableEmailProps {
   recipientName: string
-  route: string
+  originCity: string
+  originCountry: string
+  originAddress?: string
+  destinationCity: string
+  destinationCountry: string
+  destinationAddress?: string
   containerType: string
+  containerCount: number
+  cargoWeight: number
   pickupDate: string
+  deliveryDate?: string
   budget: number
   currency: string
   shipmentId: string
@@ -24,18 +32,38 @@ export default function ShipmentNewAvailableEmail(props: ShipmentNewAvailableEma
           <Section style={content}>
             <Text style={heading}>New Shipment Available! 🚚</Text>
             <Text style={paragraph}>Hello <strong>{props.recipientName}</strong>,</Text>
-            <Text style={paragraph}>A new shipment matching your routes is available.</Text>
+            <Text style={paragraph}>A new shipment matching your operating countries is available.</Text>
+            
             <Section style={detailsBox}>
+              <Text style={sectionTitle}>📍 Pickup Location</Text>
               <table style={detailsTable}>
-                <tr><td style={detailsLabel}>Route:</td><td style={detailsValue}>{props.route}</td></tr>
-                <tr><td style={detailsLabel}>Container:</td><td style={detailsValue}>{props.containerType}</td></tr>
-                <tr><td style={detailsLabel}>Pickup:</td><td style={detailsValue}>{props.pickupDate}</td></tr>
+                <tr><td style={detailsLabel}>City:</td><td style={detailsValue}>{props.originCity}, {props.originCountry}</td></tr>
+                {props.originAddress && <tr><td style={detailsLabel}>Address:</td><td style={detailsValue}>{props.originAddress}</td></tr>}
+                <tr><td style={detailsLabel}>Date:</td><td style={detailsValue}>{props.pickupDate}</td></tr>
+              </table>
+            </Section>
+
+            <Section style={detailsBox}>
+              <Text style={sectionTitle}>🎯 Destination</Text>
+              <table style={detailsTable}>
+                <tr><td style={detailsLabel}>City:</td><td style={detailsValue}>{props.destinationCity}, {props.destinationCountry}</td></tr>
+                {props.destinationAddress && <tr><td style={detailsLabel}>Address:</td><td style={detailsValue}>{props.destinationAddress}</td></tr>}
+                {props.deliveryDate && <tr><td style={detailsLabel}>Delivery:</td><td style={detailsValue}>{props.deliveryDate}</td></tr>}
+              </table>
+            </Section>
+
+            <Section style={detailsBox}>
+              <Text style={sectionTitle}>📦 Cargo Details</Text>
+              <table style={detailsTable}>
+                <tr><td style={detailsLabel}>Container:</td><td style={detailsValue}>{props.containerType} x {props.containerCount}</td></tr>
+                <tr><td style={detailsLabel}>Weight:</td><td style={detailsValue}>{props.cargoWeight} tons</td></tr>
                 <tr><td style={detailsLabel}>Budget:</td><td style={detailsValue}>{props.currency} {props.budget}</td></tr>
               </table>
             </Section>
+
             <Section style={buttonContainer}>
               <Button style={button} href={`${baseUrl}/dashboard/transporter/shipments/${props.shipmentId}`}>
-                Send Offer
+                View Details & Send Offer
               </Button>
             </Section>
           </Section>
@@ -55,7 +83,8 @@ const logo = { margin: '0 auto' }
 const content = { backgroundColor: '#ffffff', padding: '32px' }
 const heading = { fontSize: '24px', fontWeight: 'bold', color: '#111827', margin: '0 0 16px' }
 const paragraph = { fontSize: '16px', lineHeight: '24px', color: '#374151', margin: '0 0 16px' }
-const detailsBox = { backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', margin: '24px 0' }
+const sectionTitle = { fontSize: '16px', fontWeight: '600', color: '#111827', margin: '0 0 12px' }
+const detailsBox = { backgroundColor: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', margin: '16px 0' }
 const detailsTable = { width: '100%', fontSize: '14px' }
 const detailsLabel = { color: '#6b7280', paddingBottom: '8px', paddingRight: '16px' }
 const detailsValue = { color: '#111827', fontWeight: '500', paddingBottom: '8px' }
