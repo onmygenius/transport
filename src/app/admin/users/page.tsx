@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { formatDate, getInitials } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { KycActions } from '@/components/admin/kyc-actions'
@@ -48,6 +49,8 @@ export default function UsersPage() {
   const [page, setPage] = useState(1)
   const [showDocuments, setShowDocuments] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserWithSubscription | null>(null)
+  const [showUserDetails, setShowUserDetails] = useState(false)
+  const [selectedUserForDetails, setSelectedUserForDetails] = useState<UserWithSubscription | null>(null)
   const perPage = 10
 
   useEffect(() => {
@@ -237,7 +240,16 @@ export default function UsersPage() {
                               <FileText className="h-3.5 w-3.5" />
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon" className="h-7 w-7" title="View profile">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7" 
+                            title="View profile"
+                            onClick={() => {
+                              setSelectedUserForDetails(user)
+                              setShowUserDetails(true)
+                            }}
+                          >
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
                           {user.kyc_status === 'pending' && (
@@ -314,6 +326,119 @@ export default function UsersPage() {
             setSelectedUser(null)
           }}
         />
+      )}
+
+      {showUserDetails && selectedUserForDetails && (
+        <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className={`text-sm font-bold ${selectedUserForDetails.role === 'transporter' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                    {getInitials(selectedUserForDetails.company_name || selectedUserForDetails.email)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-lg font-bold text-gray-900">{selectedUserForDetails.company_name || 'User Details'}</p>
+                  <p className="text-sm font-normal text-gray-500">{selectedUserForDetails.email}</p>
+                </div>
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6 mt-4">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Role</p>
+                    <Badge variant={selectedUserForDetails.role === 'transporter' ? 'default' : 'info'}>
+                      {selectedUserForDetails.role === 'transporter' ? 'Transporter' : 'Client'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">KYC Status</p>
+                    <Badge variant={kycLabels[selectedUserForDetails.kyc_status].variant}>
+                      {kycLabels[selectedUserForDetails.kyc_status].label}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Full Name</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.full_name || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Phone</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.phone || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Company Information */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Company Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Company Name</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.company_name || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Company CIF</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.company_cif || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Country</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.company_country || '-'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Address</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.company_address || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Account Information</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">User ID</p>
+                    <p className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">{selectedUserForDetails.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Email</p>
+                    <p className="text-sm font-medium text-gray-900">{selectedUserForDetails.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Registered</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(selectedUserForDetails.created_at)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Last Updated</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(selectedUserForDetails.updated_at)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* KYC Documents Link */}
+              {selectedUserForDetails.kyc_status === 'pending' && (
+                <div className="pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setShowUserDetails(false)
+                      setSelectedUser(selectedUserForDetails)
+                      setShowDocuments(true)
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    View KYC Documents
+                  </Button>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   )
