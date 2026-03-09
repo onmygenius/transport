@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ActionResult, Offer } from '@/lib/types'
 import { sendTemplateEmail } from '@/lib/emails'
+import { createNotification } from '@/lib/actions/notifications'
 
 export interface CreateOfferData {
   shipment_id: string
@@ -98,6 +99,14 @@ export async function createOffer(data: CreateOfferData): Promise<ActionResult<O
     .update({ status: 'offer_received' })
     .eq('id', data.shipment_id)
     .eq('status', 'pending')
+
+  await createNotification(
+    shipment.client_id,
+    'offer_new',
+    'New Offer Received 📦',
+    `You received a new offer of ${data.price} ${data.currency} for your shipment`,
+    `/dashboard/client/shipments/${data.shipment_id}`
+  ).catch(err => console.error('Failed to create notification:', err))
 
   try {
     const { data: clientProfile } = await supabase
@@ -232,6 +241,14 @@ export async function acceptOffer(offerId: string, shipmentId: string): Promise<
 
   if (shipmentError) return { success: false, error: shipmentError.message }
 
+  await createNotification(
+    offer.transporter_id,
+    'offer_accepted',
+    'Offer Accepted! 🎉',
+    'Your offer has been accepted by the client',
+    `/dashboard/transporter/jobs`
+  ).catch(err => console.error('Failed to create notification:', err))
+
   try {
     const { data: transporterProfile } = await supabase
       .from('profiles')
@@ -280,12 +297,28 @@ export async function rejectOffer(offerId: string): Promise<ActionResult> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Not authenticated' }
 
+  const { data: offer } = await supabase
+    .from('offers')
+    .select('transporter_id')
+    .eq('id', offerId)
+    .single()
+
+  if (!offer) return { success: false, error: 'Offer not found' }
+
   const { error } = await supabase
     .from('offers')
     .update({ status: 'rejected' })
     .eq('id', offerId)
 
   if (error) return { success: false, error: error.message }
+
+  await createNotification(
+    offer.transporter_id,
+    'offer_rejected',
+    'Offer Rejected',
+    'Your offer was rejected by the client',
+    `/dashboard/transporter/offers`
+  ).catch(err => console.error('Failed to create notification:', err))
 
   revalidatePath('/dashboard/client/shipments')
   return { success: true }

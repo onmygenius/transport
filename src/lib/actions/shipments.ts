@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ActionResult, Shipment, ContainerType, CargoType, TransportType } from '@/lib/types'
 import { sendTemplateEmail } from '@/lib/emails'
+import { createNotification } from '@/lib/actions/notifications'
 
 export interface CreateShipmentData {
   origin_city: string
@@ -240,6 +241,22 @@ export async function updateShipmentStatus(
     .eq('id', shipmentId)
 
   if (error) return { success: false, error: error.message }
+
+  const statusMessages: Record<string, string> = {
+    'picked_up': 'Your shipment has been picked up',
+    'in_transit': 'Your shipment is in transit',
+    'delivered': 'Your shipment has been delivered',
+    'completed': 'Your shipment is completed',
+    'cancelled': 'Your shipment has been cancelled'
+  }
+
+  await createNotification(
+    shipment.client_id,
+    'shipment_status',
+    `Shipment ${status.replace('_', ' ')}`,
+    statusMessages[status] || `Shipment status updated to ${status}`,
+    `/dashboard/client/shipments/${shipmentId}`
+  ).catch(err => console.error('Failed to create notification:', err))
 
   try {
     const { data: clientProfile } = await supabase
