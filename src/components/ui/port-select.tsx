@@ -71,7 +71,7 @@ export const EUROPEAN_PORTS: Port[] = [
 export const PORT_TERMINALS: Record<string, string[]> = {
   NLRTM: ['APM2', 'CLdN Distriport', 'CTT Rotterdam', 'CTVrede Amsterdam', 'CTVrede Hoogtij', 'DCS | Kramer Group', 'ECT DELTA', 'EUROMAX', 'Hanseatic Global Terminals Rotterdam', 'HPD2', 'KCD | Kramer Group', 'KDD | Kramer Group', 'Matrans', 'RBC/Cetam', 'RCT | Kramer Group', 'RSC', 'RST', 'RWG', 'UWT Bunschotenweg', 'UWT Maasvlakte', 'UWT Waalhaven'],
   BEANR: ['K913', 'K869', 'K1742', 'K1718', '1700 DP World', 'ATO', 'BECOMAR', 'PROGECO', 'S11', 'K1213', 'GCS/EDS', 'ACC', 'ASHCCO', 'DR Depot', 'VAN DOORN', 'MEGA RIGHT/ICTC/EUCORE'],
-  DEHAM: ['CTA Container Terminal Altenwerder', 'CTB Hamburg', 'CMR Container Maintenance Repair Hamburg', 'Container Terminal Altenwerder', 'Eurogate Container Terminal', 'Hamburg HCS Neuhofer', 'HHCN Hamburger Container u. Chassis repair', 'HHLA Burchardkai (CTB Terminal)', 'ICEIS Germany (Progeco)', 'Remair GmbH', 'SRT Transporte', 'Zollamt Oberelbe (SCASU)'],
+  DEHAM: ['Eurogate Container Terminal Hamburg (CTH)', 'Container Terminal Altenwerder (CTA)', 'Container Terminal Burchardkai (CTB)', 'Container Terminal Tollerort (CTT)'],
   DEBRV: ['Eurogate Container Terminal Bremerhaven', 'NTB (Norddeutsche Terminal Bremerhaven)', 'BLG Logistics', 'MSC Gate Bremerhaven'],
   GBFXT: ['Felixstowe North Terminal', 'Felixstowe South Terminal', 'Trinity Terminal', 'Landguard Terminal'],
   GBSOU: ['DP World Southampton', 'Itchen Container Terminal', 'Solent Stevedores'],
