@@ -32,11 +32,11 @@ const statusConfig: Record<string, { label: string; variant: 'success' | 'defaul
 }
 
 const containerLabels: Record<string, string> = {
-  '20ft': '20ft Standard',
-  '40ft': '40ft Standard',
-  '40ft_hc': '40ft High Cube',
-  'reefer_20ft': 'Reefer 20ft',
-  'reefer_40ft': 'Reefer 40ft',
+  '20ft': '20 FT',
+  '30ft': '30 FT',
+  '40ft': '40 FT',
+  '45ft': '45 FT',
+  'other': 'Other',
 }
 
 export default function TrucksPage() {
@@ -130,11 +130,11 @@ export default function TrucksPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
-                  <SelectItem value="20ft">20ft Standard</SelectItem>
-                  <SelectItem value="40ft">40ft Standard</SelectItem>
-                  <SelectItem value="40ft_hc">40ft High Cube</SelectItem>
-                  <SelectItem value="reefer_20ft">Reefer 20ft</SelectItem>
-                  <SelectItem value="reefer_40ft">Reefer 40ft</SelectItem>
+                  <SelectItem value="20ft">20 FT</SelectItem>
+                  <SelectItem value="30ft">30 FT</SelectItem>
+                  <SelectItem value="40ft">40 FT</SelectItem>
+                  <SelectItem value="45ft">45 FT</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>

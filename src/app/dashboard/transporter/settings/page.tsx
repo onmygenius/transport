@@ -22,7 +22,7 @@ const tabs = [
 ]
 
 const EQUIPMENT_TYPES = ['flatbed', 'curtainsider', 'reefer', 'tank', 'lowbed', 'mega_trailer', 'other']
-const CONTAINER_TYPES = ['20ft', '40ft', '40ft_hc', '45ft', 'reefer_20ft', 'reefer_40ft', 'open_top', 'flat_rack']
+const CONTAINER_TYPES = ['20ft', '30ft', '40ft', '45ft', 'other']
 const EUROPEAN_COUNTRIES = [
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
   'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',

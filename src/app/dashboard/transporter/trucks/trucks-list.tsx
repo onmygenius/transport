@@ -16,11 +16,11 @@ const equipmentLabels: Record<string, string> = {
   'tank': 'Tank',
   'lowbed': 'Lowbed',
   'mega_trailer': 'Mega Trailer',
-  '20ft': '20ft Standard',
-  '40ft': '40ft Standard',
-  '40ft_hc': '40ft High Cube',
-  'reefer_20ft': 'Reefer 20ft',
-  'reefer_40ft': 'Reefer 40ft',
+  '20ft': '20 FT',
+  '30ft': '30 FT',
+  '40ft': '40 FT',
+  '45ft': '45 FT',
+  'other': 'Other',
 }
 
 const statusConfig: Record<string, { label: string; variant: 'success' | 'default' | 'secondary' }> = {

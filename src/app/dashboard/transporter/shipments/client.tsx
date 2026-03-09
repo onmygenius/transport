@@ -335,13 +335,10 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                   <SelectContent>
                     <SelectItem value="all">All types</SelectItem>
                     <SelectItem value="20ft">20 FT</SelectItem>
+                    <SelectItem value="30ft">30 FT</SelectItem>
                     <SelectItem value="40ft">40 FT</SelectItem>
-                    <SelectItem value="40ft_hc">40 FT HC</SelectItem>
                     <SelectItem value="45ft">45 FT</SelectItem>
-                    <SelectItem value="reefer_20ft">20 FT Reefer</SelectItem>
-                    <SelectItem value="reefer_40ft">40 FT Reefer</SelectItem>
-                    <SelectItem value="open_top">Open Top</SelectItem>
-                    <SelectItem value="flat_rack">Flat Rack</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

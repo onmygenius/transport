@@ -34,14 +34,11 @@ const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' 
 }
 
 const containerLabels: Record<string, string> = {
-  '20ft': '20ft Standard',
-  '40ft': '40ft Standard',
-  '40ft_hc': '40ft High Cube',
-  '45ft': '45ft',
-  'reefer_20ft': 'Reefer 20ft',
-  'reefer_40ft': 'Reefer 40ft',
-  'open_top': 'Open Top',
-  'flat_rack': 'Flat Rack',
+  '20ft': '20 FT',
+  '30ft': '30 FT',
+  '40ft': '40 FT',
+  '45ft': '45 FT',
+  'other': 'Other',
 }
 
 export default function ShipmentsPage() {
