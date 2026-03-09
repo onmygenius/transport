@@ -407,11 +407,10 @@ export default function PostShipmentPage() {
                     <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="20ft">20 FT</SelectItem>
+                      <SelectItem value="30ft">30 FT</SelectItem>
                       <SelectItem value="40ft">40 FT</SelectItem>
-                      <SelectItem value="40ft_hc">40 FT HC</SelectItem>
                       <SelectItem value="45ft">45 FT</SelectItem>
-                      <SelectItem value="open_top">Open Top</SelectItem>
-                      <SelectItem value="flat_rack">Flat Rack</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -424,7 +423,8 @@ export default function PostShipmentPage() {
                   <Select value={cargo.container_category} onValueChange={v => setCargo(p => ({ ...p, container_category: v }))}>
                     <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="high_cube">High Cube (HC)</SelectItem>
+                      <SelectItem value="dry">Dry</SelectItem>
+                      <SelectItem value="high_cube">High Cube</SelectItem>
                       <SelectItem value="hc_dry">HC Dry</SelectItem>
                       <SelectItem value="reefer">Reefer</SelectItem>
                       <SelectItem value="hc_reefer">HC Reefer</SelectItem>
