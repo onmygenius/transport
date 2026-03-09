@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -18,6 +19,8 @@ import {
   LogOut,
   ChevronRight,
   Package,
+  Menu,
+  X,
 } from 'lucide-react'
 
 const navItems = [
@@ -81,6 +84,7 @@ const navItems = [
 export function AdminSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -88,9 +92,52 @@ export function AdminSidebar() {
     router.push('/login')
   }
 
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
+
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-gray-900 text-white flex flex-col">
-      <div className="flex h-16 items-center gap-3 px-6 border-b border-gray-700">
+    <>
+      {/* Mobile Header with Hamburger */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-16 px-4 bg-gray-900 text-white md:hidden">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+            <Truck className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white">Trade Container</p>
+            <p className="text-xs text-gray-400">Admin Panel</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
+      </div>
+
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={closeMobileMenu}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 h-screen w-64 bg-gray-900 text-white flex flex-col transition-transform duration-300 ease-in-out",
+          "md:translate-x-0 md:top-0",
+          isMobileMenuOpen ? "translate-x-0 top-16" : "-translate-x-full top-16 md:top-0"
+        )}
+      >
+      {/* Desktop Header (hidden on mobile) */}
+      <div className="hidden md:flex h-16 items-center gap-3 px-6 border-b border-gray-700">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
           <Truck className="h-5 w-5 text-white" />
         </div>
@@ -108,6 +155,7 @@ export function AdminSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={closeMobileMenu}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
                     isActive
@@ -135,6 +183,7 @@ export function AdminSidebar() {
           <span>Sign Out</span>
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }
