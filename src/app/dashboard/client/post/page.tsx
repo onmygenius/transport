@@ -87,10 +87,7 @@ export default function PostShipmentPage() {
     setError(null)
     if (!pickup.port) { setError('Please enter a Pick-up port.'); return }
     if (!pickup.date) { setError('Please enter a Pick-up date.'); return }
-    if (!drop.port) { setError('Please enter a Drop port.'); return }
-    if (!drop.date) { setError('Please enter a Drop date.'); return }
     if (!cargo.container_type) { setError('Please select a container type.'); return }
-    if (!cargo.cargo_weight) { setError('Please select cargo weight range.'); return }
 
     setLoading(true)
     const result = await createShipment({
@@ -367,7 +364,7 @@ export default function PostShipmentPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
-                  <Label>Port *</Label>
+                  <Label>Port</Label>
                   <PortSelect placeholder="Select drop port..." value={drop.port} onChange={v => setDrop(p => ({ ...p, port: v, terminal: '' }))} />
                 </div>
                 <div className="space-y-2 col-span-2">
@@ -383,7 +380,7 @@ export default function PostShipmentPage() {
                   <Input placeholder="e.g. SL123456" value={drop.seal} onChange={e => setDropField('seal', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date *</Label>
+                  <Label>Date</Label>
                   <Input type="date" value={drop.date} onChange={e => setDropField('date', e.target.value)} />
                 </div>
                 <div className="space-y-2">
@@ -434,7 +431,7 @@ export default function PostShipmentPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Cargo Weight (kg) *</Label>
+                  <Label>Cargo Weight (kg)</Label>
                   <Select value={cargo.cargo_weight} onValueChange={v => setCargo(p => ({ ...p, cargo_weight: v }))}>
                     <SelectTrigger><SelectValue placeholder="Select weight range" /></SelectTrigger>
                     <SelectContent>
