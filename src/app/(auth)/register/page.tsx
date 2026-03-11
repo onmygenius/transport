@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex-col justify-between p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-zinc-900 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
           <Image src="/logo-site.png" alt="Trade Container" width={160} height={60} className="object-contain" />
         </div>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
           <h1 className="text-4xl font-bold text-white leading-tight">
             Join the European<br />freight network
           </h1>
-          <p className="mt-4 text-blue-200 text-lg">
+          <p className="mt-4 text-amber-200 text-lg">
             Create your free account and start posting or finding shipments across Europe.
           </p>
           <div className="mt-8 space-y-3">
@@ -124,13 +124,13 @@ export default function RegisterPage() {
               'Pan-European route coverage (25+ countries)',
             ].map(f => (
               <div key={f} className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-300 shrink-0" />
-                <span className="text-blue-100">{f}</span>
+                <CheckCircle className="h-5 w-5 text-amber-400 shrink-0" />
+                <span className="text-zinc-100">{f}</span>
               </div>
             ))}
           </div>
         </div>
-        <p className="text-blue-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
+        <p className="text-amber-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-8">
@@ -151,11 +151,11 @@ export default function RegisterPage() {
               className={cn(
                 'flex-1 rounded-xl border-2 p-4 text-left transition-all',
                 role === 'client'
-                  ? 'border-blue-600 bg-blue-50'
+                  ? 'border-amber-400 bg-amber-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               )}
             >
-              <p className={cn('font-semibold text-sm', role === 'client' ? 'text-blue-700' : 'text-gray-700')}>
+              <p className={cn('font-semibold text-sm', role === 'client' ? 'text-amber-700' : 'text-gray-700')}>
                 Client / Shipper
               </p>
               <p className="text-xs text-gray-500 mt-0.5">I post transport requests</p>
@@ -166,11 +166,11 @@ export default function RegisterPage() {
               className={cn(
                 'flex-1 rounded-xl border-2 p-4 text-left transition-all',
                 role === 'transporter'
-                  ? 'border-blue-600 bg-blue-50'
+                  ? 'border-amber-400 bg-amber-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               )}
             >
-              <p className={cn('font-semibold text-sm', role === 'transporter' ? 'text-blue-700' : 'text-gray-700')}>
+              <p className={cn('font-semibold text-sm', role === 'transporter' ? 'text-amber-700' : 'text-gray-700')}>
                 Transporter
               </p>
               <p className="text-xs text-gray-500 mt-0.5">I offer transport services</p>
@@ -268,9 +268,9 @@ export default function RegisterPage() {
 
             <p className="text-xs text-gray-500">
               By registering, you agree to our{' '}
-              <Link href="/terms" className="text-blue-600 hover:underline">Terms and Conditions</Link>
+              <Link href="/terms" className="text-amber-600 hover:underline">Terms and Conditions</Link>
               {' '}and{' '}
-              <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
+              <Link href="/privacy" className="text-amber-600 hover:underline">Privacy Policy</Link>.
             </p>
 
             <Button type="submit" className="w-full h-10" disabled={loading}>
@@ -287,7 +287,7 @@ export default function RegisterPage() {
 
           <p className="mt-5 text-center text-sm text-gray-500">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-blue-600 hover:underline">
+            <Link href="/login" className="font-medium text-amber-600 hover:underline">
               Sign in
             </Link>
           </p>

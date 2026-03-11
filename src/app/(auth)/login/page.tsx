@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen bg-gray-50">
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-12">
         <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" src="/hero_login.mp4" />
-        <div className="absolute inset-0 bg-blue-950/50" />
+        <div className="absolute inset-0 bg-zinc-900/60" />
         <div className="relative z-10 flex items-center gap-3">
           <Image src="/logo-site.png" alt="Trade Container" width={160} height={60} className="object-contain" />
         </div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-white leading-tight">
             European Container<br />Freight Exchange
           </h1>
-          <p className="mt-4 text-blue-200 text-lg">
+          <p className="mt-4 text-amber-200 text-lg">
             Connecting transporters with clients across Europe. Fast, secure and efficient.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
@@ -70,12 +70,12 @@ export default function LoginPage() {
             ].map(s => (
               <div key={s.label} className="rounded-xl bg-white/10 p-4">
                 <p className="text-2xl font-bold text-white">{s.value}</p>
-                <p className="text-sm text-blue-200">{s.label}</p>
+                <p className="text-sm text-amber-200">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
-        <p className="relative z-10 text-blue-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
+        <p className="relative z-10 text-amber-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-8">
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline">
+                <Link href="/forgot-password" className="text-xs text-amber-600 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Don't have an account?{' '}
-            <Link href="/register" className="font-medium text-blue-600 hover:underline">
+            <Link href="/register" className="font-medium text-amber-600 hover:underline">
               Register
             </Link>
           </p>
