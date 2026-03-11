@@ -5,6 +5,7 @@ import FreightSearch from '@/components/home/freight-search'
 import HeroVideo from '@/components/home/hero-video'
 import FlowAnimation from '@/components/home/flow-animation'
 import PricingSection from '@/components/home/pricing-section'
+import SavingsCalculator from '@/components/home/savings-calculator'
 
 export default function HomePage() {
   return (
@@ -201,25 +202,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <PricingSection />
+      <SavingsCalculator />
 
-      <section className="py-20 bg-zinc-900">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="text-3xl font-bold text-white">Ready to get started?</h2>
-          <p className="mt-4 text-amber-200 text-lg">
-            Join 1,800+ users who use Trade Container every day.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-amber-300 transition-colors"
-            >
-              Create your account
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       <section id="about" className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-6">
