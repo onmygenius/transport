@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp } from 'lucide-react'
+import { Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp, Truck } from 'lucide-react'
 import FreightSearch from '@/components/home/freight-search'
 import HeroVideo from '@/components/home/hero-video'
+import FlowAnimation from '@/components/home/flow-animation'
+import PricingSection from '@/components/home/pricing-section'
 
 export default function HomePage() {
   return (
@@ -13,19 +15,19 @@ export default function HomePage() {
             <Image src="/logo-site.png" alt="Trade Container" width={160} height={60} className="object-contain" />
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a href="#hero" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Home</a>
-            <a href="#features" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Features</a>
-            <a href="#pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
-            <a href="#how-it-works" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">How it works</a>
-            <a href="#about" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">About Us</a>
+            <a href="#hero" className="text-lg text-gray-600 hover:text-gray-900 transition-colors">Home</a>
+            <a href="#features" className="text-lg text-gray-600 hover:text-gray-900 transition-colors">Features</a>
+            <a href="#pricing" className="text-lg text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
+            <a href="#how-it-works" className="text-lg text-gray-600 hover:text-gray-900 transition-colors">How it works</a>
+            <a href="#about" className="text-lg text-gray-600 hover:text-gray-900 transition-colors">About Us</a>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
+            <Link href="/login" className="text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors">
               Login
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+              className="rounded-lg bg-amber-400 px-4 py-2 text-lg font-medium text-zinc-900 hover:bg-amber-300 transition-colors"
             >
               Register
             </Link>
@@ -33,32 +35,32 @@ export default function HomePage() {
         </div>
       </nav>
 
-      <section id="hero" className="relative overflow-hidden bg-blue-950 py-24 md:py-32">
+      <section id="hero" className="relative overflow-hidden bg-zinc-900 py-24 md:py-32">
         <HeroVideo />
-        <div className="absolute inset-0 bg-blue-950/65" />
-        <div className="relative mx-auto max-w-7xl px-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-800/50 border border-blue-700/50 px-4 py-1.5 mb-6">
+        <div className="absolute inset-0 bg-zinc-900/65" />
+        <div className="relative mx-auto max-w-3xl px-8 py-12 text-center rounded-3xl bg-black/50 backdrop-blur-sm border border-white/10">
+          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 border border-amber-400/50 px-4 py-1.5 mb-6">
             <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm text-blue-200">Active platform in 25+ European countries</span>
+            <span className="text-lg text-amber-200">Active platform in 25+ European countries</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
             Freight Exchange<br />
-            <span className="text-blue-300">for Europe</span>
+            <span className="text-amber-400">for Europe</span>
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
             Connecting transporters with shippers across Europe. Post shipments, send offers and manage transport — all in one platform.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-blue-900 hover:bg-blue-50 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-amber-300 transition-colors shadow-lg"
             >
               Get Started NOW
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 bg-blue-800/30 px-8 py-4 text-base font-semibold text-white hover:bg-blue-800/50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-white/10 px-8 py-4 text-base font-semibold text-white hover:bg-white/20 transition-colors"
             >
               Sign In
             </Link>
@@ -71,7 +73,7 @@ export default function HomePage() {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
-                <p className="text-sm text-blue-300 mt-0.5">{s.label}</p>
+                <p className="text-lg text-amber-300 mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -80,56 +82,79 @@ export default function HomePage() {
 
       <FreightSearch />
 
-      <section id="how-it-works" className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">How does it work?</h2>
-            <p className="mt-3 text-gray-500 max-w-xl mx-auto">Simple, fast and secure. From posting to delivery in a few steps.</p>
+      <FlowAnimation />
+
+      <section id="how-it-works" className="py-24 bg-gray-50">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="text-center mb-16">
+            <span className="inline-block rounded-full bg-amber-100 px-4 py-1.5 text-lg font-semibold text-amber-700 mb-4">Simple Process</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">How does it work?</h2>
+            <p className="mt-4 text-lg text-gray-500 max-w-xl mx-auto">Simple, fast and secure. From posting to delivery in a few steps.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* For Transporters */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 mb-6">
-                <Package className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">For Transporters</span>
+              <div className="flex items-center gap-3 mb-6 p-4 bg-amber-400 rounded-2xl">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/30">
+                  <Truck className="h-5 w-5 text-zinc-900" />
+                </div>
+                <div>
+                  <p className="font-bold text-zinc-900 text-base">For Transporters</p>
+                  <p className="text-base text-zinc-700">Carriers & fleet operators</p>
+                </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
-                  { step: '01', title: 'Create account and verify your company', desc: 'Quick registration with KYC verification of company documents.' },
-                  { step: '02', title: 'Post your available trucks', desc: 'Specify location, equipment type and availability.' },
-                  { step: '03', title: 'Send offers on matching shipments', desc: 'Search by route, container type and date. Send offers in one click.' },
-                  { step: '04', title: 'Deliver and get paid', desc: 'Payment is settled directly between you and the client — bank transfer, cash or any agreed method.' },
-                ].map(item => (
-                  <div key={item.step} className="flex gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
-                      {item.step}
+                  { icon: Users, title: 'Create & verify account', desc: 'Quick registration with KYC verification of company documents.' },
+                  { icon: Truck, title: 'Post your available trucks', desc: 'Specify location, equipment type and availability.' },
+                  { icon: Zap, title: 'Send offers on shipments', desc: 'Search by route, container type and date. Send offers in one click.' },
+                  { icon: Star, title: 'Deliver and get paid', desc: 'Payment settled directly between you and the client.' },
+                ].map((item, i) => (
+                  <div key={item.title} className="flex gap-4 bg-white rounded-2xl border border-gray-100 shadow-md p-5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 border-2 border-amber-200">
+                      <item.icon className="h-5 w-5 text-amber-500" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{item.title}</p>
-                      <p className="text-sm text-gray-500 mt-0.5">{item.desc}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-base font-bold text-amber-400">0{i + 1}</span>
+                        <p className="font-semibold text-gray-900 text-lg">{item.title}</p>
+                      </div>
+                      <p className="text-lg text-gray-500 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* For Clients */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 mb-6">
-                <Package className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm font-medium text-emerald-700">For Clients / Shippers</span>
+              <div className="flex items-center gap-3 mb-6 p-4 bg-zinc-900 rounded-2xl">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                  <Package className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-white text-base">For Clients / Shippers</p>
+                  <p className="text-base text-zinc-400">Manufacturing & trading companies</p>
+                </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {[
-                  { step: '01', title: 'Create account and verify your company', desc: 'Simple registration process with KYC verification.' },
-                  { step: '02', title: 'Post your transport request', desc: 'Specify route, container type, weight and desired date.' },
-                  { step: '03', title: 'Compare received offers', desc: 'Receive offers from verified transporters. Compare prices and ratings.' },
-                  { step: '04', title: 'Agree on payment and track', desc: 'Pay the transporter directly via bank transfer or cash. Track delivery status in real time.' },
-                ].map(item => (
-                  <div key={item.step} className="flex gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white text-sm font-bold">
-                      {item.step}
+                  { icon: Users, title: 'Create & verify account', desc: 'Simple registration process with KYC verification.' },
+                  { icon: Globe, title: 'Post your transport request', desc: 'Specify route, container type, weight and desired date.' },
+                  { icon: Star, title: 'Compare received offers', desc: 'Receive offers from verified transporters. Compare prices and ratings.' },
+                  { icon: CheckCircle, title: 'Agree on payment & track', desc: 'Pay the transporter directly. Track delivery status in real time.' },
+                ].map((item, i) => (
+                  <div key={item.title} className="flex gap-4 bg-white rounded-2xl border border-gray-100 shadow-md p-5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-50 border-2 border-zinc-200">
+                      <item.icon className="h-5 w-5 text-zinc-600" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{item.title}</p>
-                      <p className="text-sm text-gray-500 mt-0.5">{item.desc}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-base font-bold text-zinc-400">0{i + 1}</span>
+                        <p className="font-semibold text-gray-900 text-lg">{item.title}</p>
+                      </div>
+                      <p className="text-lg text-gray-500 leading-relaxed">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -143,96 +168,51 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">Everything you need, in one platform</h2>
-            <p className="mt-3 text-gray-500 max-w-xl mx-auto">Complete features for European transporters and shippers.</p>
+            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">Complete features for European transporters and shippers.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Shield, color: 'bg-blue-100 text-blue-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
-              { icon: Globe, color: 'bg-emerald-100 text-emerald-600', title: 'Pan-European Coverage', desc: 'Network of transporters and clients from 25+ European countries.' },
-              { icon: Zap, color: 'bg-amber-100 text-amber-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
-              { icon: Star, color: 'bg-violet-100 text-violet-600', title: 'Rating System', desc: 'Verified reviews after every shipment. Choose with confidence.' },
-              { icon: Package, color: 'bg-rose-100 text-rose-600', title: 'Digital Documents', desc: 'CMR, invoices and proof of delivery — all digital, in the platform.' },
-              { icon: Users, color: 'bg-cyan-100 text-cyan-600', title: 'Real-Time Chat', desc: 'Direct communication between transporter and client per shipment.' },
-            ].map(f => (
-              <div key={f.title} className="rounded-2xl border border-gray-100 p-6 hover:border-gray-200 hover:shadow-sm transition-all">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${f.color} mb-4`}>
-                  <f.icon className="h-6 w-6" />
+
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            {/* Stanga — imagine */}
+            <div className="flex-shrink-0 w-full lg:w-auto flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/platform-trade-container.png" alt="Trade Container Platform" className="w-full max-w-xl object-contain drop-shadow-xl" />
+            </div>
+
+            {/* Dreapta — carduri 2x3 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 flex-1">
+              {[
+                { icon: Shield, color: 'bg-amber-100 text-amber-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
+                { icon: Globe, color: 'bg-emerald-100 text-emerald-600', title: 'Pan-European Coverage', desc: 'Network of transporters and clients from 25+ European countries.' },
+                { icon: Zap, color: 'bg-amber-100 text-amber-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
+                { icon: Star, color: 'bg-violet-100 text-violet-600', title: 'Rating System', desc: 'Verified reviews after every shipment. Choose with confidence.' },
+                { icon: Package, color: 'bg-rose-100 text-rose-600', title: 'Digital Documents', desc: 'CMR, invoices and proof of delivery — all digital, in the platform.' },
+                { icon: Users, color: 'bg-cyan-100 text-cyan-600', title: 'Real-Time Chat', desc: 'Direct communication between transporter and client per shipment.' },
+              ].map(f => (
+                <div key={f.title} className="rounded-2xl border border-gray-100 shadow-md p-5 hover:shadow-lg transition-all">
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.color} mb-3`}>
+                    <f.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold text-lg text-gray-900">{f.title}</h3>
+                  <p className="mt-1 text-base text-gray-500 leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="font-semibold text-gray-900">{f.title}</h3>
-                <p className="mt-2 text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">Simple and transparent pricing</h2>
-            <p className="mt-3 text-gray-500">Simple monthly subscription. Cancel anytime.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {[
-              {
-                title: 'Transporter',
-                monthly: '€49',
-                annual: '€470',
-                color: 'border-blue-200',
-                badge: 'bg-blue-600',
-                features: ['Unlimited truck availability posts', 'Access to all transport requests', 'Unlimited offer submissions', 'Direct payment from clients (no middleman)', 'Chat + digital documents', 'Verified badge after KYC'],
-              },
-              {
-                title: 'Client / Shipper',
-                monthly: '€29',
-                annual: '€278',
-                color: 'border-emerald-200',
-                badge: 'bg-emerald-600',
-                features: ['Unlimited transport requests', 'Access to all transporters', 'Offer comparison', 'Direct payment to transporters (your choice)', 'Chat + digital documents', 'Expense reports'],
-              },
-            ].map(plan => (
-              <div key={plan.title} className={`rounded-2xl border-2 ${plan.color} bg-white p-8`}>
-                <div className={`inline-flex items-center rounded-full ${plan.badge} px-3 py-1 mb-4`}>
-                  <span className="text-xs font-semibold text-white">{plan.title}</span>
-                </div>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-bold text-gray-900">{plan.monthly}</span>
-                  <span className="text-gray-500">/month</span>
-                </div>
-                <p className="text-sm text-gray-500 mb-6">or {plan.annual}/year (save 20%)</p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-gray-700">
-                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/register"
-                  className={`block w-full rounded-xl ${plan.badge} py-3 text-center text-sm font-semibold text-white hover:opacity-90 transition-opacity`}
-                >
-                  Create your account
-                </Link>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 text-center text-sm text-gray-500">
-            No hidden fees. No commission per shipment. Only your monthly subscription.
-          </p>
-        </div>
-      </section>
+      <PricingSection />
 
-      <section className="py-20 bg-blue-900">
+      <section className="py-20 bg-zinc-900">
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h2 className="text-3xl font-bold text-white">Ready to get started?</h2>
-          <p className="mt-4 text-blue-200 text-lg">
+          <p className="mt-4 text-amber-200 text-lg">
             Join 1,800+ users who use Trade Container every day.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-blue-900 hover:bg-blue-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-amber-300 transition-colors"
             >
               Create your account
               <ArrowRight className="h-5 w-5" />
@@ -245,18 +225,18 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">About Us</h2>
-            <p className="mt-3 text-gray-500 max-w-xl mx-auto">The story behind Trade Container and the team building the future of freight.</p>
+            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">The story behind Trade Container and the team building the future of freight.</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <p className="text-lg text-gray-600 leading-relaxed mb-6">
                 Trade Container was founded with a simple idea: make container freight across Europe faster, more transparent and accessible to everyone — from large logistics companies to small businesses.
               </p>
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <p className="text-lg text-gray-600 leading-relaxed mb-6">
                 We connect shippers directly with verified transporters, eliminating unnecessary intermediaries. Payments are settled directly between parties — we only charge a simple monthly subscription for platform access.
               </p>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-lg text-gray-600 leading-relaxed">
                 Our platform covers 25+ European countries and is trusted by over 1,800 companies who use it daily to move containers across the continent.
               </p>
             </div>
@@ -268,9 +248,9 @@ export default function HomePage() {
                 { value: '10,000+', label: 'Shipments', desc: 'Successfully completed' },
               ].map(stat => (
                 <div key={stat.label} className="rounded-2xl bg-gray-50 border border-gray-100 p-6">
-                  <p className="text-3xl font-bold text-blue-600">{stat.value}</p>
-                  <p className="font-semibold text-gray-900 mt-1">{stat.label}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">{stat.desc}</p>
+                  <p className="text-3xl font-bold text-amber-500">{stat.value}</p>
+                  <p className="text-lg font-semibold text-gray-900 mt-1">{stat.label}</p>
+                  <p className="text-base text-gray-500 mt-0.5">{stat.desc}</p>
                 </div>
               ))}
             </div>
@@ -284,7 +264,7 @@ export default function HomePage() {
               <div key={v.title} className="text-center p-6">
                 <div className="text-4xl mb-4">{v.icon}</div>
                 <h4 className="font-bold text-gray-900 mb-2">{v.title}</h4>
-                <p className="text-sm text-gray-500 leading-relaxed">{v.desc}</p>
+                <p className="text-lg text-gray-500 leading-relaxed">{v.desc}</p>
               </div>
             ))}
           </div>
@@ -296,11 +276,11 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <Image src="/logo-site.png" alt="Trade Container" width={140} height={50} className="object-contain" />
           </div>
-          <p className="text-sm text-gray-500">© 2026 Trade Container. All rights reserved.</p>
+          <p className="text-base text-gray-500">© 2026 Trade Container. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Terms</a>
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Privacy</a>
-            <a href="#" className="text-sm text-gray-500 hover:text-gray-700">Contact</a>
+            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Terms</a>
+            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Privacy</a>
+            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Contact</a>
           </div>
         </div>
       </footer>

@@ -242,7 +242,7 @@ export default function FreightSearch() {
               </div>
             </div>
 
-            <Button onClick={handleSearch} disabled={loading} className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" size="lg">
+            <Button onClick={handleSearch} disabled={loading} className="w-full gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-900 text-sm sm:text-base" size="lg">
               {loading ? (
                 <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               ) : (
@@ -276,7 +276,7 @@ export default function FreightSearch() {
 
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
               </div>
             ) : results.length === 0 ? (
               <Card>
@@ -292,14 +292,14 @@ export default function FreightSearch() {
                     {/* Left: Company Info */}
                     <div className="flex-1 w-full">
                       <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-blue-100">
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-amber-100">
                           <Ship className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{result.company}</h3>
                             {result.verified && (
-                              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500 shrink-0" />
+                              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-500 shrink-0" />
                             )}
                           </div>
                           <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
@@ -373,14 +373,14 @@ export default function FreightSearch() {
 
                       {/* View Details or Unlock Details based on subscription */}
                       {hasActiveSubscription ? (
-                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
+                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-900 text-xs sm:text-sm" size="sm" asChild>
                           <Link href={`/dashboard/${searchType === 'client' ? 'client' : 'transporter'}/shipments/${result.id}`}>
                             <span className="hidden sm:inline">View Details</span>
                             <span className="sm:hidden">View</span>
                           </Link>
                         </Button>
                       ) : (
-                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm" size="sm" asChild>
+                        <Button className="flex-1 lg:w-full gap-1.5 sm:gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-900 text-xs sm:text-sm" size="sm" asChild>
                           <Link href="/register">
                             <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             <span className="hidden sm:inline">Unlock Details</span>
@@ -395,10 +395,10 @@ export default function FreightSearch() {
             ))}
 
             {/* CTA Card after 3 results */}
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
+            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200">
               <CardContent className="p-6 sm:p-8 text-center">
                 <div className="flex justify-center mb-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-400">
                     <Lock className="h-8 w-8 text-white" />
                   </div>
                 </div>
@@ -420,7 +420,7 @@ export default function FreightSearch() {
                   ))}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button size="lg" className="gap-2 bg-blue-600 hover:bg-blue-700 text-sm sm:text-base" asChild>
+                  <Button size="lg" className="gap-2 bg-amber-400 hover:bg-amber-300 text-zinc-900 text-sm sm:text-base" asChild>
                     <Link href="/register">
                       Subscribe Now - €{searchType === 'client' ? '29' : '49'}/month
                     </Link>
