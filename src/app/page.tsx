@@ -9,66 +9,24 @@ import FlowAnimation from '@/components/home/flow-animation'
 import PricingSection from '@/components/home/pricing-section'
 import SavingsCalculator from '@/components/home/savings-calculator'
 import { EuropeMap } from '@/components/ui/europe-map-simple'
+import { MAJOR_PORTS, createPortRoutes } from './page-routes'
 
 export default function HomePage() {
-  const europeanRoutes = [
-    {
-      start: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' },
-      end: { lat: 53.5511, lng: 9.9937, label: 'Hamburg' }
+  // Convertesc rutele din format nume -> coordonate
+  const portRoutes = createPortRoutes()
+  const europeanRoutes = portRoutes.map(route => ({
+    start: { 
+      lat: MAJOR_PORTS[route.start as keyof typeof MAJOR_PORTS].lat, 
+      lng: MAJOR_PORTS[route.start as keyof typeof MAJOR_PORTS].lng, 
+      label: route.start 
     },
-    {
-      start: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' },
-      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
-    },
-    {
-      start: { lat: 48.8566, lng: 2.3522, label: 'Paris' },
-      end: { lat: 52.5200, lng: 13.4050, label: 'Berlin' }
-    },
-    {
-      start: { lat: 52.2297, lng: 21.0122, label: 'Warsaw' },
-      end: { lat: 48.2082, lng: 16.3738, label: 'Vienna' }
-    },
-    {
-      start: { lat: 41.3851, lng: 2.1734, label: 'Barcelona' },
-      end: { lat: 43.2965, lng: 5.3698, label: 'Marseille' }
-    },
-    {
-      start: { lat: 51.5074, lng: -0.1278, label: 'London' },
-      end: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' }
-    },
-    {
-      start: { lat: 44.4268, lng: 26.1025, label: 'Bucharest' },
-      end: { lat: 47.4979, lng: 19.0402, label: 'Budapest' }
-    },
-    {
-      start: { lat: 55.6761, lng: 12.5683, label: 'Copenhagen' },
-      end: { lat: 53.5511, lng: 9.9937, label: 'Hamburg' }
-    },
-    {
-      start: { lat: 50.0755, lng: 14.4378, label: 'Prague' },
-      end: { lat: 48.2082, lng: 16.3738, label: 'Vienna' }
-    },
-    {
-      start: { lat: 52.5200, lng: 13.4050, label: 'Berlin' },
-      end: { lat: 52.2297, lng: 21.0122, label: 'Warsaw' }
-    },
-    {
-      start: { lat: 48.8566, lng: 2.3522, label: 'Paris' },
-      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
-    },
-    {
-      start: { lat: 59.3293, lng: 18.0686, label: 'Stockholm' },
-      end: { lat: 55.6761, lng: 12.5683, label: 'Copenhagen' }
-    },
-    {
-      start: { lat: 48.2082, lng: 16.3738, label: 'Vienna' },
-      end: { lat: 47.4979, lng: 19.0402, label: 'Budapest' }
-    },
-    {
-      start: { lat: 41.9028, lng: 12.4964, label: 'Rome' },
-      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
+    end: { 
+      lat: MAJOR_PORTS[route.end as keyof typeof MAJOR_PORTS].lat, 
+      lng: MAJOR_PORTS[route.end as keyof typeof MAJOR_PORTS].lng, 
+      label: route.end 
     }
-  ]
+  }))
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -148,8 +106,8 @@ export default function HomePage() {
       <section id="features" className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">Everything you need, in one platform</h2>
-            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">Complete features for European transporters and shippers.</p>
+            <h2 className="text-3xl font-bold text-gray-900">50+ Major European Ports Connected</h2>
+            <p className="mt-3 text-lg text-gray-500 max-w-2xl mx-auto">Complete coverage across Europe — from Rotterdam to Istanbul, from Helsinki to Algeciras. Our network connects all major maritime ports with verified transporters ready to move your containers.</p>
           </div>
 
           {/* Harta europeană - full width */}
