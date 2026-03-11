@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/savings-calculator', '/pricing', '/about', '/contact']
+  const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/savings-calculator', '/map-test', '/pricing', '/about', '/contact']
   const isPublicPath = publicPaths.some(p => pathname.startsWith(p))
   const isApiRoute = pathname.startsWith('/api/')
 

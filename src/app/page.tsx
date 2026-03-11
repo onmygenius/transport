@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Shield, Zap, Globe, Star, CheckCircle, ArrowRight, Package, Users, TrendingUp, Truck } from 'lucide-react'
@@ -6,8 +8,68 @@ import HeroVideo from '@/components/home/hero-video'
 import FlowAnimation from '@/components/home/flow-animation'
 import PricingSection from '@/components/home/pricing-section'
 import SavingsCalculator from '@/components/home/savings-calculator'
+import { EuropeMap } from '@/components/ui/europe-map-simple'
 
 export default function HomePage() {
+  const europeanRoutes = [
+    {
+      start: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' },
+      end: { lat: 53.5511, lng: 9.9937, label: 'Hamburg' }
+    },
+    {
+      start: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' },
+      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
+    },
+    {
+      start: { lat: 48.8566, lng: 2.3522, label: 'Paris' },
+      end: { lat: 52.5200, lng: 13.4050, label: 'Berlin' }
+    },
+    {
+      start: { lat: 52.2297, lng: 21.0122, label: 'Warsaw' },
+      end: { lat: 48.2082, lng: 16.3738, label: 'Vienna' }
+    },
+    {
+      start: { lat: 41.3851, lng: 2.1734, label: 'Barcelona' },
+      end: { lat: 43.2965, lng: 5.3698, label: 'Marseille' }
+    },
+    {
+      start: { lat: 51.5074, lng: -0.1278, label: 'London' },
+      end: { lat: 51.9225, lng: 4.4792, label: 'Rotterdam' }
+    },
+    {
+      start: { lat: 44.4268, lng: 26.1025, label: 'Bucharest' },
+      end: { lat: 47.4979, lng: 19.0402, label: 'Budapest' }
+    },
+    {
+      start: { lat: 55.6761, lng: 12.5683, label: 'Copenhagen' },
+      end: { lat: 53.5511, lng: 9.9937, label: 'Hamburg' }
+    },
+    {
+      start: { lat: 50.0755, lng: 14.4378, label: 'Prague' },
+      end: { lat: 48.2082, lng: 16.3738, label: 'Vienna' }
+    },
+    {
+      start: { lat: 52.5200, lng: 13.4050, label: 'Berlin' },
+      end: { lat: 52.2297, lng: 21.0122, label: 'Warsaw' }
+    },
+    {
+      start: { lat: 48.8566, lng: 2.3522, label: 'Paris' },
+      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
+    },
+    {
+      start: { lat: 59.3293, lng: 18.0686, label: 'Stockholm' },
+      end: { lat: 55.6761, lng: 12.5683, label: 'Copenhagen' }
+    },
+    {
+      start: { lat: 48.2082, lng: 16.3738, label: 'Vienna' },
+      end: { lat: 47.4979, lng: 19.0402, label: 'Budapest' }
+    },
+    {
+      start: { lat: 41.9028, lng: 12.4964, label: 'Rome' },
+      end: { lat: 45.4642, lng: 9.1900, label: 'Milan' }
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-white">
       <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
@@ -83,7 +145,45 @@ export default function HomePage() {
 
       <FreightSearch />
 
-      <FlowAnimation />
+      <section id="features" className="py-20 bg-white">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-gray-900">Everything you need, in one platform</h2>
+            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">Complete features for European transporters and shippers.</p>
+          </div>
+
+          {/* Harta europeană - full width */}
+          <div className="w-full mb-12">
+            <EuropeMap
+              dots={europeanRoutes}
+              lineColor="#f59e0b"
+              showLabels={true}
+              animationDuration={3}
+              loop={true}
+            />
+          </div>
+
+          {/* Carduri features - 3 coloane */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[
+                { icon: Shield, color: 'bg-amber-100 text-amber-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
+                { icon: Globe, color: 'bg-emerald-100 text-emerald-600', title: 'Pan-European Coverage', desc: 'Network of transporters and clients from 25+ European countries.' },
+                { icon: Zap, color: 'bg-amber-100 text-amber-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
+                { icon: Star, color: 'bg-violet-100 text-violet-600', title: 'Rating System', desc: 'Verified reviews after every shipment. Choose with confidence.' },
+                { icon: Package, color: 'bg-rose-100 text-rose-600', title: 'Digital Documents', desc: 'CMR, invoices and proof of delivery — all digital, in the platform.' },
+                { icon: Users, color: 'bg-cyan-100 text-cyan-600', title: 'Real-Time Chat', desc: 'Direct communication between transporter and client per shipment.' },
+              ].map(f => (
+                <div key={f.title} className="rounded-2xl border border-gray-100 shadow-md p-5 hover:shadow-lg transition-all">
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.color} mb-3`}>
+                    <f.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold text-lg text-gray-900">{f.title}</h3>
+                  <p className="mt-1 text-base text-gray-500 leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      </section>
 
       <section id="how-it-works" className="py-24 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
@@ -165,42 +265,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="features" className="py-20 bg-white">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-gray-900">Everything you need, in one platform</h2>
-            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">Complete features for European transporters and shippers.</p>
-          </div>
-
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            {/* Stanga — imagine */}
-            <div className="flex-shrink-0 w-full lg:w-auto flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/platform-trade-container.png" alt="Trade Container Platform" className="w-full max-w-xl object-contain drop-shadow-xl" />
-            </div>
-
-            {/* Dreapta — carduri 2x3 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 flex-1">
-              {[
-                { icon: Shield, color: 'bg-amber-100 text-amber-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
-                { icon: Globe, color: 'bg-emerald-100 text-emerald-600', title: 'Pan-European Coverage', desc: 'Network of transporters and clients from 25+ European countries.' },
-                { icon: Zap, color: 'bg-amber-100 text-amber-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
-                { icon: Star, color: 'bg-violet-100 text-violet-600', title: 'Rating System', desc: 'Verified reviews after every shipment. Choose with confidence.' },
-                { icon: Package, color: 'bg-rose-100 text-rose-600', title: 'Digital Documents', desc: 'CMR, invoices and proof of delivery — all digital, in the platform.' },
-                { icon: Users, color: 'bg-cyan-100 text-cyan-600', title: 'Real-Time Chat', desc: 'Direct communication between transporter and client per shipment.' },
-              ].map(f => (
-                <div key={f.title} className="rounded-2xl border border-gray-100 shadow-md p-5 hover:shadow-lg transition-all">
-                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${f.color} mb-3`}>
-                    <f.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-semibold text-lg text-gray-900">{f.title}</h3>
-                  <p className="mt-1 text-base text-gray-500 leading-relaxed">{f.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <FlowAnimation />
 
       <SavingsCalculator />
 
