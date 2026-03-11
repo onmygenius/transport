@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import TransporterShipmentsClient from './client'
+import TransporterShipmentsMobile from './mobile-client'
 
 export default async function TransporterShipmentsPage() {
   const supabase = await createClient()
@@ -52,9 +53,22 @@ export default async function TransporterShipmentsPage() {
   }))
 
   return (
-    <TransporterShipmentsClient
-      shipments={transformedShipments}
-      myOffers={myOffersMap}
-    />
+    <>
+      {/* Mobile View */}
+      <div className="block lg:hidden">
+        <TransporterShipmentsMobile
+          shipments={transformedShipments}
+          myOffers={myOffersMap}
+        />
+      </div>
+      
+      {/* Desktop View */}
+      <div className="hidden lg:block">
+        <TransporterShipmentsClient
+          shipments={transformedShipments}
+          myOffers={myOffersMap}
+        />
+      </div>
+    </>
   )
 }
