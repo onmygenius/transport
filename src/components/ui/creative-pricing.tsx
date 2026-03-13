@@ -1,6 +1,10 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import { Check, Pencil, Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface PricingTier {
     name: string;
@@ -10,6 +14,7 @@ interface PricingTier {
     features: string[];
     popular?: boolean;
     color: string;
+    priceId?: string;
 }
 
 function CreativePricing({
@@ -23,6 +28,41 @@ function CreativePricing({
     description?: string;
     tiers: PricingTier[];
 }) {
+    const router = useRouter()
+    const [loading, setLoading] = useState<string | null>(null)
+
+    const handleSubscribe = async (priceId: string | undefined, tierName: string) => {
+        if (!priceId) {
+            router.push('/register')
+            return
+        }
+
+        setLoading(tierName)
+
+        try {
+            const response = await fetch('/api/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    priceId,
+                    userId: 'temp-user-id' // TODO: Get from session
+                }),
+            })
+
+            const data = await response.json()
+
+            if (data.url) {
+                window.location.href = data.url
+            } else {
+                console.error('No checkout URL returned')
+                setLoading(null)
+            }
+        } catch (error) {
+            console.error('Subscription error:', error)
+            setLoading(null)
+        }
+    }
+
     return (
         <div className="w-full max-w-6xl mx-auto px-4">
             <div className="text-center space-y-6 mb-16">
@@ -132,6 +172,8 @@ function CreativePricing({
                             </div>
 
                             <Button
+                                onClick={() => handleSubscribe(tier.priceId, tier.name)}
+                                disabled={loading === tier.name}
                                 className={cn(
                                     "w-full h-12 font-handwritten text-lg relative",
                                     "border-2 border-zinc-900 dark:border-white",
@@ -139,6 +181,7 @@ function CreativePricing({
                                     "shadow-[4px_4px_0px_0px] shadow-zinc-900 dark:shadow-white",
                                     "hover:shadow-[6px_6px_0px_0px]",
                                     "hover:translate-x-[-2px] hover:translate-y-[-2px]",
+                                    "disabled:opacity-50 disabled:cursor-not-allowed",
                                     tier.popular
                                         ? [
                                               "bg-amber-400 text-zinc-900",
@@ -155,7 +198,7 @@ function CreativePricing({
                                           ]
                                 )}
                             >
-                                Get Started
+                                {loading === tier.name ? 'Loading...' : 'Get Started'}
                             </Button>
                         </div>
                     </div>

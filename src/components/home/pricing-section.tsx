@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Package, TrendingUp, Briefcase, Crown, Truck, ArrowRight } from 'lucide-react'
 import { CreativePricing } from '@/components/ui/creative-pricing'
 import type { PricingTier } from '@/components/ui/creative-pricing'
+import { useState } from 'react'
 
 const clientTiers: PricingTier[] = [
   {
@@ -12,6 +13,7 @@ const clientTiers: PricingTier[] = [
     price: 19.99,
     description: '1–5 shipments/month. Perfect for small businesses.',
     color: 'amber',
+    priceId: 'price_1TASbp0dqWRNGixPqAoh7aKf',
     features: [
       'Post up to 5 shipment requests',
       'Access to all verified transporters',
@@ -27,6 +29,7 @@ const clientTiers: PricingTier[] = [
     description: '5–10 shipments/month. For growing companies.',
     color: 'blue',
     popular: true,
+    priceId: 'price_1TAScM0dqWRNGixPJ3IlWAut',
     features: [
       'Post up to 10 shipment requests',
       'Access to all verified transporters',
@@ -41,6 +44,7 @@ const clientTiers: PricingTier[] = [
     price: 59.99,
     description: '10–20 shipments/month. For high-volume shippers.',
     color: 'emerald',
+    priceId: 'price_1TAScl0dqWRNGixPZ5yVzA7d',
     features: [
       'Post up to 20 shipment requests',
       'Access to all verified transporters',
@@ -55,6 +59,7 @@ const clientTiers: PricingTier[] = [
     price: 99.99,
     description: 'Unlimited shipments. Full power, no limits.',
     color: 'purple',
+    priceId: 'price_1TASdA0dqWRNGixPXq896wn9',
     features: [
       'Unlimited shipment requests',
       'Access to all verified transporters',
@@ -66,6 +71,35 @@ const clientTiers: PricingTier[] = [
 ]
 
 export default function PricingSection() {
+  const [loading, setLoading] = useState(false)
+
+  const handleTransporterSubscribe = async () => {
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          priceId: 'price_1TASdg0dqWRNGixPXI5TsjFt',
+          userId: 'temp-user-id'
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        console.error('No checkout URL returned')
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error('Subscription error:', error)
+      setLoading(false)
+    }
+  }
+
   return (
     <section id="pricing" className="py-20 bg-[#fafaf8]">
       <CreativePricing
@@ -92,13 +126,14 @@ export default function PricingSection() {
               </p>
             </div>
           </div>
-          <Link
-            href="/register"
-            className="flex items-center gap-2 rounded-lg border-2 border-white bg-amber-400 px-6 py-3 text-sm font-bold text-zinc-900 shadow-[4px_4px_0px_0px] shadow-white hover:shadow-[6px_6px_0px_0px] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all whitespace-nowrap"
+          <button
+            onClick={handleTransporterSubscribe}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-lg border-2 border-white bg-amber-400 px-6 py-3 text-sm font-bold text-zinc-900 shadow-[4px_4px_0px_0px] shadow-white hover:shadow-[6px_6px_0px_0px] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Start Free Trial
+            {loading ? 'Loading...' : 'Start Free Trial'}
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </button>
         </div>
         <p className="text-center text-sm text-zinc-400 mt-6">
           No hidden fees · No commission per shipment · Cancel anytime
