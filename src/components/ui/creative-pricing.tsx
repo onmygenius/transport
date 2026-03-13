@@ -40,12 +40,23 @@ function CreativePricing({
         setLoading(tierName)
 
         try {
+            // Check if user is authenticated
+            const authResponse = await fetch('/api/auth/check')
+            const authData = await authResponse.json()
+
+            if (!authData.authenticated) {
+                // Redirect to login with return URL
+                router.push(`/login?returnUrl=${encodeURIComponent('/#pricing')}`)
+                setLoading(null)
+                return
+            }
+
+            // User is authenticated, proceed with checkout
             const response = await fetch('/api/stripe/create-checkout-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     priceId,
-                    userId: 'temp-user-id' // TODO: Get from session
                 }),
             })
 
