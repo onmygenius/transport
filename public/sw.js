@@ -1,5 +1,5 @@
 // Versiune cache - INCREMENTEAZĂ LA FIECARE DEPLOY
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `freightex-${CACHE_VERSION}`;
 const urlsToCache = [
   '/logo-pwa.png'
@@ -40,7 +40,13 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 1. NU CACHE-A API calls și Supabase
+  // 1. NU CACHE-A POST/PUT/DELETE requests (doar GET poate fi cached)
+  if (request.method !== 'GET') {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // 2. NU CACHE-A API calls și Supabase
   if (url.pathname.startsWith('/api/') || 
       url.hostname.includes('supabase.co') ||
       url.hostname.includes('googleapis.com')) {
@@ -48,7 +54,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. NETWORK-FIRST pentru HTML (navigare)
+  // 3. NETWORK-FIRST pentru HTML (navigare)
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request)
@@ -71,7 +77,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. CACHE-FIRST pentru assets statice (JS, CSS, images)
+  // 4. CACHE-FIRST pentru assets statice (JS, CSS, images)
   event.respondWith(
     caches.match(request)
       .then(cached => {
