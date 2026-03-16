@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, CreditCard, Download, AlertTriangle, Clock } from 'lucide-react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Subscription {
   id: string
@@ -26,6 +28,8 @@ interface Props {
 }
 
 export default function ClientSubscriptionClient({ subscription }: Props) {
+  const router = useRouter()
+  const [upgrading, setUpgrading] = useState(false)
   const isActive = subscription?.status === 'active'
   const isTrialing = subscription?.status === 'trialing'
   const isPastDue = subscription?.status === 'past_due'
@@ -52,6 +56,43 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
   const trialEndsAt = subscription?.trial_ends_at 
     ? new Date(subscription.trial_ends_at).toLocaleDateString('en-GB')
     : null
+
+  const PRICE_IDS: Record<string, string> = {
+    'starter': process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || '',
+    'growth': process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH_MONTHLY || '',
+    'business': process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY || '',
+    'enterprise': process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY || '',
+  }
+
+  const handleUpgrade = async (planId: string) => {
+    setUpgrading(true)
+    try {
+      const priceId = PRICE_IDS[planId]
+      if (!priceId) {
+        alert('Price ID not configured for this plan')
+        return
+      }
+
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
+
+      const data = await response.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Failed to create checkout session')
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error)
+      alert('Failed to start upgrade process')
+    } finally {
+      setUpgrading(false)
+    }
+  }
 
   const statusConfig = {
     active: { label: 'Active', variant: 'success' as const, color: 'emerald' },
@@ -194,13 +235,73 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
             <CardHeader>
               <CardTitle className="text-base">Upgrade Plan</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-5 mb-4">
-                <p className="text-sm text-gray-700 mb-2">Need more shipments?</p>
-                <p className="text-2xl font-bold text-gray-900">Professional</p>
-                <p className="text-sm text-emerald-600 font-semibold mt-1">100 shipments/month</p>
-              </div>
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700">View Plans</Button>
+            <CardContent className="space-y-4">
+              {(() => {
+                const ALL_PLANS = [
+                  { id: 'starter', name: 'Starter', price: 19.99, limit: 5, description: 'Perfect for getting started' },
+                  { id: 'growth', name: 'Growth', price: 34.99, limit: 10, description: 'For growing companies' },
+                  { id: 'business', name: 'Business', price: 59.99, limit: 20, description: 'Scale your business' },
+                  { id: 'enterprise', name: 'Enterprise', price: 99.99, limit: null, description: 'Unlimited shipments' },
+                ]
+
+                const currentPlan = subscription?.plan || 'starter'
+                const currentPlanIndex = ALL_PLANS.findIndex(p => p.id === currentPlan)
+                const availablePlans = ALL_PLANS.filter((_, index) => index > currentPlanIndex)
+
+                if (availablePlans.length === 0) {
+                  return (
+                    <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-5">
+                      <p className="text-sm text-emerald-700 font-semibold">You're on the highest plan!</p>
+                      <p className="text-xs text-gray-600 mt-1">Enjoy unlimited shipments and all premium features.</p>
+                    </div>
+                  )
+                }
+
+                const nextPlan = availablePlans[0]
+
+                return (
+                  <>
+                    <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-5">
+                      <p className="text-sm text-gray-700 mb-2">Need more shipments?</p>
+                      <p className="text-2xl font-bold text-gray-900">{nextPlan.name}</p>
+                      <p className="text-sm text-emerald-600 font-semibold mt-1">
+                        €{nextPlan.price}/month • {nextPlan.limit ? `${nextPlan.limit} shipments` : 'Unlimited'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{nextPlan.description}</p>
+                    </div>
+                    <Button 
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => handleUpgrade(nextPlan.id)}
+                      disabled={upgrading}
+                    >
+                      {upgrading ? 'Processing...' : 'Get it'}
+                    </Button>
+
+                    {availablePlans.length > 1 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase">Other plans</p>
+                        {availablePlans.slice(1).map(plan => (
+                          <div 
+                            key={plan.id}
+                            className="rounded-lg border border-gray-200 p-3 hover:border-emerald-300 hover:bg-emerald-50/50 transition-colors cursor-pointer"
+                            onClick={() => handleUpgrade(plan.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-semibold text-sm text-gray-900">{plan.name}</p>
+                                <p className="text-xs text-gray-500">
+                                  {plan.limit ? `${plan.limit} shipments/month` : 'Unlimited shipments'}
+                                </p>
+                              </div>
+                              <p className="text-sm font-bold text-emerald-600">€{plan.price}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </CardContent>
           </Card>
         </div>

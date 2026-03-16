@@ -192,15 +192,14 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Upgrade Plan</CardTitle>
+              <CardTitle className="text-base">Current Plan</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 p-5 mb-4">
-                <p className="text-sm text-gray-700 mb-2">Need more features?</p>
-                <p className="text-2xl font-bold text-gray-900">Premium</p>
-                <p className="text-sm text-blue-600 font-semibold mt-1">Unlimited offers</p>
+              <div className="rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 p-5">
+                <p className="text-sm text-blue-700 font-semibold">You're on the Standard plan!</p>
+                <p className="text-xs text-gray-600 mt-1">Enjoy unlimited access to all shipments and features.</p>
+                <p className="text-xs text-gray-500 mt-2">€29.99/month • Unlimited offers</p>
               </div>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">View Plans</Button>
             </CardContent>
           </Card>
         </div>
