@@ -452,7 +452,7 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                             )}
                             {allStops.map((stop, idx) => (
                               <div key={`stop-${idx}`} className="flex items-center gap-2">
-                                <Truck className={`h-3.5 w-3.5 ${stop.type === 'intermediate' ? 'text-amber-500' : 'text-cyan-500'} shrink-0`} />
+                                <Truck className={`h-3.5 w-3.5 ${stop.type === 'intermediate' ? 'text-emerald-500' : 'text-cyan-500'} shrink-0`} />
                                 <span className="text-gray-600">{stop.address}</span>
                               </div>
                             ))}
@@ -521,7 +521,7 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                               return <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">Available</Badge>
                             }
                             if (status === 'pending') {
-                              return <Badge variant="secondary" className="bg-amber-100 text-amber-700 text-xs">⏳ Pending</Badge>
+                              return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-xs">⏳ Pending</Badge>
                             }
                             if (status === 'accepted') {
                               return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-xs">✓ Accepted</Badge>

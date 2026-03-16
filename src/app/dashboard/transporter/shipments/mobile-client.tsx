@@ -244,7 +244,7 @@ export default function TransporterShipmentsMobile({ shipments, myOffers }: Prop
                     </div>
                     {myStatus ? (
                       <Badge variant="secondary" className={
-                        myStatus === 'pending' ? 'bg-amber-100 text-amber-700' :
+                        myStatus === 'pending' ? 'bg-emerald-100 text-emerald-700' :
                         myStatus === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
                         myStatus === 'rejected' ? 'bg-red-100 text-red-700' :
                         'bg-gray-100 text-gray-600'
@@ -288,7 +288,7 @@ export default function TransporterShipmentsMobile({ shipments, myOffers }: Prop
                     {/* Intermediate Stops */}
                     {allStops.filter(st => st.type === 'intermediate').map((stop, idx) => (
                       <div key={`int-${idx}`} className="flex items-start gap-2 pl-6">
-                        <Truck className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                        <Truck className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
                         <div className="flex-1">
                           <div className="text-xs text-gray-700">{stop.address}</div>
                           <div className="text-xs text-gray-500">{stop.operation}</div>

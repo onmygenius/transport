@@ -48,7 +48,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-amber-400 px-4 py-2 text-lg font-medium text-zinc-900 hover:bg-amber-300 transition-colors"
+              className="rounded-lg bg-emerald-400 px-4 py-2 text-lg font-medium text-zinc-900 hover:bg-emerald-300 transition-colors"
             >
               Register
             </Link>
@@ -60,13 +60,13 @@ export default function HomePage() {
         <HeroVideo />
         <div className="absolute inset-0 bg-zinc-900/65" />
         <div className="relative mx-auto max-w-3xl px-8 py-12 text-center rounded-3xl bg-black/50 backdrop-blur-sm border border-white/10">
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 border border-amber-400/50 px-4 py-1.5 mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-400/20 border border-emerald-400/50 px-4 py-1.5 mb-6">
             <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-lg text-amber-200">Active platform in 25+ European countries</span>
+            <span className="text-lg text-emerald-200">Active platform in 25+ European countries</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
             Freight Exchange<br />
-            <span className="text-amber-400">for Europe</span>
+            <span className="text-emerald-400">for Europe</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
             Connecting transporters with shippers across Europe. Post shipments, send offers and manage transport — all in one platform.
@@ -74,14 +74,14 @@ export default function HomePage() {
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-amber-300 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-emerald-300 transition-colors shadow-lg"
             >
               Get Started NOW
               <ArrowRight className="h-5 w-5" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-white/10 px-8 py-4 text-base font-semibold text-white hover:bg-white/20 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/50 bg-white/10 px-8 py-4 text-base font-semibold text-white hover:bg-white/20 transition-colors"
             >
               Sign In
             </Link>
@@ -94,7 +94,7 @@ export default function HomePage() {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
-                <p className="text-lg text-amber-300 mt-0.5">{s.label}</p>
+                <p className="text-lg text-emerald-300 mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -124,9 +124,9 @@ export default function HomePage() {
           {/* Carduri features - 3 coloane */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
-                { icon: Shield, color: 'bg-amber-100 text-amber-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
+                { icon: Shield, color: 'bg-emerald-100 text-emerald-600', title: 'Verified & Trusted Network', desc: 'All transporters and clients are KYC-verified. Trade with confidence on a trusted platform.' },
                 { icon: Globe, color: 'bg-emerald-100 text-emerald-600', title: 'Pan-European Coverage', desc: 'Network of transporters and clients from 25+ European countries.' },
-                { icon: Zap, color: 'bg-amber-100 text-amber-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
+                { icon: Zap, color: 'bg-emerald-100 text-emerald-600', title: 'Automatic Matching', desc: 'Our algorithm automatically suggests matching shipments and transporters.' },
                 { icon: Star, color: 'bg-violet-100 text-violet-600', title: 'Rating System', desc: 'Verified reviews after every shipment. Choose with confidence.' },
                 { icon: Package, color: 'bg-rose-100 text-rose-600', title: 'Digital Documents', desc: 'CMR, invoices and proof of delivery — all digital, in the platform.' },
                 { icon: Users, color: 'bg-cyan-100 text-cyan-600', title: 'Real-Time Chat', desc: 'Direct communication between transporter and client per shipment.' },
@@ -146,7 +146,7 @@ export default function HomePage() {
       <section id="how-it-works" className="py-24 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center mb-16">
-            <span className="inline-block rounded-full bg-amber-100 px-4 py-1.5 text-lg font-semibold text-amber-700 mb-4">Simple Process</span>
+            <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-lg font-semibold text-emerald-700 mb-4">Simple Process</span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">How does it work?</h2>
             <p className="mt-4 text-lg text-gray-500 max-w-xl mx-auto">Simple, fast and secure. From posting to delivery in a few steps.</p>
           </div>
@@ -154,7 +154,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* For Transporters */}
             <div>
-              <div className="flex items-center gap-3 mb-6 p-4 bg-amber-400 rounded-2xl">
+              <div className="flex items-center gap-3 mb-6 p-4 bg-emerald-400 rounded-2xl">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/30">
                   <Truck className="h-5 w-5 text-zinc-900" />
                 </div>
@@ -171,12 +171,12 @@ export default function HomePage() {
                   { icon: Star, title: 'Deliver and get paid', desc: 'Payment settled directly between you and the client.' },
                 ].map((item, i) => (
                   <div key={item.title} className="flex gap-4 bg-white rounded-2xl border border-gray-100 shadow-md p-5">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 border-2 border-amber-200">
-                      <item.icon className="h-5 w-5 text-amber-500" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 border-2 border-emerald-200">
+                      <item.icon className="h-5 w-5 text-emerald-500" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-base font-bold text-amber-400">0{i + 1}</span>
+                        <span className="text-base font-bold text-emerald-400">0{i + 1}</span>
                         <p className="font-semibold text-gray-900 text-lg">{item.title}</p>
                       </div>
                       <p className="text-lg text-gray-500 leading-relaxed">{item.desc}</p>
@@ -256,7 +256,7 @@ export default function HomePage() {
                 { value: '10,000+', label: 'Shipments', desc: 'Successfully completed' },
               ].map(stat => (
                 <div key={stat.label} className="rounded-2xl bg-gray-50 border border-gray-100 p-6">
-                  <p className="text-3xl font-bold text-amber-500">{stat.value}</p>
+                  <p className="text-3xl font-bold text-emerald-500">{stat.value}</p>
                   <p className="text-lg font-semibold text-gray-900 mt-1">{stat.label}</p>
                   <p className="text-base text-gray-500 mt-0.5">{stat.desc}</p>
                 </div>

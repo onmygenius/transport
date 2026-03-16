@@ -38,7 +38,7 @@ export default function SavingsCalculator() {
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 text-sm font-semibold text-amber-700 mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-semibold text-emerald-700 mb-4">
             <TrendingDown className="h-4 w-4" />
             Savings Calculator
           </div>
@@ -65,9 +65,9 @@ export default function SavingsCalculator() {
                   max="50"
                   value={numTrucks}
                   onChange={(e) => setNumTrucks(Number(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                 />
-                <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                   {numTrucks}
                 </span>
               </div>
@@ -85,9 +85,9 @@ export default function SavingsCalculator() {
                   step="1000"
                   value={kmPerYear}
                   onChange={(e) => setKmPerYear(Number(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                 />
-                <span className="text-lg font-bold text-amber-600 min-w-[6rem] text-right">
+                <span className="text-lg font-bold text-emerald-600 min-w-[6rem] text-right">
                   {kmPerYear.toLocaleString()}
                 </span>
               </div>
@@ -114,9 +114,9 @@ export default function SavingsCalculator() {
                       max="120"
                       value={avgSpeed}
                       onChange={(e) => setAvgSpeed(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {avgSpeed}
                     </span>
                   </div>
@@ -133,9 +133,9 @@ export default function SavingsCalculator() {
                       max="100"
                       value={emptyPercent}
                       onChange={(e) => setEmptyPercent(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {emptyPercent}%
                     </span>
                   </div>
@@ -152,9 +152,9 @@ export default function SavingsCalculator() {
                       max="50"
                       value={fuelConsumption}
                       onChange={(e) => setFuelConsumption(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {fuelConsumption}
                     </span>
                   </div>
@@ -172,9 +172,9 @@ export default function SavingsCalculator() {
                       step="0.01"
                       value={fuelPrice}
                       onChange={(e) => setFuelPrice(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[4rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[4rem] text-right">
                       €{fuelPrice.toFixed(2)}
                     </span>
                   </div>
@@ -191,9 +191,9 @@ export default function SavingsCalculator() {
                       max="100"
                       value={driverRate}
                       onChange={(e) => setDriverRate(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[4rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[4rem] text-right">
                       €{driverRate}
                     </span>
                   </div>
@@ -210,9 +210,9 @@ export default function SavingsCalculator() {
                       max="100"
                       value={reductionPercent}
                       onChange={(e) => setReductionPercent(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {reductionPercent}%
                     </span>
                   </div>
@@ -222,7 +222,7 @@ export default function SavingsCalculator() {
           </div>
 
           <div className="lg:sticky lg:top-8">
-            <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl shadow-2xl p-8 text-zinc-900">
+            <div className="bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-2xl shadow-2xl p-8 text-zinc-900">
               <div className="flex items-center gap-3 mb-6">
                 <TrendingDown className="h-8 w-8" />
                 <h3 className="text-2xl font-bold">Your Potential Savings</h3>

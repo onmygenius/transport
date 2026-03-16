@@ -95,7 +95,7 @@ export function RatingModal({ shipmentId, toUserId, toUserName, onClose, onSucce
               <Star
                 className={`h-6 w-6 transition-colors ${
                   i <= (hovered || value)
-                    ? 'fill-amber-400 text-amber-400'
+                    ? 'fill-emerald-400 text-emerald-400'
                     : 'text-gray-300'
                 }`}
               />
@@ -140,7 +140,7 @@ export function RatingModal({ shipmentId, toUserId, toUserName, onClose, onSucce
                   <Star
                     className={`h-10 w-10 transition-colors ${
                       i <= (hoveredStars || stars)
-                        ? 'fill-amber-400 text-amber-400'
+                        ? 'fill-emerald-400 text-emerald-400'
                         : 'text-gray-300'
                     }`}
                   />

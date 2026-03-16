@@ -65,13 +65,13 @@ export default async function ClientDashboardPage() {
       <main className="flex-1 p-6 space-y-6">
 
         {!kycApproved && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 flex items-center gap-4">
-            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 flex items-center gap-4">
+            <AlertTriangle className="h-5 w-5 text-emerald-500 shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-800">KYC verification pending</p>
-              <p className="text-xs text-amber-600 mt-0.5">Complete your company verification to post shipments and access transporters.</p>
+              <p className="text-sm font-semibold text-emerald-800">KYC verification pending</p>
+              <p className="text-xs text-emerald-600 mt-0.5">Complete your company verification to post shipments and access transporters.</p>
             </div>
-            <Link href="/dashboard/client/settings" className="shrink-0 rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 transition-colors">
+            <Link href="/dashboard/client/settings" className="shrink-0 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors">
               Complete KYC
             </Link>
           </div>
@@ -80,7 +80,7 @@ export default async function ClientDashboardPage() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
             { label: 'Active Shipments', value: mockStats.activeShipments, icon: Package, color: 'bg-blue-100 text-blue-700', href: '/dashboard/client/shipments' },
-            { label: 'Pending Offers', value: mockStats.pendingOffers, icon: Clock, color: 'bg-amber-100 text-amber-700', href: '/dashboard/client/shipments' },
+            { label: 'Pending Offers', value: mockStats.pendingOffers, icon: Clock, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/client/shipments' },
             { label: 'Total Spent', value: `€${mockStats.totalSpent.toLocaleString()}`, icon: CreditCard, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/client/history' },
             { label: 'Open Disputes', value: mockStats.openDisputes, icon: AlertTriangle, color: 'bg-red-100 text-red-700', href: '/dashboard/client/disputes' },
           ].map(s => (
@@ -177,7 +177,7 @@ export default async function ClientDashboardPage() {
                 { label: 'Post New Shipment', href: '/dashboard/client/post', icon: PlusCircle, color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
                 { label: 'Browse Transporters', href: '/dashboard/client/transporters', icon: Truck, color: 'bg-blue-50 text-blue-700 hover:bg-blue-100' },
                 { label: 'View Documents', href: '/dashboard/client/documents', icon: Package, color: 'bg-violet-50 text-violet-700 hover:bg-violet-100' },
-                { label: 'Expense Reports', href: '/dashboard/client/history', icon: TrendingUp, color: 'bg-amber-50 text-amber-700 hover:bg-amber-100' },
+                { label: 'Expense Reports', href: '/dashboard/client/history', icon: TrendingUp, color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
               ].map(action => (
                 <Link
                   key={action.href}

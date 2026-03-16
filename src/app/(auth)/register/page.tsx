@@ -113,7 +113,7 @@ export default function RegisterPage() {
           <h1 className="text-4xl font-bold text-white leading-tight">
             Join the European<br />freight network
           </h1>
-          <p className="mt-4 text-amber-200 text-lg">
+          <p className="mt-4 text-emerald-200 text-lg">
             Create your free account and start posting or finding shipments across Europe.
           </p>
           <div className="mt-8 space-y-3">
@@ -124,13 +124,13 @@ export default function RegisterPage() {
               'Pan-European route coverage (25+ countries)',
             ].map(f => (
               <div key={f} className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-amber-400 shrink-0" />
+                <CheckCircle className="h-5 w-5 text-emerald-400 shrink-0" />
                 <span className="text-zinc-100">{f}</span>
               </div>
             ))}
           </div>
         </div>
-        <p className="text-amber-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
+        <p className="text-emerald-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-8">
@@ -151,11 +151,11 @@ export default function RegisterPage() {
               className={cn(
                 'flex-1 rounded-xl border-2 p-4 text-left transition-all',
                 role === 'client'
-                  ? 'border-amber-400 bg-amber-50'
+                  ? 'border-emerald-400 bg-emerald-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               )}
             >
-              <p className={cn('font-semibold text-sm', role === 'client' ? 'text-amber-700' : 'text-gray-700')}>
+              <p className={cn('font-semibold text-sm', role === 'client' ? 'text-emerald-700' : 'text-gray-700')}>
                 Client / Shipper
               </p>
               <p className="text-xs text-gray-500 mt-0.5">I post transport requests</p>
@@ -166,11 +166,11 @@ export default function RegisterPage() {
               className={cn(
                 'flex-1 rounded-xl border-2 p-4 text-left transition-all',
                 role === 'transporter'
-                  ? 'border-amber-400 bg-amber-50'
+                  ? 'border-emerald-400 bg-emerald-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               )}
             >
-              <p className={cn('font-semibold text-sm', role === 'transporter' ? 'text-amber-700' : 'text-gray-700')}>
+              <p className={cn('font-semibold text-sm', role === 'transporter' ? 'text-emerald-700' : 'text-gray-700')}>
                 Transporter
               </p>
               <p className="text-xs text-gray-500 mt-0.5">I offer transport services</p>
@@ -268,9 +268,9 @@ export default function RegisterPage() {
 
             <p className="text-xs text-gray-500">
               By registering, you agree to our{' '}
-              <Link href="/terms" className="text-amber-600 hover:underline">Terms and Conditions</Link>
+              <Link href="/terms" className="text-emerald-600 hover:underline">Terms and Conditions</Link>
               {' '}and{' '}
-              <Link href="/privacy" className="text-amber-600 hover:underline">Privacy Policy</Link>.
+              <Link href="/privacy" className="text-emerald-600 hover:underline">Privacy Policy</Link>.
             </p>
 
             <Button type="submit" className="w-full h-10" disabled={loading}>
@@ -287,7 +287,7 @@ export default function RegisterPage() {
 
           <p className="mt-5 text-center text-sm text-gray-500">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-amber-600 hover:underline">
+            <Link href="/login" className="font-medium text-emerald-600 hover:underline">
               Sign in
             </Link>
           </p>

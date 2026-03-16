@@ -153,7 +153,7 @@ export default function AdminDashboard() {
             value="3"
             change={-25.0}
             icon={AlertTriangle}
-            color="bg-amber-500"
+            color="bg-emerald-500"
             subtitle="€7,450 in dispute"
           />
         </div>
@@ -340,11 +340,11 @@ export default function AdminDashboard() {
               <CardContent className="space-y-2">
                 <a
                   href="/admin/users?filter=pending_kyc"
-                  className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 hover:bg-amber-100 transition-colors"
+                  className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 hover:bg-emerald-100 transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-amber-600" />
-                    <span className="text-sm font-medium text-amber-800">Pending KYC</span>
+                    <Clock className="h-4 w-4 text-emerald-600" />
+                    <span className="text-sm font-medium text-emerald-800">Pending KYC</span>
                   </div>
                   <Badge variant="warning">12</Badge>
                 </a>

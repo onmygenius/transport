@@ -10,7 +10,7 @@ const clientTiers: PricingTier[] = [
     icon: <Package className="w-6 h-6" />,
     price: 19.99,
     description: '1–5 shipments/month. Perfect for small businesses.',
-    color: 'amber',
+    color: 'emerald',
     features: [
       'Post up to 5 shipment requests',
       'Access to all verified transporters',

@@ -64,13 +64,13 @@ export default async function TransporterDashboardPage() {
       <main className="flex-1 p-6 space-y-6">
 
         {!kycApproved && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 flex items-center gap-4">
-            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 flex items-center gap-4">
+            <AlertTriangle className="h-5 w-5 text-emerald-500 shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-800">KYC verification pending</p>
-              <p className="text-xs text-amber-600 mt-0.5">Complete your company verification to access all features and post trucks.</p>
+              <p className="text-sm font-semibold text-emerald-800">KYC verification pending</p>
+              <p className="text-xs text-emerald-600 mt-0.5">Complete your company verification to access all features and post trucks.</p>
             </div>
-            <Link href="/dashboard/transporter/settings" className="shrink-0 rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 transition-colors">
+            <Link href="/dashboard/transporter/settings" className="shrink-0 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-600 transition-colors">
               Complete KYC
             </Link>
           </div>
@@ -79,7 +79,7 @@ export default async function TransporterDashboardPage() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
             { label: 'Active Jobs', value: mockStats.activeJobs, icon: Truck, color: 'bg-blue-100 text-blue-700', href: '/dashboard/transporter/jobs' },
-            { label: 'Pending Offers', value: mockStats.pendingOffers, icon: Package, color: 'bg-amber-100 text-amber-700', href: '/dashboard/transporter/offers' },
+            { label: 'Pending Offers', value: mockStats.pendingOffers, icon: Package, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/offers' },
             { label: 'Completed', value: mockStats.completedShipments, icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/jobs' },
             { label: 'Rating', value: `${mockStats.rating} ★`, icon: Star, color: 'bg-violet-100 text-violet-700', href: '/dashboard/transporter/reviews' },
           ].map(s => (
@@ -207,7 +207,7 @@ export default async function TransporterDashboardPage() {
                 { label: 'Browse Available Shipments', href: '/dashboard/transporter/shipments', icon: Search, color: 'bg-blue-50 text-blue-700 hover:bg-blue-100' },
                 { label: 'Post Truck Availability', href: '/dashboard/transporter/trucks/new', icon: Truck, color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
                 { label: 'Upload Documents', href: '/dashboard/transporter/documents', icon: Package, color: 'bg-violet-50 text-violet-700 hover:bg-violet-100' },
-                { label: 'View Subscription', href: '/dashboard/transporter/subscription', icon: TrendingUp, color: 'bg-amber-50 text-amber-700 hover:bg-amber-100' },
+                { label: 'View Subscription', href: '/dashboard/transporter/subscription', icon: TrendingUp, color: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
               ].map(action => (
                 <Link
                   key={action.href}

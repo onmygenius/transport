@@ -10,7 +10,7 @@ interface PricingTier {
   monthlyPrice: number
   sixMonthPrice: number
   description: string
-  color: 'amber' | 'blue' | 'emerald' | 'purple' | 'slate'
+  color: 'emerald' | 'blue' | 'emerald' | 'purple' | 'slate'
   features: string[]
   limit: string
   popular?: boolean
@@ -19,15 +19,15 @@ interface PricingTier {
 
 const colorMap = {
   amber: {
-    border: 'border-amber-200',
-    bg: 'bg-amber-50',
-    iconBg: 'bg-amber-100',
-    iconText: 'text-amber-600',
-    badge: 'bg-amber-500',
-    button: 'bg-amber-500 hover:bg-amber-600',
-    accent: 'text-amber-600',
-    dot: 'bg-amber-400',
-    highlight: 'bg-amber-500/10 border-amber-300',
+    border: 'border-emerald-200',
+    bg: 'bg-emerald-50',
+    iconBg: 'bg-emerald-100',
+    iconText: 'text-emerald-600',
+    badge: 'bg-emerald-500',
+    button: 'bg-emerald-500 hover:bg-emerald-600',
+    accent: 'text-emerald-600',
+    dot: 'bg-emerald-400',
+    highlight: 'bg-emerald-500/10 border-emerald-300',
   },
   blue: {
     border: 'border-blue-200',
@@ -82,7 +82,7 @@ const clientTiers: PricingTier[] = [
     monthlyPrice: 19.99,
     sixMonthPrice: 89.94,
     description: 'Perfect for small businesses just getting started with freight.',
-    color: 'amber',
+    color: 'emerald',
     limit: '1–5 shipments/month',
     features: [
       'Post up to 5 active shipment requests',
@@ -278,7 +278,7 @@ export default function CreativePricing() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-white text-lg">Transporter Pro</h3>
-                <span className="rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-bold text-slate-900">First month 50% OFF</span>
+                <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-bold text-slate-900">First month 50% OFF</span>
               </div>
               <p className="text-slate-400 text-sm mt-0.5">
                 <span className="text-white font-semibold">€14.99</span>
@@ -294,7 +294,7 @@ export default function CreativePricing() {
             </div>
             <Link
               href="/register"
-              className="flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-amber-300 transition-colors whitespace-nowrap"
+              className="flex items-center gap-2 rounded-xl bg-emerald-400 px-6 py-3 text-sm font-bold text-slate-900 hover:bg-emerald-300 transition-colors whitespace-nowrap"
             >
               Start Free Trial
               <ArrowRight className="h-4 w-4" />

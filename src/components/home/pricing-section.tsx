@@ -12,7 +12,7 @@ const clientTiers: PricingTier[] = [
     icon: <Package className="w-6 h-6" />,
     price: 19.99,
     description: '1–5 shipments/month. Perfect for small businesses.',
-    color: 'amber',
+    color: 'emerald',
     priceId: 'price_1TASbp0dqWRNGixPqAoh7aKf',
     features: [
       'Post up to 5 shipment requests',
@@ -112,12 +112,12 @@ export default function PricingSection() {
         <div className="rounded-2xl bg-zinc-900 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-2 border-zinc-900 shadow-[4px_4px_0px_0px] shadow-zinc-900">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-zinc-800">
-              <Truck className="h-6 w-6 text-amber-400" />
+              <Truck className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-white text-lg">Transporter Pro</h3>
-                <span className="rounded-full bg-amber-400 border-2 border-zinc-900 px-2.5 py-0.5 text-xs font-bold text-zinc-900">First month 50% OFF</span>
+                <span className="rounded-full bg-emerald-400 border-2 border-zinc-900 px-2.5 py-0.5 text-xs font-bold text-zinc-900">First month 50% OFF</span>
               </div>
               <p className="text-zinc-400 text-sm mt-0.5">
                 <span className="text-white font-bold">€14.99</span>
@@ -129,7 +129,7 @@ export default function PricingSection() {
           <button
             onClick={handleTransporterSubscribe}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg border-2 border-white bg-amber-400 px-6 py-3 text-sm font-bold text-zinc-900 shadow-[4px_4px_0px_0px] shadow-white hover:shadow-[6px_6px_0px_0px] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded-lg border-2 border-white bg-emerald-400 px-6 py-3 text-sm font-bold text-zinc-900 shadow-[4px_4px_0px_0px] shadow-white hover:shadow-[6px_6px_0px_0px] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Loading...' : 'Start Free Trial'}
             <ArrowRight className="h-4 w-4" />

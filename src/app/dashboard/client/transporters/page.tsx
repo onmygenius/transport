@@ -116,7 +116,7 @@ export default function ClientTransportersPage() {
                   <p className="font-bold text-gray-900">{t.profile?.company_name || 'Unknown'}</p>
                   <p className="text-xs text-gray-500 mb-3">{t.profile?.company_country || 'N/A'} · {t.fleet_size} trucks</p>
                   <div className="flex items-center gap-1 mb-3">
-                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
                     <span className="text-sm font-bold text-gray-900">{t.rating_average?.toFixed(1) || '0.0'}</span>
                     <span className="text-xs text-gray-400">({t.rating_count || 0} reviews)</span>
                   </div>

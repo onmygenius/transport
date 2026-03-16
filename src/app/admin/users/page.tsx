@@ -100,7 +100,7 @@ export default function UsersPage() {
             { label: 'Total Users', value: stats.total, icon: Users, color: 'bg-blue-100 text-blue-700' },
             { label: 'Transporters', value: stats.transporters, icon: Truck, color: 'bg-violet-100 text-violet-700' },
             { label: 'Clients', value: stats.clients, icon: Building2, color: 'bg-emerald-100 text-emerald-700' },
-            { label: 'Pending KYC', value: stats.pendingKyc, icon: Clock, color: 'bg-amber-100 text-amber-700' },
+            { label: 'Pending KYC', value: stats.pendingKyc, icon: Clock, color: 'bg-emerald-100 text-emerald-700' },
           ].map(s => (
             <Card key={s.label}>
               <CardContent className="flex items-center gap-4 p-5">

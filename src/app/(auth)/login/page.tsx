@@ -59,7 +59,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-white leading-tight">
             European Container<br />Freight Exchange
           </h1>
-          <p className="mt-4 text-amber-200 text-lg">
+          <p className="mt-4 text-emerald-200 text-lg">
             Connecting transporters with clients across Europe. Fast, secure and efficient.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
@@ -70,12 +70,12 @@ export default function LoginPage() {
             ].map(s => (
               <div key={s.label} className="rounded-xl bg-white/10 p-4">
                 <p className="text-2xl font-bold text-white">{s.value}</p>
-                <p className="text-sm text-amber-200">{s.label}</p>
+                <p className="text-sm text-emerald-200">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
-        <p className="relative z-10 text-amber-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
+        <p className="relative z-10 text-emerald-300 text-sm">© 2026 Trade Container. Toate drepturile rezervate.</p>
       </div>
 
       <div className="flex flex-1 items-center justify-center p-8">
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-xs text-amber-600 hover:underline">
+                <Link href="/forgot-password" className="text-xs text-emerald-600 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Don't have an account?{' '}
-            <Link href="/register" className="font-medium text-amber-600 hover:underline">
+            <Link href="/register" className="font-medium text-emerald-600 hover:underline">
               Register
             </Link>
           </p>

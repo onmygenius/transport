@@ -76,10 +76,10 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
       <div className="flex flex-col min-h-screen overflow-y-auto">
         <TransporterHeader title="Subscription" subtitle="Manage your Trade Container subscription plan" />
         <main className="flex-1 p-6">
-          <Card className="border-amber-200">
+          <Card className="border-emerald-200">
             <CardContent className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <AlertTriangle className="h-12 w-12 text-amber-500" />
+                <AlertTriangle className="h-12 w-12 text-emerald-500" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">No Active Subscription</h3>
                   <p className="text-gray-500">Subscribe to access shipment requests</p>

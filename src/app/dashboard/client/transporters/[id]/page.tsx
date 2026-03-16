@@ -205,7 +205,7 @@ export default function TransporterProfilePage() {
               
               <div className="text-right">
                 <div className="flex items-center gap-1 mb-1">
-                  <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                  <Star className="h-5 w-5 fill-emerald-400 text-emerald-400" />
                   <span className="text-2xl font-bold text-gray-900">
                     {transporter.rating_average?.toFixed(1) || '0.0'}
                   </span>
@@ -332,7 +332,7 @@ export default function TransporterProfilePage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+                        <Star className="h-5 w-5 fill-emerald-400 text-emerald-400" />
                         <span className="text-lg font-bold">{rating.stars}</span>
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export default function TransporterProfilePage() {
                         <div>
                           <p className="text-gray-500">Punctuality</p>
                           <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
                             <span className="font-medium">{rating.punctuality}/5</span>
                           </div>
                         </div>
@@ -355,7 +355,7 @@ export default function TransporterProfilePage() {
                         <div>
                           <p className="text-gray-500">Communication</p>
                           <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
                             <span className="font-medium">{rating.communication}/5</span>
                           </div>
                         </div>
@@ -364,7 +364,7 @@ export default function TransporterProfilePage() {
                         <div>
                           <p className="text-gray-500">Cargo Care</p>
                           <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
                             <span className="font-medium">{rating.cargo_care}/5</span>
                           </div>
                         </div>
@@ -373,7 +373,7 @@ export default function TransporterProfilePage() {
                         <div>
                           <p className="text-gray-500">Documentation</p>
                           <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <Star className="h-4 w-4 fill-emerald-400 text-emerald-400" />
                             <span className="font-medium">{rating.documentation}/5</span>
                           </div>
                         </div>

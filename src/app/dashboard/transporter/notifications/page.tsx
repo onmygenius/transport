@@ -16,7 +16,7 @@ const typeConfig: Record<string, { label: string; icon: React.ElementType; color
   offer_rejected: { label: 'Offer Rejected', icon: AlertCircle, color: 'bg-red-100 text-red-600' },
   shipment_new: { label: 'New Shipment', icon: Package, color: 'bg-blue-100 text-blue-600' },
   shipment_status: { label: 'Shipment Update', icon: Package, color: 'bg-purple-100 text-purple-600' },
-  message_new: { label: 'New Message', icon: MessageSquare, color: 'bg-amber-100 text-amber-600' },
+  message_new: { label: 'New Message', icon: MessageSquare, color: 'bg-emerald-100 text-emerald-600' },
   kyc_approved: { label: 'KYC Approved', icon: FileCheck, color: 'bg-green-100 text-green-600' },
   kyc_rejected: { label: 'KYC Rejected', icon: AlertCircle, color: 'bg-red-100 text-red-600' },
   subscription: { label: 'Subscription', icon: AlertCircle, color: 'bg-orange-100 text-orange-600' },

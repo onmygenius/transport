@@ -234,11 +234,11 @@ export default function PostShipmentPage() {
           {stops.map((stop, index) => (
             <div key={stop.id}>
               {stop.type === 'intermediate' ? (
-                <Card className="border-l-4 border-l-amber-500">
+                <Card className="border-l-4 border-l-emerald-500">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">{index + 2}</span>
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">{index + 2}</span>
                         <CardTitle className="text-base">Intermediate Stop {index + 1}</CardTitle>
                       </div>
                       <button type="button" onClick={() => removeStop(stop.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
@@ -371,7 +371,7 @@ export default function PostShipmentPage() {
           <div className="grid grid-cols-2 gap-4">
             {stops.length < 10 && (
               <button type="button" onClick={addIntermediateStop}
-                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-300 py-3 text-sm text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:bg-amber-50 transition-colors">
+                className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-emerald-300 py-3 text-sm text-emerald-600 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors">
                 <Plus className="h-4 w-4" /> Add intermediate stop
               </button>
             )}

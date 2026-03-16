@@ -104,7 +104,7 @@ export default function TransporterOffersClient({ offers }: { offers: Offer[] })
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
           {[
             { label: 'Total', value: offers.length, color: 'bg-gray-100 text-gray-700' },
-            { label: 'Pending', value: offers.filter(o => o.status === 'pending').length, color: 'bg-amber-100 text-amber-700' },
+            { label: 'Pending', value: offers.filter(o => o.status === 'pending').length, color: 'bg-emerald-100 text-emerald-700' },
             { label: 'Accepted', value: offers.filter(o => o.status === 'accepted').length, color: 'bg-emerald-100 text-emerald-700' },
             { label: 'Rejected', value: offers.filter(o => o.status === 'rejected').length, color: 'bg-red-100 text-red-700' },
             { label: 'Expired', value: offers.filter(o => ['expired', 'withdrawn'].includes(o.status)).length, color: 'bg-gray-100 text-gray-500' },

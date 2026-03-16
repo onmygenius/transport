@@ -37,7 +37,7 @@ export default function SavingsCalculatorPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="mx-auto max-w-7xl px-6 py-12">
-        <Link href="/" className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700 mb-8">
+        <Link href="/" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-8">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Link>
@@ -68,9 +68,9 @@ export default function SavingsCalculatorPage() {
                   max="50"
                   value={numTrucks}
                   onChange={(e) => setNumTrucks(Number(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                 />
-                <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                   {numTrucks}
                 </span>
               </div>
@@ -89,9 +89,9 @@ export default function SavingsCalculatorPage() {
                   step="1000"
                   value={kmPerYear}
                   onChange={(e) => setKmPerYear(Number(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                 />
-                <span className="text-lg font-bold text-amber-600 min-w-[6rem] text-right">
+                <span className="text-lg font-bold text-emerald-600 min-w-[6rem] text-right">
                   {kmPerYear.toLocaleString()}
                 </span>
               </div>
@@ -121,9 +121,9 @@ export default function SavingsCalculatorPage() {
                       max="120"
                       value={avgSpeed}
                       onChange={(e) => setAvgSpeed(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {avgSpeed}
                     </span>
                   </div>
@@ -141,9 +141,9 @@ export default function SavingsCalculatorPage() {
                       max="100"
                       value={emptyPercent}
                       onChange={(e) => setEmptyPercent(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {emptyPercent}%
                     </span>
                   </div>
@@ -161,9 +161,9 @@ export default function SavingsCalculatorPage() {
                       max="50"
                       value={fuelConsumption}
                       onChange={(e) => setFuelConsumption(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {fuelConsumption}
                     </span>
                   </div>
@@ -182,9 +182,9 @@ export default function SavingsCalculatorPage() {
                       step="0.01"
                       value={fuelPrice}
                       onChange={(e) => setFuelPrice(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[4rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[4rem] text-right">
                       €{fuelPrice.toFixed(2)}
                     </span>
                   </div>
@@ -202,9 +202,9 @@ export default function SavingsCalculatorPage() {
                       max="100"
                       value={driverRate}
                       onChange={(e) => setDriverRate(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[4rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[4rem] text-right">
                       €{driverRate}
                     </span>
                   </div>
@@ -222,9 +222,9 @@ export default function SavingsCalculatorPage() {
                       max="100"
                       value={reductionPercent}
                       onChange={(e) => setReductionPercent(Number(e.target.value))}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-400"
                     />
-                    <span className="text-lg font-bold text-amber-600 min-w-[3rem] text-right">
+                    <span className="text-lg font-bold text-emerald-600 min-w-[3rem] text-right">
                       {reductionPercent}%
                     </span>
                   </div>
@@ -235,7 +235,7 @@ export default function SavingsCalculatorPage() {
 
           {/* Results Panel */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl shadow-2xl p-8 text-zinc-900">
+            <div className="bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-2xl shadow-2xl p-8 text-zinc-900">
               <div className="flex items-center gap-3 mb-6">
                 <TrendingDown className="h-8 w-8" />
                 <h2 className="text-2xl font-bold">Your Potential Savings</h2>
@@ -277,12 +277,12 @@ export default function SavingsCalculatorPage() {
             {/* Info Cards */}
             <div className="grid grid-cols-2 gap-4 mt-6">
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <Fuel className="h-6 w-6 text-amber-600 mb-2" />
+                <Fuel className="h-6 w-6 text-emerald-600 mb-2" />
                 <div className="text-2xl font-bold text-gray-900">-{reductionPercent}%</div>
                 <div className="text-xs text-gray-600">Empty runs</div>
               </div>
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <Clock className="h-6 w-6 text-amber-600 mb-2" />
+                <Clock className="h-6 w-6 text-emerald-600 mb-2" />
                 <div className="text-2xl font-bold text-gray-900">24/7</div>
                 <div className="text-xs text-gray-600">Platform access</div>
               </div>
@@ -299,7 +299,7 @@ export default function SavingsCalculatorPage() {
           <div className="flex gap-4 justify-center">
             <Link
               href="/register"
-              className="bg-amber-400 hover:bg-amber-300 text-zinc-900 px-8 py-3 rounded-lg font-semibold transition-colors"
+              className="bg-emerald-400 hover:bg-emerald-300 text-zinc-900 px-8 py-3 rounded-lg font-semibold transition-colors"
             >
               Create Free Account
             </Link>

@@ -33,7 +33,7 @@ function StarRating({ value }: { value: number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map(i => (
-        <Star key={i} className={`h-3.5 w-3.5 ${i <= value ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
+        <Star key={i} className={`h-3.5 w-3.5 ${i <= value ? 'fill-emerald-400 text-emerald-400' : 'text-gray-200'}`} />
       ))}
     </div>
   )
@@ -158,7 +158,7 @@ export default function ClientReviewsPage() {
                           <span className="text-xs font-bold text-gray-900">{catAvg.toFixed(1)}</span>
                         </div>
                         <div className="h-2 rounded-full bg-gray-100">
-                          <div className="h-2 rounded-full bg-amber-400" style={{ width: `${(catAvg / 5) * 100}%` }} />
+                          <div className="h-2 rounded-full bg-emerald-400" style={{ width: `${(catAvg / 5) * 100}%` }} />
                         </div>
                       </div>
                     )

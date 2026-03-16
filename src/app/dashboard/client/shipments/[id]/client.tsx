@@ -283,7 +283,7 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
           <Button
             onClick={() => setShowRatingModal(true)}
             disabled={isRatingDisabled || ratingCheckLoading}
-            className="gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
             title={
               hasRated
                 ? 'You have already rated this shipment'

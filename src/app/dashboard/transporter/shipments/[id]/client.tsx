@@ -338,7 +338,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
           <Button
             onClick={() => setShowRatingModal(true)}
             disabled={isRatingDisabled || ratingCheckLoading}
-            className="gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
             title={
               hasRated
                 ? 'You have already rated this shipment'
@@ -461,10 +461,10 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
 
                 {/* All Stops (Intermediate + Destinations) in chronological order */}
                 {allStops.map((stop, idx) => (
-                  <div key={idx} className={`border-l-4 ${stop.type === 'intermediate' ? 'border-amber-500' : 'border-emerald-500'} pl-4`}>
+                  <div key={idx} className={`border-l-4 ${stop.type === 'intermediate' ? 'border-emerald-500' : 'border-emerald-500'} pl-4`}>
                     <div className="flex items-center gap-2 mb-2">
                       {stop.type === 'intermediate' ? (
-                        <Truck className="h-4 w-4 text-amber-500" />
+                        <Truck className="h-4 w-4 text-emerald-500" />
                       ) : (
                         <MapPin className="h-4 w-4 text-emerald-500" />
                       )}
@@ -684,7 +684,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-500" />
+                <AlertCircle className="h-5 w-5 text-emerald-500" />
                 Documents
               </CardTitle>
             </CardHeader>

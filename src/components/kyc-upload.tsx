@@ -163,12 +163,12 @@ export function KycUpload({ kycStatus, kycRejectionReason }: KycUploadProps) {
         )}
 
         {kycStatus === 'pending' && documents.length > 0 && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
             <div className="flex gap-3">
-              <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+              <Clock className="h-5 w-5 text-emerald-600 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-amber-900">Under Review</p>
-                <p className="text-sm text-amber-700">Your documents are being reviewed by our team. This usually takes 1-2 business days.</p>
+                <p className="text-sm font-semibold text-emerald-900">Under Review</p>
+                <p className="text-sm text-emerald-700">Your documents are being reviewed by our team. This usually takes 1-2 business days.</p>
               </div>
             </div>
           </div>

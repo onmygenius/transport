@@ -12,7 +12,7 @@ const badgeVariants = cva(
         destructive: 'border-transparent bg-red-500 text-white',
         outline: 'text-gray-700 border-gray-300',
         success: 'border-transparent bg-green-100 text-green-800',
-        warning: 'border-transparent bg-amber-100 text-amber-800',
+        warning: 'border-transparent bg-emerald-100 text-emerald-800',
         info: 'border-transparent bg-blue-100 text-blue-800',
         locked: 'border-transparent bg-gray-800 text-white',
       },

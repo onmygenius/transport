@@ -65,7 +65,7 @@ export default function SubscriptionsPage() {
             { label: 'Active Subscriptions', value: activeCount, icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700' },
             { label: 'Recurring Revenue', value: formatCurrency(totalRevenue), icon: TrendingUp, color: 'bg-blue-100 text-blue-700' },
             { label: 'Expired', value: expiredCount, icon: Calendar, color: 'bg-red-100 text-red-700' },
-            { label: 'Suspended', value: suspendedCount, icon: Ban, color: 'bg-amber-100 text-amber-700' },
+            { label: 'Suspended', value: suspendedCount, icon: Ban, color: 'bg-emerald-100 text-emerald-700' },
           ].map(s => (
             <Card key={s.label}>
               <CardContent className="flex items-center gap-4 p-5">
@@ -180,7 +180,7 @@ export default function SubscriptionsPage() {
                             </Button>
                           )}
                           {sub.status === 'active' && (
-                            <Button variant="ghost" size="sm" className="h-7 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 gap-1">
+                            <Button variant="ghost" size="sm" className="h-7 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 gap-1">
                               <Ban className="h-3 w-3" />
                               Suspend
                             </Button>

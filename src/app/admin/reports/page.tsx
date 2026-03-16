@@ -97,7 +97,7 @@ export default function ReportsPage() {
             { label: 'Total Revenue', value: formatCurrency(totalRevenue), change: '+12.4%', icon: TrendingUp, color: 'bg-blue-600' },
             { label: 'From Subscriptions', value: formatCurrency(totalSubscriptions), change: '+15.2%', icon: CreditCard, color: 'bg-emerald-600' },
             { label: 'From Commissions', value: formatCurrency(totalCommissions), change: '+8.7%', icon: Package, color: 'bg-violet-600' },
-            { label: 'Completed Shipments', value: totalShipments.toString(), change: '+18.3%', icon: Users, color: 'bg-amber-500' },
+            { label: 'Completed Shipments', value: totalShipments.toString(), change: '+18.3%', icon: Users, color: 'bg-emerald-500' },
           ].map(s => (
             <Card key={s.label}>
               <CardContent className="p-5">
@@ -212,7 +212,7 @@ export default function ReportsPage() {
                 {topTransporters.map((t, i) => (
                   <tr key={t.name} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-500'}`}>
+                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-emerald-100 text-emerald-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-500'}`}>
                         {i + 1}
                       </span>
                     </td>
@@ -221,7 +221,7 @@ export default function ReportsPage() {
                     <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(t.revenue)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        <span className="text-amber-400">★</span>
+                        <span className="text-emerald-400">★</span>
                         <span className="font-semibold text-gray-900">{t.rating}</span>
                       </div>
                     </td>

@@ -27,7 +27,7 @@ const mockNotifications = [
 ]
 
 const typeConfig: Record<string, { label: string; variant: 'warning' | 'destructive' | 'info' | 'success' | 'default'; icon: React.ElementType; color: string }> = {
-  kyc: { label: 'KYC', variant: 'warning', icon: Users, color: 'bg-amber-100 text-amber-600' },
+  kyc: { label: 'KYC', variant: 'warning', icon: Users, color: 'bg-emerald-100 text-emerald-600' },
   dispute: { label: 'Dispute', variant: 'destructive', icon: AlertTriangle, color: 'bg-red-100 text-red-600' },
   subscription: { label: 'Subscription', variant: 'info', icon: CreditCard, color: 'bg-blue-100 text-blue-600' },
   payment: { label: 'Payment', variant: 'success', icon: Package, color: 'bg-emerald-100 text-emerald-600' },
@@ -70,7 +70,7 @@ export default function NotificationsPage() {
           {[
             { label: 'Total', value: mockNotifications.length, color: 'bg-blue-100 text-blue-700', icon: Bell },
             { label: 'Unread', value: unreadCount, color: 'bg-red-100 text-red-700', icon: AlertTriangle },
-            { label: 'KYC Alerts', value: kycCount, color: 'bg-amber-100 text-amber-700', icon: Users },
+            { label: 'KYC Alerts', value: kycCount, color: 'bg-emerald-100 text-emerald-700', icon: Users },
             { label: 'Dispute Alerts', value: disputeCount, color: 'bg-rose-100 text-rose-700', icon: AlertTriangle },
           ].map(s => (
             <Card key={s.label}>

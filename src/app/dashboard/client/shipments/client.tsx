@@ -141,7 +141,7 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
           {[
             { label: 'Total', value: shipments.length, color: 'bg-gray-100 text-gray-700' },
-            { label: 'Pending', value: shipments.filter(s => s.status === 'pending').length, color: 'bg-amber-100 text-amber-700' },
+            { label: 'Pending', value: shipments.filter(s => s.status === 'pending').length, color: 'bg-emerald-100 text-emerald-700' },
             { label: 'Active', value: shipments.filter(s => ['confirmed', 'picked_up', 'in_transit'].includes(s.status)).length, color: 'bg-blue-100 text-blue-700' },
             { label: 'Completed', value: shipments.filter(s => s.status === 'completed').length, color: 'bg-emerald-100 text-emerald-700' },
             { label: 'Disputed', value: shipments.filter(s => s.status === 'disputed').length, color: 'bg-red-100 text-red-700' },
@@ -286,7 +286,7 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                             size="sm"
                             onClick={() => handleRateClick(s.id)}
                             disabled={s.status !== 'completed' || ratedShipments.has(s.id) || !shipmentTransporters.has(s.id)}
-                            className="h-7 text-xs gap-1 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            className="h-7 text-xs gap-1 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                             title={
                               ratedShipments.has(s.id)
                                 ? 'Already rated'
