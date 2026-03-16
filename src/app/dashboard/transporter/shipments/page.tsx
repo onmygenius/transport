@@ -18,6 +18,7 @@ export default async function TransporterShipmentsPage() {
       destination_city,
       destination_country,
       destination_address,
+      destination_type,
       container_type,
       cargo_weight,
       cargo_type,

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Package, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, Truck, Building2, Lock, X, Loader2, CheckCircle, Info, Heart, Flag, FlagTriangleRight } from 'lucide-react'
+import { Search, Package, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, Truck, Building2, Lock, X, Loader2, CheckCircle, Info, Heart, Flag, FlagTriangleRight, MapPin } from 'lucide-react'
 import { createOffer } from '@/lib/actions/offers'
 import Link from 'next/link'
 
@@ -118,6 +118,7 @@ interface Shipment {
   destination_city: string
   destination_country: string
   destination_address: string | null
+  destination_type: string | null
   container_type: string
   cargo_weight: number
   pickup_date: string
@@ -411,7 +412,9 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                     }
                     
                     const pickupTerminal = s.origin_address?.split(' | ')[0] || ''
-                    const dropTerminal = s.destination_address?.split(' | ')[0] || ''
+                    const dropInfo = s.destination_type === 'client' 
+                      ? { address: s.destination_address?.split(' | ')[0] || '', details: s.destination_address?.split(' | ')[1] || '' }
+                      : { terminal: s.destination_address?.split(' | ')[0] || '' }
                     
                     return (
                       <tr key={s.id} className="hover:bg-gray-50 transition-colors">
@@ -454,14 +457,27 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                               </div>
                             ))}
                             <div className="flex items-center gap-2">
-                              <Flag className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                              {s.destination_type === 'client' ? (
+                                <MapPin className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                              ) : (
+                                <Flag className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                              )}
                               <span className="font-medium text-gray-900">{s.destination_city}</span>
                             </div>
-                            {dropTerminal && (
-                              <div className="flex items-center gap-2 pl-5">
-                                <Building2 className="h-3 w-3 text-cyan-400 shrink-0" />
-                                <span className="text-gray-500">{dropTerminal}</span>
-                              </div>
+                            {s.destination_type === 'client' ? (
+                              'address' in dropInfo && dropInfo.address && (
+                                <div className="flex items-center gap-2 pl-5">
+                                  <Building2 className="h-3 w-3 text-emerald-400 shrink-0" />
+                                  <span className="text-gray-500">{dropInfo.address}</span>
+                                </div>
+                              )
+                            ) : (
+                              'terminal' in dropInfo && dropInfo.terminal && (
+                                <div className="flex items-center gap-2 pl-5">
+                                  <Building2 className="h-3 w-3 text-cyan-400 shrink-0" />
+                                  <span className="text-gray-500">{dropInfo.terminal}</span>
+                                </div>
+                              )
                             )}
                           </div>
                         </td>

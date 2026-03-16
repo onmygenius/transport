@@ -34,7 +34,22 @@ interface Stop {
   date: string
   time: string
 }
-interface DropStop { port: string; terminal: string; container_ref: string; seal: string; date: string; time: string }
+interface DropStop { 
+  type: 'port' | 'client' | null
+  // For port
+  port: string
+  terminal: string
+  // For client
+  address?: string
+  lat?: number
+  lng?: number
+  clientDetails?: string
+  // Common
+  container_ref: string
+  seal: string
+  date: string
+  time: string
+}
 
 const emptyIntermediateStop = (): Stop => ({
   id: Math.random().toString(36).slice(2),
@@ -67,12 +82,13 @@ export default function PostShipmentPage() {
 
   const [pickup, setPickup] = useState<PickupStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
   const [stops, setStops] = useState<Stop[]>([])
-  const [drop, setDrop] = useState<DropStop>({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' })
+  const [drop, setDrop] = useState<DropStop>({ type: null, port: '', terminal: '', address: '', lat: undefined, lng: undefined, clientDetails: '', container_ref: '', seal: '', date: '', time: '' })
   const [cargo, setCargo] = useState({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' as TransportType })
   const [extra, setExtra] = useState({ budget: '', currency: 'EUR', special_instructions: '' })
 
   const setPickupField = (field: keyof PickupStop, value: string) => setPickup(p => ({ ...p, [field]: value }))
-  const setDropField = (field: keyof DropStop, value: string) => setDrop(p => ({ ...p, [field]: value }))
+  const setDropField = (field: keyof DropStop, value: any) => setDrop(p => ({ ...p, [field]: value }))
+  const setDropAddress = (address: string, lat?: number, lng?: number) => setDrop(p => ({ ...p, address, lat, lng }))
   const updateStop = (id: string, field: keyof Stop, value: any) => setStops(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
   const updateStopAddress = (id: string, address: string, lat?: number, lng?: number) => setStops(prev => prev.map(s => s.id === id ? { ...s, address, lat, lng } : s))
   const addIntermediateStop = () => { if (stops.length < 10) setStops(p => [...p, emptyIntermediateStop()]) }
@@ -87,19 +103,32 @@ export default function PostShipmentPage() {
     setError(null)
     if (!pickup.port) { setError('Please enter a Pick-up port.'); return }
     if (!pickup.date) { setError('Please enter a Pick-up date.'); return }
-    if (!drop.port) { setError('Please enter a Drop port.'); return }
+    
+    // Validare Drop bazată pe tip
+    if (!drop.type) { setError('Please select Drop type (PORT or CLIENT).'); return }
+    if (drop.type === 'port' && !drop.port) { setError('Please enter a Drop port.'); return }
+    if (drop.type === 'client' && !drop.address) { setError('Please enter Drop address.'); return }
     if (!drop.date) { setError('Please enter a Drop date.'); return }
+    
     if (!cargo.container_type) { setError('Please select a container type.'); return }
     if (!cargo.cargo_weight) { setError('Please select cargo weight range.'); return }
 
     setLoading(true)
+    
+    // Construiește destination_city și destination_address bazat pe tip
+    const destinationCity = drop.type === 'port' ? drop.port : (drop.address || 'Client Address')
+    const destinationAddress = drop.type === 'port' 
+      ? [drop.terminal, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : ''].filter(Boolean).join(' | ') || undefined
+      : [drop.address, drop.clientDetails, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : '', drop.lat && drop.lng ? `GPS: ${drop.lat},${drop.lng}` : ''].filter(Boolean).join(' | ') || undefined
+    
     const result = await createShipment({
       origin_city: pickup.port,
       origin_country: 'EU',
       origin_address: [pickup.terminal, pickup.container_ref, pickup.seal ? `Seal: ${pickup.seal}` : ''].filter(Boolean).join(' | ') || undefined,
-      destination_city: drop.port,
+      destination_city: destinationCity,
       destination_country: 'EU',
-      destination_address: [drop.terminal, drop.container_ref, drop.seal ? `Seal: ${drop.seal}` : ''].filter(Boolean).join(' | ') || undefined,
+      destination_address: destinationAddress,
+      destination_type: drop.type || 'port',
       container_type: cargo.container_type,
       container_count: cargo.container_count,
       cargo_weight: parseFloat(cargo.cargo_weight) || 1,
@@ -140,7 +169,7 @@ export default function PostShipmentPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Shipment Posted!</h2>
             <p className="text-gray-500 mb-6">Your transport request is now live. Transporters will start sending offers shortly.</p>
             <div className="flex gap-3 justify-center">
-              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setStops([]); setDrop({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
+              <Button onClick={() => { setSubmitted(false); setPickup({ port: '', terminal: '', container_ref: '', seal: '', date: '', time: '' }); setStops([]); setDrop({ type: null, port: '', terminal: '', address: '', lat: undefined, lng: undefined, clientDetails: '', container_ref: '', seal: '', date: '', time: '' }); setCargo({ container_type: '' as ContainerType, container_count: 1, container_category: '', cargo_weight: '', cargo_type: '' as CargoType, transport_type: 'fcl' }); setExtra({ budget: '', currency: 'EUR', special_instructions: '' }) }} variant="outline">Post Another</Button>
               <Button onClick={() => router.push('/dashboard/client/shipments')}>View My Shipments</Button>
             </div>
           </div>
@@ -365,32 +394,113 @@ export default function PostShipmentPage() {
               <CardDescription>Where is the container being dropped off?</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Butoane PORT / CLIENT */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 col-span-2">
-                  <Label>Port *</Label>
-                  <PortSelect placeholder="Select drop port..." value={drop.port} onChange={v => setDrop(p => ({ ...p, port: v, terminal: '' }))} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Terminal</Label>
-                  <TerminalSelect portCode={dropPortCode} value={drop.terminal} onChange={v => setDropField('terminal', v)} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Container / Reference</Label>
-                  <Input placeholder="e.g. ECHU1234567 or booking ref" value={drop.container_ref} onChange={e => setDropField('container_ref', e.target.value)} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Seal Number <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
-                  <Input placeholder="e.g. SL123456" value={drop.seal} onChange={e => setDropField('seal', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Date *</Label>
-                  <Input type="date" value={drop.date} onChange={e => setDropField('date', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Time</Label>
-                  <Input type="time" value={drop.time} onChange={e => setDropField('time', e.target.value)} />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setDropField('type', 'port')}
+                  className={`flex items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-medium transition-colors ${
+                    drop.type === 'port'
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      : 'border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50'
+                  }`}
+                >
+                  🚢 PORT
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDropField('type', 'client')}
+                  className={`flex items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-medium transition-colors ${
+                    drop.type === 'client'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                      : 'border-gray-200 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50'
+                  }`}
+                >
+                  🏢 CLIENT
+                </button>
               </div>
+
+              {/* Câmpuri PORT */}
+              {drop.type === 'port' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label>Port *</Label>
+                    <PortSelect placeholder="Select drop port..." value={drop.port} onChange={v => setDrop(p => ({ ...p, port: v, terminal: '' }))} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Terminal</Label>
+                    <TerminalSelect portCode={dropPortCode} value={drop.terminal} onChange={v => setDropField('terminal', v)} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Container / Reference</Label>
+                    <Input placeholder="e.g. ECHU1234567 or booking ref" value={drop.container_ref} onChange={e => setDropField('container_ref', e.target.value)} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Seal Number <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
+                    <Input placeholder="e.g. SL123456" value={drop.seal} onChange={e => setDropField('seal', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date *</Label>
+                    <Input type="date" value={drop.date} onChange={e => setDropField('date', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Time</Label>
+                    <Input type="time" value={drop.time} onChange={e => setDropField('time', e.target.value)} />
+                  </div>
+                </div>
+              )}
+
+              {/* Câmpuri CLIENT */}
+              {drop.type === 'client' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label>Address / Location *</Label>
+                    <PlacesAutocomplete
+                      placeholder="e.g. Europastraße 5, Gelsenkirchen, Germany"
+                      value={drop.address || ''}
+                      onChange={(v, _pid, lat, lng) => setDropAddress(v, lat, lng)}
+                      types={['geocode', 'establishment']}
+                    />
+                  </div>
+                  {drop.lat && drop.lng && (
+                    <div className="col-span-2 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                      <iframe
+                        title="drop-map"
+                        width="100%"
+                        height="180"
+                        style={{ border: 0, display: 'block' }}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${drop.lat},${drop.lng}&zoom=14`}
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2 col-span-2">
+                    <Label>Client Details <span className="text-gray-400 font-normal text-xs">(name, contact, instructions)</span></Label>
+                    <Input
+                      placeholder="e.g. John Doe, +49 123 456 789, Gate 3, etc."
+                      value={drop.clientDetails || ''}
+                      onChange={e => setDropField('clientDetails', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Container / Reference</Label>
+                    <Input placeholder="e.g. ECHU1234567 or booking ref" value={drop.container_ref} onChange={e => setDropField('container_ref', e.target.value)} />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Seal Number <span className="text-gray-400 font-normal text-xs">(optional)</span></Label>
+                    <Input placeholder="e.g. SL123456" value={drop.seal} onChange={e => setDropField('seal', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date *</Label>
+                    <Input type="date" value={drop.date} onChange={e => setDropField('date', e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Time</Label>
+                    <Input type="time" value={drop.time} onChange={e => setDropField('time', e.target.value)} />
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 

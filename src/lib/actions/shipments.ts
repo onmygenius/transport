@@ -13,6 +13,7 @@ export interface CreateShipmentData {
   destination_city: string
   destination_country: string
   destination_address?: string
+  destination_type?: string
   container_type: ContainerType
   container_count: number
   cargo_weight: number
@@ -53,6 +54,7 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
       destination_city: data.destination_city,
       destination_country: data.destination_country,
       destination_address: data.destination_address || null,
+      destination_type: data.destination_type || 'port',
       container_type: data.container_type,
       container_count: data.container_count,
       cargo_weight: data.cargo_weight,
@@ -116,6 +118,7 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
               destinationCity: data.destination_city,
               destinationCountry: data.destination_country,
               destinationAddress: data.destination_address,
+              destinationType: data.destination_type,
               containerType: data.container_type,
               containerCount: data.container_count,
               cargoWeight: data.cargo_weight,

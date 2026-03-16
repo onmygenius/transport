@@ -148,6 +148,7 @@ interface Shipment {
   destination_city: string
   destination_country: string
   destination_address: string | null
+  destination_type: string | null
   container_type: string
   container_count: number
   cargo_weight: number
@@ -216,9 +217,19 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
   const pickupTerminal = shipment.origin_address?.split(' | ')[0] || ''
   const pickupContainerRef = shipment.origin_address?.split(' | ')[1] || ''
   const pickupSeal = shipment.origin_address?.split(' | ')[2] || ''
-  const dropTerminal = shipment.destination_address?.split(' | ')[0] || ''
-  const dropContainerRef = shipment.destination_address?.split(' | ')[1] || ''
-  const dropSeal = shipment.destination_address?.split(' | ')[2] || ''
+  
+  const dropInfo = shipment.destination_type === 'client'
+    ? {
+        address: shipment.destination_address?.split(' | ')[0] || '',
+        clientDetails: shipment.destination_address?.split(' | ')[1] || '',
+        containerRef: shipment.destination_address?.split(' | ')[2] || '',
+        seal: shipment.destination_address?.split(' | ')[3]?.replace('Seal: ', '') || ''
+      }
+    : {
+        terminal: shipment.destination_address?.split(' | ')[0] || '',
+        containerRef: shipment.destination_address?.split(' | ')[1] || '',
+        seal: shipment.destination_address?.split(' | ')[2]?.replace('Seal: ', '') || ''
+      }
 
   const shipmentClientName = shipment.client?.company_name || shipment.client?.full_name || 'Unknown'
 
@@ -261,7 +272,9 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
     {
       city: shipment.destination_city,
       country: shipment.destination_country,
-      label: `Drop-off: ${shipment.destination_city}`,
+      label: shipment.destination_type === 'client' 
+        ? `Client Delivery: ${shipment.destination_city}`
+        : `Drop-off Port: ${shipment.destination_city}`,
       type: 'dropoff' as const
     }
   ]
@@ -476,32 +489,63 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
                 ))}
 
                 {/* Drop-off */}
-                <div className="border-l-4 border-cyan-500 pl-4">
+                <div className={`border-l-4 ${shipment.destination_type === 'client' ? 'border-emerald-500' : 'border-cyan-500'} pl-4`}>
                   <div className="flex items-center gap-2 mb-2">
-                    <ArrowLeft className="h-4 w-4 text-cyan-500" />
-                    <span className="text-sm font-bold text-gray-900">Drop-off</span>
+                    <ArrowLeft className={`h-4 w-4 ${shipment.destination_type === 'client' ? 'text-emerald-500' : 'text-cyan-500'}`} />
+                    <span className="text-sm font-bold text-gray-900">
+                      {shipment.destination_type === 'client' ? 'Client Delivery' : 'Drop-off Port'}
+                    </span>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-gray-400" />
                       <span className="font-medium">{shipment.destination_city}, {shipment.destination_country}</span>
                     </div>
-                    {dropTerminal && (
-                      <div className="flex items-center gap-2 pl-5">
-                        <Building2 className="h-3.5 w-3.5 text-cyan-400" />
-                        <span className="text-gray-600">{dropTerminal}</span>
-                      </div>
-                    )}
-                    {dropContainerRef && (
-                      <div className="flex items-center gap-2 pl-5">
-                        <Package className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-gray-600">Container: {dropContainerRef}</span>
-                      </div>
-                    )}
-                    {dropSeal && (
-                      <div className="flex items-center gap-2 pl-5">
-                        <span className="text-gray-600">{dropSeal}</span>
-                      </div>
+                    {shipment.destination_type === 'client' ? (
+                      <>
+                        {'address' in dropInfo && dropInfo.address && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <Building2 className="h-3.5 w-3.5 text-emerald-400" />
+                            <span className="text-gray-600">{dropInfo.address}</span>
+                          </div>
+                        )}
+                        {'clientDetails' in dropInfo && dropInfo.clientDetails && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <span className="text-gray-600">Client: {dropInfo.clientDetails}</span>
+                          </div>
+                        )}
+                        {'containerRef' in dropInfo && dropInfo.containerRef && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <Package className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="text-gray-600">Container: {dropInfo.containerRef}</span>
+                          </div>
+                        )}
+                        {'seal' in dropInfo && dropInfo.seal && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <span className="text-gray-600">Seal: {dropInfo.seal}</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {'terminal' in dropInfo && dropInfo.terminal && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <Building2 className="h-3.5 w-3.5 text-cyan-400" />
+                            <span className="text-gray-600">{dropInfo.terminal}</span>
+                          </div>
+                        )}
+                        {'containerRef' in dropInfo && dropInfo.containerRef && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <Package className="h-3.5 w-3.5 text-gray-400" />
+                            <span className="text-gray-600">Container: {dropInfo.containerRef}</span>
+                          </div>
+                        )}
+                        {'seal' in dropInfo && dropInfo.seal && (
+                          <div className="flex items-center gap-2 pl-5">
+                            <span className="text-gray-600">Seal: {dropInfo.seal}</span>
+                          </div>
+                        )}
+                      </>
                     )}
                     {shipment.delivery_date && (
                       <div className="flex items-center gap-2 pl-5">

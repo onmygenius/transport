@@ -8,6 +8,7 @@ interface ShipmentNewAvailableEmailProps {
   destinationCity: string
   destinationCountry: string
   destinationAddress?: string
+  destinationType?: string
   containerType: string
   containerCount: number
   cargoWeight: number
@@ -44,10 +45,24 @@ export default function ShipmentNewAvailableEmail(props: ShipmentNewAvailableEma
             </Section>
 
             <Section style={detailsBox}>
-              <Text style={sectionTitle}>🎯 Destination</Text>
+              <Text style={sectionTitle}>
+                {props.destinationType === 'client' ? '🏢 Client Delivery' : '🎯 Drop Port'}
+              </Text>
               <table style={detailsTable}>
-                <tr><td style={detailsLabel}>City:</td><td style={detailsValue}>{props.destinationCity}, {props.destinationCountry}</td></tr>
-                {props.destinationAddress && <tr><td style={detailsLabel}>Address:</td><td style={detailsValue}>{props.destinationAddress}</td></tr>}
+                <tr>
+                  <td style={detailsLabel}>
+                    {props.destinationType === 'client' ? 'Address:' : 'City:'}
+                  </td>
+                  <td style={detailsValue}>{props.destinationCity}, {props.destinationCountry}</td>
+                </tr>
+                {props.destinationAddress && (
+                  <tr>
+                    <td style={detailsLabel}>
+                      {props.destinationType === 'client' ? 'Details:' : 'Terminal:'}
+                    </td>
+                    <td style={detailsValue}>{props.destinationAddress}</td>
+                  </tr>
+                )}
                 {props.deliveryDate && <tr><td style={detailsLabel}>Delivery:</td><td style={detailsValue}>{props.deliveryDate}</td></tr>}
               </table>
             </Section>

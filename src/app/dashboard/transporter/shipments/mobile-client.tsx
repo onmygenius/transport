@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Search, Heart, ArrowRight, Building2, MapPin, Calendar, Euro, Truck, Package, X, Loader2, CheckCircle, ChevronDown, Filter } from 'lucide-react'
+import { Search, Heart, ArrowRight, Building2, MapPin, Calendar, Euro, Truck, Package, X, Loader2, CheckCircle, ChevronDown, Filter, Flag } from 'lucide-react'
 import { createOffer } from '@/lib/actions/offers'
 import Link from 'next/link'
 
@@ -76,6 +76,7 @@ interface Shipment {
   destination_city: string
   destination_country: string
   destination_address: string | null
+  destination_type: string | null
   container_type: string
   cargo_weight: number
   pickup_date: string
@@ -223,7 +224,9 @@ export default function TransporterShipmentsMobile({ shipments, myOffers }: Prop
             const category = parseCategory(s.special_instructions)
             const allStops = parseRouteStops(s.special_instructions)
             const pickupTerminal = s.origin_address?.split(' | ')[0] || ''
-            const dropTerminal = s.destination_address?.split(' | ')[0] || ''
+            const dropInfo = s.destination_type === 'client'
+              ? { address: s.destination_address?.split(' | ')[0] || '' }
+              : { terminal: s.destination_address?.split(' | ')[0] || '' }
             const myStatus = myOffers[s.id]
             
             return (
@@ -295,14 +298,27 @@ export default function TransporterShipmentsMobile({ shipments, myOffers }: Prop
 
                     {/* Destination */}
                     <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                      {s.destination_type === 'client' ? (
+                        <MapPin className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <Flag className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                      )}
                       <div className="flex-1">
                         <div className="font-semibold text-sm text-gray-900">{s.destination_city}</div>
-                        {dropTerminal && (
-                          <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                            <Building2 className="h-3 w-3" />
-                            {dropTerminal}
-                          </div>
+                        {s.destination_type === 'client' ? (
+                          'address' in dropInfo && dropInfo.address && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                              <Building2 className="h-3 w-3" />
+                              {dropInfo.address}
+                            </div>
+                          )
+                        ) : (
+                          'terminal' in dropInfo && dropInfo.terminal && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                              <Building2 className="h-3 w-3" />
+                              {dropInfo.terminal}
+                            </div>
+                          )
                         )}
                       </div>
                     </div>
