@@ -20,10 +20,13 @@ export function RegisterServiceWorker() {
         .then((registration) => {
           console.log('Service Worker registered:', registration)
 
-          // Verifică periodic pentru update-uri (la fiecare 60 secunde)
+          // Verifică IMEDIAT pentru update-uri la load
+          registration.update()
+
+          // Verifică periodic pentru update-uri (la fiecare 30 secunde)
           setInterval(() => {
             registration.update()
-          }, 60000)
+          }, 30000)
 
           // Detectează când există un Service Worker nou în așteptare
           registration.addEventListener('updatefound', () => {
