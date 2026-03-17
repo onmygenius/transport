@@ -30,6 +30,9 @@ export default function ClientSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   
+  const [userId, setUserId] = useState('')
+  const [email, setEmail] = useState('')
+  
   const [profile, setProfile] = useState({
     company_name: '',
     company_cif: '',
@@ -50,6 +53,9 @@ export default function ClientSettingsPage() {
         router.push('/login')
         return
       }
+
+      setUserId(user.id)
+      setEmail(user.email || '')
 
       const { data: profileData } = await supabase
         .from('profiles')
@@ -230,6 +236,22 @@ export default function ClientSettingsPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>User ID</Label>
+                        <Input 
+                          value={userId}
+                          readOnly
+                          className="bg-gray-50 font-mono text-xs"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Email</Label>
+                        <Input 
+                          value={email}
+                          readOnly
+                          className="bg-gray-50"
+                        />
+                      </div>
                       <div className="space-y-2">
                         <Label>Company Name</Label>
                         <Input 

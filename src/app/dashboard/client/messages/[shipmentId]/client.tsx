@@ -8,6 +8,7 @@ import { ArrowLeft, Send, Loader2, X } from 'lucide-react'
 import Link from 'next/link'
 import { sendMessage, markMessagesAsRead, deleteMessage, type ChatMessage } from '@/lib/actions/messages'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 interface ChatClientProps {
   shipmentId: string
@@ -24,6 +25,7 @@ interface ChatClientProps {
 
 export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, currentUserId }: ChatClientProps) {
   const router = useRouter()
+  const supabase = createClient()
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
@@ -46,6 +48,53 @@ export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, 
     }
     markAsRead()
   }, [messages, shipmentId, router])
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`messages-${shipmentId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `shipment_id=eq.${shipmentId}`
+        },
+        async (payload) => {
+          const newMsg = payload.new as ChatMessage
+          setMessages(prev => {
+            const exists = prev.some(m => m.id === newMsg.id)
+            if (exists) return prev
+            return [...prev, newMsg]
+          })
+          
+          if (newMsg.sender_id !== currentUserId) {
+            await markMessagesAsRead(shipmentId)
+            if (typeof window !== 'undefined' && (window as any).__refreshUnreadCount) {
+              await (window as any).__refreshUnreadCount()
+            }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'messages',
+          filter: `shipment_id=eq.${shipmentId}`
+        },
+        (payload) => {
+          const deletedId = payload.old.id
+          setMessages(prev => prev.filter(m => m.id !== deletedId))
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [shipmentId, currentUserId, supabase])
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return
