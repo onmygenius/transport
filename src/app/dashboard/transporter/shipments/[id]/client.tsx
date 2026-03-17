@@ -322,7 +322,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
       <TransporterHeader
-        title={`Shipment ${shipment.id.slice(0, 8)}`}
+        title={`Shipment ${shipment.display_id || shipment.id.slice(0, 8)}`}
         subtitle={`${shipment.origin_city} → ${shipment.destination_city}`}
       />
 
@@ -657,7 +657,7 @@ export default function ShipmentDetailsClient({ shipment, existingOffer, initial
               <CardContent className="space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Shipment ID</span>
-                  <span className="font-mono font-medium text-gray-900">{shipment.id.slice(0, 8)}</span>
+                  <span className="font-mono font-medium text-gray-900">{shipment.display_id || shipment.id.slice(0, 8)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Posted</span>

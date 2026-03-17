@@ -215,7 +215,7 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                     const count = offerCount(s)
                     return (
                       <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 font-mono text-xs font-bold text-gray-600">{s.id.slice(0, 8)}…</td>
+                        <td className="px-6 py-4 font-mono text-xs font-bold text-gray-600">{s.display_id || s.id.slice(0, 8) + '…'}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1.5">
                             <Anchor className="h-3.5 w-3.5 text-blue-500 shrink-0" />

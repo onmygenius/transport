@@ -267,7 +267,7 @@ export default function ShipmentDetailClient({ shipment, initialDocuments = [] }
 
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
-      <ClientHeader title="Shipment Details" subtitle={`ID: ${shipment.id.slice(0, 8)}…`} />
+      <ClientHeader title="Shipment Details" subtitle={`ID: ${shipment.display_id || shipment.id.slice(0, 8) + '…'}`} />
 
       <main className="flex-1 p-6 space-y-6">
         <div className="flex items-center justify-between">

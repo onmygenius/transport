@@ -12,6 +12,7 @@ export default async function TransporterShipmentsPage() {
     .from('shipments')
     .select(`
       id,
+      display_id,
       origin_city,
       origin_country,
       origin_address,

@@ -31,6 +31,7 @@ export interface Profile {
 
 export interface Shipment {
   id: string
+  display_id?: string | null
   client_id: string
   transporter_id: string | null
   origin_city: string
@@ -39,6 +40,7 @@ export interface Shipment {
   destination_city: string
   destination_country: string
   destination_address: string | null
+  destination_type?: string
   container_type: ContainerType
   container_count: number
   cargo_weight: number

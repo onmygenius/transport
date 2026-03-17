@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { ActionResult, Shipment, ContainerType, CargoType, TransportType } from '@/lib/types'
 import { sendTemplateEmail } from '@/lib/emails'
 import { createNotification } from '@/lib/actions/notifications'
+import { generateDisplayId } from '@/lib/utils/generate-display-id'
 
 export interface CreateShipmentData {
   origin_city: string
@@ -44,10 +45,14 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + 30)
 
+  // Generate display ID for shipment
+  const displayId = await generateDisplayId('SHP', 'shipments')
+
   const { data: shipment, error } = await supabase
     .from('shipments')
     .insert({
       client_id: user.id,
+      display_id: displayId,
       origin_city: data.origin_city,
       origin_country: data.origin_country,
       origin_address: data.origin_address || null,
