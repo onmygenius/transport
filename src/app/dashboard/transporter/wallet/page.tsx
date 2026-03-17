@@ -6,9 +6,9 @@ import { CreditCard, CheckCircle, Calendar, FileText, Info } from 'lucide-react'
 import Link from 'next/link'
 
 const invoiceHistory = [
-  { id: 'INV-2026-02', plan: 'Transporter Pro', amount: 49, date: '2026-02-01', status: 'paid' },
-  { id: 'INV-2026-01', plan: 'Transporter Pro', amount: 49, date: '2026-01-01', status: 'paid' },
-  { id: 'INV-2025-12', plan: 'Transporter Pro', amount: 49, date: '2025-12-01', status: 'paid' },
+  { id: 'INV-2026-02', plan: 'Transporter Pro', amount: 29.99, date: '2026-02-01', status: 'paid' },
+  { id: 'INV-2026-01', plan: 'Transporter Pro', amount: 29.99, date: '2026-01-01', status: 'paid' },
+  { id: 'INV-2025-12', plan: 'Transporter Pro', amount: 29.99, date: '2025-12-01', status: 'paid' },
 ]
 
 export default function TransporterBillingPage() {
@@ -39,7 +39,7 @@ export default function TransporterBillingPage() {
                 <p className="text-sm font-medium text-gray-600">Current Plan</p>
               </div>
               <p className="text-2xl font-bold text-gray-900">Transporter Pro</p>
-              <p className="text-xs text-gray-500 mt-1">€49 / month · Active</p>
+              <Badge variant="success" className="mt-2">Active</Badge>
             </CardContent>
           </Card>
 

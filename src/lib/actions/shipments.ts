@@ -300,5 +300,7 @@ export async function updateShipmentStatus(
 
   revalidatePath('/dashboard/transporter/jobs')
   revalidatePath('/dashboard/client/shipments')
+  revalidatePath(`/dashboard/transporter/shipments/${shipmentId}`)
+  revalidatePath(`/dashboard/client/shipments/${shipmentId}`)
   return { success: true }
 }

@@ -33,6 +33,8 @@ export default function EditTruckPage() {
     fixed_price: '',
     radius_km: '200'
   })
+  const [customCargoType, setCustomCargoType] = useState('')
+  const [showCustomInput, setShowCustomInput] = useState(false)
 
   useEffect(() => {
     loadTruck()
@@ -49,8 +51,11 @@ export default function EditTruckPage() {
     }
 
     const truck = result.data
+    const cargoType = truck.equipment_type || ''
+    const isCustom = !['general_cargo', 'dangerous_goods', 'perishable', 'heavy'].includes(cargoType)
+    
     setFormData({
-      equipment_type: truck.equipment_type || '',
+      equipment_type: isCustom ? 'other' : cargoType,
       max_weight: truck.max_weight?.toString() || '',
       origin_city: truck.origin_city || '',
       origin_country: truck.origin_country || '',
@@ -62,6 +67,12 @@ export default function EditTruckPage() {
       fixed_price: truck.fixed_price?.toString() || '',
       radius_km: truck.radius_km?.toString() || '200'
     })
+    
+    if (isCustom) {
+      setCustomCargoType(cargoType)
+      setShowCustomInput(true)
+    }
+    
     setLoading(false)
   }
 
@@ -74,8 +85,16 @@ export default function EditTruckPage() {
     setSubmitting(true)
     setError(null)
 
+    const finalCargoType = formData.equipment_type === 'other' ? customCargoType : formData.equipment_type
+    
+    if (formData.equipment_type === 'other' && !customCargoType.trim()) {
+      setError('Please specify the cargo type')
+      setSubmitting(false)
+      return
+    }
+    
     const result = await updateTruckAvailability(truckId, {
-      equipment_type: formData.equipment_type,
+      equipment_type: finalCargoType,
       max_weight: formData.max_weight ? parseFloat(formData.max_weight) : undefined,
       origin_city: formData.origin_city,
       origin_country: formData.origin_country,
@@ -146,23 +165,35 @@ export default function EditTruckPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Equipment Type *</Label>
-                  <Select value={formData.equipment_type} onValueChange={(v) => setFormData({...formData, equipment_type: v})}>
-                    <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <Label>Cargo Type *</Label>
+                  <Select 
+                    value={formData.equipment_type} 
+                    onValueChange={(v) => {
+                      setFormData({...formData, equipment_type: v})
+                      setShowCustomInput(v === 'other')
+                      if (v !== 'other') setCustomCargoType('')
+                    }}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select cargo type" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="flatbed">Flatbed</SelectItem>
-                      <SelectItem value="curtainsider">Curtainsider</SelectItem>
-                      <SelectItem value="reefer">Reefer</SelectItem>
-                      <SelectItem value="tank">Tank</SelectItem>
-                      <SelectItem value="lowbed">Lowbed</SelectItem>
-                      <SelectItem value="mega_trailer">Mega Trailer</SelectItem>
+                      <SelectItem value="general_cargo">General Cargo</SelectItem>
+                      <SelectItem value="dangerous_goods">Dangerous Goods</SelectItem>
+                      <SelectItem value="perishable">Perishable</SelectItem>
+                      <SelectItem value="heavy">Heavy</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Max Weight (tons) *</Label>
-                  <Input type="number" placeholder="e.g. 24" value={formData.max_weight} onChange={(e) => setFormData({...formData, max_weight: e.target.value})} />
-                </div>
+                {showCustomInput && (
+                  <div className="space-y-2">
+                    <Label>Specify Cargo Type *</Label>
+                    <Input 
+                      placeholder="e.g. Oversized, Fragile" 
+                      value={customCargoType} 
+                      onChange={(e) => setCustomCargoType(e.target.value)} 
+                    />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

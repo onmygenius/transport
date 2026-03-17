@@ -1,16 +1,76 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ClientHeader } from '@/components/client/header'
 import { Card, CardContent } from '@/components/ui/card'
-import { MessageSquare } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { MessageSquare, Trash2, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import type { Conversation } from '@/lib/actions/messages'
+import { createClient } from '@/lib/supabase/client'
 
 interface MessagesClientProps {
   conversations: Conversation[]
 }
 
 export default function MessagesClient({ conversations }: MessagesClientProps) {
+  const router = useRouter()
+  const supabase = createClient()
+  const [selectedConversations, setSelectedConversations] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState(false)
+
+  const toggleSelection = (shipmentId: string) => {
+    setSelectedConversations(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(shipmentId)) {
+        newSet.delete(shipmentId)
+      } else {
+        newSet.add(shipmentId)
+      }
+      return newSet
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedConversations.size === conversations.length) {
+      setSelectedConversations(new Set())
+    } else {
+      setSelectedConversations(new Set(conversations.map(c => c.shipment_id)))
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    if (selectedConversations.size === 0) return
+    
+    if (!confirm(`Are you sure you want to delete ${selectedConversations.size} conversation(s)? This will delete all messages in these conversations.`)) {
+      return
+    }
+
+    setDeleting(true)
+
+    try {
+      // Delete all messages for selected shipments
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .in('shipment_id', Array.from(selectedConversations))
+
+      if (error) {
+        alert('Failed to delete conversations: ' + error.message)
+      } else {
+        setSelectedConversations(new Set())
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Error deleting conversations:', error)
+      alert('Failed to delete conversations')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const formatTime = (dateString: string) => {
     if (!dateString) return ''
     
@@ -33,6 +93,41 @@ export default function MessagesClient({ conversations }: MessagesClientProps) {
     <div className="flex flex-col min-h-screen overflow-y-auto">
       <ClientHeader title="Messages" subtitle="Chat with your transporters" />
       <main className="flex-1 p-6">
+        {conversations.length > 0 && (
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={selectedConversations.size === conversations.length && conversations.length > 0}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <label htmlFor="select-all" className="text-sm text-gray-600 cursor-pointer">
+                Select All ({selectedConversations.size}/{conversations.length})
+              </label>
+            </div>
+            {selectedConversations.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteSelected}
+                disabled={deleting}
+                className="gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete ({selectedConversations.size})
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        )}
         <Card>
           <CardContent className="p-0">
             {conversations.length === 0 ? (
@@ -44,12 +139,16 @@ export default function MessagesClient({ conversations }: MessagesClientProps) {
             ) : (
               <div className="divide-y divide-gray-100">
                 {conversations.map(conv => (
-                  <Link 
-                    key={conv.shipment_id} 
-                    href={`/dashboard/client/messages/${conv.shipment_id}`}
-                    className="block"
-                  >
-                    <div className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <div key={conv.shipment_id} className="flex items-center gap-3 px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <Checkbox
+                      checked={selectedConversations.has(conv.shipment_id)}
+                      onCheckedChange={() => toggleSelection(conv.shipment_id)}
+                      onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    />
+                    <Link 
+                      href={`/dashboard/client/messages/${conv.shipment_id}`}
+                      className="flex items-center gap-4 flex-1 min-w-0"
+                    >
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 shrink-0">
                         <MessageSquare className="h-5 w-5 text-emerald-600" />
                       </div>
@@ -68,8 +167,8 @@ export default function MessagesClient({ conversations }: MessagesClientProps) {
                           </span>
                         )}
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 ))}
               </div>
             )}

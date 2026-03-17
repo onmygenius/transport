@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Truck, ChevronLeft, ChevronRight, CheckCircle, Loader2 } from 'lucide-react'
+import { Truck, ChevronLeft, ChevronRight, CheckCircle, Loader2, Star } from 'lucide-react'
 import { updateShipmentStatus } from '@/lib/actions/shipments'
+import { RatingModal } from '@/components/rating-modal'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 interface Client {
@@ -45,6 +47,10 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<{ id: string; clientId: string; clientName: string } | null>(null)
+  const [ratedJobs, setRatedJobs] = useState<Set<string>>(new Set())
+  const supabase = createClient()
   const perPage = 10
 
   const filtered = jobs.filter(j => statusFilter === 'all' || j.status === statusFilter)
@@ -55,6 +61,35 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
   const deliveredJobs = jobs.filter(j => j.status === 'delivered')
   const completedJobs = jobs.filter(j => j.status === 'completed')
   const totalEarned = completedJobs.reduce((sum, j) => sum + (j.agreed_price ?? 0), 0)
+
+  // Check which jobs have been rated
+  useEffect(() => {
+    async function checkRatings() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: ratings } = await supabase
+        .from('ratings')
+        .select('shipment_id')
+        .eq('from_user_id', user.id)
+
+      if (ratings) {
+        setRatedJobs(new Set(ratings.map(r => r.shipment_id)))
+      }
+    }
+    checkRatings()
+  }, [])
+
+  const handleRateClick = (job: Job) => {
+    if (job.client) {
+      setSelectedJob({
+        id: job.id,
+        clientId: job.client.id,
+        clientName: job.client.company_name || job.client.full_name || 'Client'
+      })
+      setShowRatingModal(true)
+    }
+  }
 
   const handleStatusUpdate = async (jobId: string, newStatus: 'picked_up' | 'in_transit' | 'delivered') => {
     setUpdating(jobId)
@@ -200,6 +235,18 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
                                 Mark Delivered
                               </Button>
                             )}
+                            {job.status === 'delivered' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                disabled={ratedJobs.has(job.id)}
+                                onClick={() => handleRateClick(job)}
+                              >
+                                <Star className="h-3.5 w-3.5" />
+                                {ratedJobs.has(job.id) ? 'Rated' : 'Rate It'}
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -233,6 +280,23 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
           </CardContent>
         </Card>
       </main>
+
+      {showRatingModal && selectedJob && (
+        <RatingModal
+          shipmentId={selectedJob.id}
+          toUserId={selectedJob.clientId}
+          toUserName={selectedJob.clientName}
+          onClose={() => {
+            setShowRatingModal(false)
+            setSelectedJob(null)
+          }}
+          onSuccess={() => {
+            setRatedJobs(prev => new Set(prev).add(selectedJob.id))
+            setShowRatingModal(false)
+            setSelectedJob(null)
+          }}
+        />
+      )}
     </div>
   )
 }

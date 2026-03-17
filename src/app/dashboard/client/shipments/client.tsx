@@ -200,8 +200,8 @@ export default function ClientShipmentsClient({ shipments }: { shipments: Shipme
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Pick-up Port</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Drop Location</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">PICK-UP PORT</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">DROP LOCATION</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Container / Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Price / Offers</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Status</th>

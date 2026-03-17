@@ -268,10 +268,10 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
   const offerCount = (s: Shipment) => s.offers?.[0]?.count ?? 0
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto">
+    <div className="flex flex-col h-screen overflow-hidden">
       <TransporterHeader title="Available Shipments" subtitle="Browse and send offers on open transport requests" />
 
-      <main className="flex-1 p-6 space-y-6">
+      <main className="flex-1 p-6 space-y-6 overflow-y-auto">
         <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between mb-4">
@@ -301,7 +301,7 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
             {/* Filters */}
             <div className="grid grid-cols-6 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs text-gray-600">Origin</Label>
+                <Label className="text-xs text-gray-600">Pick Up</Label>
                 <Input
                   placeholder="Rotterdam, NL"
                   value={originFilter}
@@ -328,10 +328,10 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-gray-600">Container Type</Label>
+                <Label className="text-xs text-gray-600">Container Size</Label>
                 <Select value={containerTypeFilter} onValueChange={v => { setContainerTypeFilter(v); setPage(1) }}>
                   <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder="Select size" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All types</SelectItem>
@@ -352,7 +352,7 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                   <SelectContent>
                     <SelectItem value="all">All types</SelectItem>
                     <SelectItem value="fcl">FCL (Full Container Load)</SelectItem>
-                    <SelectItem value="lcl">LCL (Less than Container Load)</SelectItem>
+                    <SelectItem value="lcl">Empty Container</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

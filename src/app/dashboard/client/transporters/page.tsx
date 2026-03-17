@@ -122,7 +122,9 @@ export default function ClientTransportersPage() {
                   </div>
                   <div className="flex flex-wrap gap-1 mb-4">
                     {t.container_types?.slice(0, 3).map((ct, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">{ct}</Badge>
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {ct.replace('ft', ' FEET').toUpperCase()}
+                      </Badge>
                     ))}
                     {t.container_types?.length > 3 && (
                       <Badge variant="secondary" className="text-xs">+{t.container_types.length - 3}</Badge>

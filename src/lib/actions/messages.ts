@@ -338,6 +338,50 @@ export async function getShipmentForChat(shipmentId: string): Promise<ActionResu
 }
 
 /**
+ * Delete a message
+ */
+export async function deleteMessage(messageId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  // Verify user owns this message
+  const { data: message } = await supabase
+    .from('chat_messages')
+    .select('sender_id, shipment_id')
+    .eq('id', messageId)
+    .single()
+
+  if (!message) {
+    return { success: false, error: 'Message not found' }
+  }
+
+  if (message.sender_id !== user.id) {
+    return { success: false, error: 'You can only delete your own messages' }
+  }
+
+  // Delete the message
+  const { error } = await supabase
+    .from('chat_messages')
+    .delete()
+    .eq('id', messageId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath(`/dashboard/client/messages/${message.shipment_id}`)
+  revalidatePath(`/dashboard/transporter/messages/${message.shipment_id}`)
+  revalidatePath('/dashboard/client/messages')
+  revalidatePath('/dashboard/transporter/messages')
+
+  return { success: true }
+}
+
+/**
  * Get total unread messages count for user
  */
 export async function getUnreadMessagesCount(): Promise<number> {

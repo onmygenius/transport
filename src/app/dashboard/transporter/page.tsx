@@ -117,8 +117,8 @@ export default async function TransporterDashboardPage() {
                   <span className="font-semibold text-gray-700">{mockStats.subscriptionRenewal}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-gray-500">Monthly fee</span>
-                  <span className="font-semibold text-gray-700">€49 / month</span>
+                  <span className="text-gray-500">Status</span>
+                  <span className="font-semibold text-emerald-600">Active</span>
                 </div>
               </div>
               <Link

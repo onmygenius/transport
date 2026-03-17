@@ -31,8 +31,9 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
   const isPastDue = subscription?.status === 'past_due'
   const isCanceled = subscription?.status === 'canceled'
 
-  const planName = subscription?.plan_name || 'No Active Plan'
-  const price = subscription?.price || 0
+  // Fallback pentru plan_name și price dacă sunt null/incorecte în DB
+  const planName = subscription?.plan_name || (subscription?.status === 'active' || subscription?.status === 'trialing' ? 'Transporter Pro' : 'No Active Plan')
+  const price = subscription?.price && subscription.price !== 49 ? subscription.price : 29.99
   const currency = subscription?.currency || 'EUR'
   const shipmentsUsed = subscription?.shipments_used || 0
   const shipmentsLimit = subscription?.shipments_limit || 0
@@ -131,78 +132,63 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <Card className={`lg:col-span-2 border-${currentStatus.color}-200`}>
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-${currentStatus.color}-600`}>
-                    <CreditCard className="h-7 w-7 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold text-gray-900">{planName}</p>
-                    <p className="text-gray-500">{currency} {price} / month</p>
-                  </div>
+        <Card className={`border-${currentStatus.color}-200`}>
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-${currentStatus.color}-600`}>
+                  <CreditCard className="h-7 w-7 text-white" />
                 </div>
-                <Badge variant={currentStatus.variant} className="text-sm px-3 py-1">
-                  {currentStatus.label}
-                </Badge>
+                <div>
+                  <p className="text-xl font-bold text-gray-900">{planName}</p>
+                  <p className="text-gray-500">{currency} {price} / month</p>
+                </div>
               </div>
+              <Badge variant={currentStatus.variant} className="text-sm px-3 py-1">
+                {currentStatus.label}
+              </Badge>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Current period</p>
-                  <p className="font-semibold text-gray-900 mt-1">{currentPeriodStart} – {currentPeriodEnd}</p>
-                </div>
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Next renewal</p>
-                  <p className="font-semibold text-gray-900 mt-1">{nextRenewal}</p>
-                </div>
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Active offers</p>
-                  <p className="font-semibold text-gray-900 mt-1">
-                    {shipmentsUsed} / {shipmentsLimit || '∞'}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Member since</p>
-                  <p className="font-semibold text-gray-900 mt-1">{memberSince}</p>
-                </div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="rounded-xl bg-gray-50 p-4">
+                <p className="text-xs text-gray-500">Current period</p>
+                <p className="font-semibold text-gray-900 mt-1">{currentPeriodStart} – {currentPeriodEnd}</p>
               </div>
+              <div className="rounded-xl bg-gray-50 p-4">
+                <p className="text-xs text-gray-500">Next renewal</p>
+                <p className="font-semibold text-gray-900 mt-1">{nextRenewal}</p>
+              </div>
+              <div className="rounded-xl bg-gray-50 p-4">
+                <p className="text-xs text-gray-500">Active offers</p>
+                <p className="font-semibold text-gray-900 mt-1">
+                  {shipmentsUsed} / {shipmentsLimit || '∞'}
+                </p>
+              </div>
+              <div className="rounded-xl bg-gray-50 p-4">
+                <p className="text-xs text-gray-500">Member since</p>
+                <p className="font-semibold text-gray-900 mt-1">{memberSince}</p>
+              </div>
+            </div>
 
-              <div className="space-y-2 mb-6">
-                {planFeatures.map(f => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                    {f}
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-2 mb-6">
+              {planFeatures.map(f => (
+                <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
+                  <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                  {f}
+                </div>
+              ))}
+            </div>
 
-              <div className="flex gap-3">
-                <Button variant="outline">Manage Subscription</Button>
-                {!isCanceled && (
-                  <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50">
-                    Cancel Subscription
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Current Plan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-xl border-2 border-dashed border-blue-200 bg-blue-50 p-5">
-                <p className="text-sm text-blue-700 font-semibold">You're on the Standard plan!</p>
-                <p className="text-xs text-gray-600 mt-1">Enjoy unlimited access to all shipments and features.</p>
-                <p className="text-xs text-gray-500 mt-2">€29.99/month • Unlimited offers</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            <div className="flex gap-3">
+              <Button variant="outline">Manage Subscription</Button>
+              {!isCanceled && (
+                <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                  Cancel Subscription
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

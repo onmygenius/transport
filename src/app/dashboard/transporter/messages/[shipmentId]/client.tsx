@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from 'react'
 import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Send, Loader2 } from 'lucide-react'
+import { ArrowLeft, Send, Loader2, X } from 'lucide-react'
 import Link from 'next/link'
-import { sendMessage, markMessagesAsRead, type ChatMessage } from '@/lib/actions/messages'
+import { sendMessage, markMessagesAsRead, deleteMessage, type ChatMessage } from '@/lib/actions/messages'
 import { useRouter } from 'next/navigation'
 
 interface ChatClientProps {
@@ -27,6 +27,7 @@ export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -69,6 +70,22 @@ export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, 
       e.preventDefault()
       handleSend()
     }
+  }
+
+  const handleDelete = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return
+
+    setDeleting(messageId)
+    const result = await deleteMessage(messageId)
+
+    if (result.success) {
+      setMessages(prev => prev.filter(m => m.id !== messageId))
+      router.refresh()
+    } else {
+      alert(result.error || 'Failed to delete message')
+    }
+
+    setDeleting(null)
   }
 
   const formatTime = (dateString: string) => {
@@ -116,21 +133,35 @@ export default function ChatClient({ shipmentId, shipmentInfo, initialMessages, 
                 const senderName = message.sender?.company_name || message.sender?.full_name || 'Unknown'
 
                 return (
-                  <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'}`}>
+                  <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group`}>
+                    <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'} relative`}>
                       <div className={`rounded-lg px-4 py-2 ${
                         isOwn 
-                          ? 'bg-blue-600 text-white' 
+                          ? 'bg-emerald-600 text-white' 
                           : 'bg-white border border-gray-200 text-gray-900'
                       }`}>
                         {!isOwn && (
-                          <p className="text-xs font-semibold mb-1 text-blue-600">{senderName}</p>
+                          <p className="text-xs font-semibold mb-1 text-emerald-600">{senderName}</p>
                         )}
                         <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                        <p className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-1 ${isOwn ? 'text-emerald-100' : 'text-gray-400'}`}>
                           {formatTime(message.created_at)}
                         </p>
                       </div>
+                      {isOwn && (
+                        <button
+                          onClick={() => handleDelete(message.id)}
+                          disabled={deleting === message.id}
+                          className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-200 disabled:opacity-50"
+                          title="Delete message"
+                        >
+                          {deleting === message.id ? (
+                            <Loader2 className="h-4 w-4 text-gray-500 animate-spin" />
+                          ) : (
+                            <X className="h-4 w-4 text-gray-500" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )

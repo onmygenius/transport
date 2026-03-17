@@ -203,9 +203,8 @@ export default async function ClientDashboardPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Client / Shipper Plan</p>
-                  <p className="text-sm text-gray-500">€29/month · Active</p>
+                  <Badge variant="success" className="mt-1">Active</Badge>
                 </div>
-                <Badge variant="success" className="ml-auto">Active</Badge>
               </div>
               <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
                 <div className="flex justify-between">
