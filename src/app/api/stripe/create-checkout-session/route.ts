@@ -93,13 +93,24 @@ export async function POST(request: Request) {
       }
     }
 
+    // Check if user already has an active subscription
+    const { data: existingSubscription } = await supabase
+      .from('subscriptions')
+      .select('id, status')
+      .eq('user_id', user.id)
+      .in('status', ['active', 'trialing'])
+      .single()
+
+    // Only apply trial for NEW customers (no existing active subscription)
+    const isNewCustomer = !existingSubscription
+
     // Determine success URL based on role
     const dashboardUrl = profile.role === 'client' 
-      ? '/dashboard/client'
-      : '/dashboard/transporter'
+      ? '/dashboard/client/subscription'
+      : '/dashboard/transporter/subscription'
 
-    // Create checkout session with 30-day trial
-    const session = await stripe.checkout.sessions.create({
+    // Create checkout session
+    const sessionConfig: any = {
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -110,21 +121,34 @@ export async function POST(request: Request) {
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}${dashboardUrl}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/#pricing`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}${dashboardUrl}`,
       client_reference_id: user.id,
       metadata: {
         userId: user.id,
         role: profile.role,
       },
-      subscription_data: {
+      allow_promotion_codes: true,
+    }
+
+    // Add trial ONLY for new customers
+    if (isNewCustomer) {
+      sessionConfig.subscription_data = {
         trial_period_days: 30,
         metadata: {
           userId: user.id,
           role: profile.role,
         },
-      },
-      allow_promotion_codes: true,
-    })
+      }
+    } else {
+      sessionConfig.subscription_data = {
+        metadata: {
+          userId: user.id,
+          role: profile.role,
+        },
+      }
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig)
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error: any) {
