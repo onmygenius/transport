@@ -112,23 +112,73 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
     'Expense reports & CSV export',
   ]
 
+  const ALL_PLANS = [
+    { id: 'starter', name: 'Starter', price: 19.99, limit: 5, description: 'Perfect for getting started', features: ['Up to 5 shipments/month', 'Access to verified transporters', 'Real-time chat', 'Digital CMR documents', '30-day free trial'] },
+    { id: 'growth', name: 'Growth', price: 34.99, limit: 10, description: 'For growing companies', features: ['Up to 10 shipments/month', 'Priority offer matching', 'Real-time chat', 'Digital documents', '30-day free trial'], popular: true },
+    { id: 'business', name: 'Business', price: 59.99, limit: 20, description: 'Scale your business', features: ['Up to 20 shipments/month', 'Advanced documents', 'Analytics & reports', 'Priority support', '30-day free trial'] },
+    { id: 'enterprise', name: 'Enterprise', price: 99.99, limit: null, description: 'Unlimited shipments', features: ['Unlimited shipments', 'Full document suite', 'Advanced analytics', 'Dedicated support', '30-day free trial'] },
+  ]
+
   if (!subscription) {
     return (
       <div className="flex flex-col min-h-screen overflow-y-auto">
-        <ClientHeader title="Subscription" subtitle="Manage your Trade Container subscription plan" />
-        <main className="flex-1 p-6">
-          <Card className="border-emerald-200">
+        <ClientHeader title="Subscription" subtitle="Choose your plan to start posting shipments" />
+        <main className="flex-1 p-6 space-y-6">
+          <Card className="border-emerald-200 bg-emerald-50">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <AlertTriangle className="h-12 w-12 text-emerald-500" />
+              <div className="flex items-center gap-4">
+                <AlertTriangle className="h-12 w-12 text-emerald-600" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">No Active Subscription</h3>
-                  <p className="text-gray-500">Subscribe to start posting shipments</p>
+                  <p className="text-gray-600">Choose a plan below to start posting shipments and accessing transporters</p>
                 </div>
               </div>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                Choose a Plan
-              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {ALL_PLANS.map(plan => (
+              <Card key={plan.id} className={`relative ${plan.popular ? 'border-emerald-500 border-2 shadow-lg' : 'border-gray-200'}`}>
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-emerald-600 text-white">Most Popular</Badge>
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-lg">{plan.name}</CardTitle>
+                  <div className="mt-2">
+                    <span className="text-3xl font-bold text-gray-900">€{plan.price}</span>
+                    <span className="text-gray-500">/month</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    className={`w-full ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-900'}`}
+                    onClick={() => handleUpgrade(plan.id)}
+                    disabled={upgrading}
+                  >
+                    {upgrading ? 'Processing...' : 'Start Free Trial'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-sm text-gray-600">
+                <p className="font-semibold mb-2">All plans include:</p>
+                <p>✓ 30-day free trial • ✓ No credit card required • ✓ Cancel anytime • ✓ No hidden fees</p>
+              </div>
             </CardContent>
           </Card>
         </main>
@@ -237,13 +287,6 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
             </CardHeader>
             <CardContent className="space-y-4">
               {(() => {
-                const ALL_PLANS = [
-                  { id: 'starter', name: 'Starter', price: 19.99, limit: 5, description: 'Perfect for getting started' },
-                  { id: 'growth', name: 'Growth', price: 34.99, limit: 10, description: 'For growing companies' },
-                  { id: 'business', name: 'Business', price: 59.99, limit: 20, description: 'Scale your business' },
-                  { id: 'enterprise', name: 'Enterprise', price: 99.99, limit: null, description: 'Unlimited shipments' },
-                ]
-
                 const currentPlan = subscription?.plan || 'starter'
                 const currentPlanIndex = ALL_PLANS.findIndex(p => p.id === currentPlan)
                 const availablePlans = ALL_PLANS.filter((_, index) => index > currentPlanIndex)
