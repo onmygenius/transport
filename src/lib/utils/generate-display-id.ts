@@ -31,23 +31,27 @@ export async function generateDisplayId(
   const baseNumber = startingNumbers[type]
   const prefix = `TC-${type}-`
   
-  // Get the highest existing display_id for this type
+  // Get all existing display_ids for this type
   const { data: records } = await supabase
     .from(tableName)
     .select('display_id')
     .like('display_id', `${prefix}%`)
-    .order('display_id', { ascending: false })
-    .limit(1)
+    .not('display_id', 'is', null)
   
   let nextNumber = baseNumber
   
-  if (records && records.length > 0 && records[0].display_id) {
-    // Extract number from display_id (e.g., "TC-SHP-02205" -> 2205)
-    const lastId = records[0].display_id
-    const match = lastId.match(/TC-[A-Z]+-(\d+)/)
-    if (match) {
-      const lastNumber = parseInt(match[1], 10)
-      nextNumber = lastNumber + 1
+  if (records && records.length > 0) {
+    // Extract all numbers and find the maximum
+    const numbers = records
+      .map(r => {
+        const match = r.display_id?.match(/TC-[A-Z]+-(\d+)/)
+        return match ? parseInt(match[1], 10) : 0
+      })
+      .filter(n => n > 0)
+    
+    if (numbers.length > 0) {
+      const maxNumber = Math.max(...numbers)
+      nextNumber = maxNumber + 1
     }
   }
   
