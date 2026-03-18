@@ -90,6 +90,43 @@ function CreativePricing({
                 </p>
             </div>
 
+            <div className="mb-8">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-8 shadow-2xl">
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <Sparkles className="w-8 h-8 text-white" />
+                            <h3 className="text-3xl font-bold text-white">Start Your Free Trial</h3>
+                        </div>
+                        <div className="bg-zinc-900 rounded-2xl p-6 mb-6">
+                            <p className="text-5xl font-bold text-white mb-2">30 Days Free</p>
+                            <p className="text-xl text-emerald-50">Test all features with no credit card required</p>
+                        </div>
+                        <div className="space-y-3 mb-6">
+                            <div className="flex items-center gap-3 text-white">
+                                <Check className="w-5 h-5 shrink-0" />
+                                <span className="text-lg">Full platform access for clients and transporters</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-white">
+                                <Check className="w-5 h-5 shrink-0" />
+                                <span className="text-lg">Real-time chat and digital documents</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-white">
+                                <Check className="w-5 h-5 shrink-0" />
+                                <span className="text-lg">Cancel anytime, no questions asked</span>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={() => router.push('/register')}
+                            className="w-full h-14 text-lg font-bold bg-white text-emerald-600 hover:bg-emerald-50 shadow-xl hover:shadow-2xl transition-all duration-300"
+                        >
+                            Start Free Trial Now
+                        </Button>
+                    </div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+
             <div className={cn("grid grid-cols-1 gap-6", tiers.length === 4 ? "md:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3")}>
                 {tiers.map((tier, index) => (
                     <div
