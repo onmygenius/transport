@@ -19,46 +19,35 @@ export async function generateDisplayId(
   tableName: 'shipments' | 'profiles' | 'trucks' | 'offers'
 ): Promise<string> {
   const supabase = await createClient()
-  
-  // Starting numbers for each entity type
-  const startingNumbers: Record<EntityType, number> = {
-    'SHP': 2200,
-    'USR': 1000,
-    'TRK': 1000,
-    'OFF': 1000,
-  }
-  
-  const baseNumber = startingNumbers[type]
   const prefix = `TC-${type}-`
   
-  // Get all existing display_ids for this type
-  const { data: records } = await supabase
-    .from(tableName)
-    .select('display_id')
-    .like('display_id', `${prefix}%`)
-    .not('display_id', 'is', null)
+  // Generate random 6-digit number for uniqueness
+  const maxRetries = 10
   
-  let nextNumber = baseNumber
-  
-  if (records && records.length > 0) {
-    // Extract all numbers and find the maximum
-    const numbers = records
-      .map(r => {
-        const match = r.display_id?.match(/TC-[A-Z]+-(\d+)/)
-        return match ? parseInt(match[1], 10) : 0
-      })
-      .filter(n => n > 0)
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    // Generate random number between 100000 and 999999
+    const randomNumber = Math.floor(100000 + Math.random() * 900000)
+    const displayId = `${prefix}${randomNumber}`
     
-    if (numbers.length > 0) {
-      const maxNumber = Math.max(...numbers)
-      nextNumber = maxNumber + 1
+    // Check if this ID already exists
+    const { data: existing } = await supabase
+      .from(tableName)
+      .select('id')
+      .eq('display_id', displayId)
+      .maybeSingle()
+    
+    // If doesn't exist, we found a unique ID
+    if (!existing) {
+      return displayId
     }
+    
+    // If exists, retry with new random number
   }
   
-  // Format: TC-[TYPE]-[NUMBER] (padded to 5 digits)
-  const displayId = `${prefix}${nextNumber.toString().padStart(5, '0')}`
-  
-  return displayId
+  // Fallback: use timestamp + random if all retries failed (extremely unlikely)
+  const timestamp = Date.now().toString().slice(-6)
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+  return `${prefix}${timestamp}${random}`
 }
 
 /**
