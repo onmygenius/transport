@@ -36,6 +36,7 @@ interface Offer {
 
 interface Shipment {
   id: string
+  display_id?: string | null
   origin_city: string
   origin_country: string
   destination_city: string

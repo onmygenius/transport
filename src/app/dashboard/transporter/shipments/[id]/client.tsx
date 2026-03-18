@@ -142,6 +142,7 @@ interface Client {
 
 interface Shipment {
   id: string
+  display_id?: string | null
   origin_city: string
   origin_country: string
   origin_address: string | null
