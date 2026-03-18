@@ -55,12 +55,19 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session
         
         console.log('💳 Checkout completed:', session.id)
+        console.log('📋 Session mode:', session.mode)
+        console.log('📋 Session metadata:', session.metadata)
+        console.log('📋 Client reference ID:', session.client_reference_id)
 
         if (session.mode === 'subscription') {
           const subscriptionId = session.subscription as string
+          console.log('🔑 Subscription ID:', subscriptionId)
+          
           const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+          console.log('📦 Subscription retrieved:', subscription.id, 'status:', subscription.status)
           
           const userId = session.metadata?.userId || session.client_reference_id
+          console.log('👤 User ID:', userId)
           
           if (!userId) {
             console.error('❌ No userId in session metadata')
@@ -69,6 +76,8 @@ export async function POST(request: Request) {
 
           // Determină plan type din price ID
           const priceId = subscription.items.data[0].price.id
+          console.log('💰 Price ID from subscription:', priceId)
+          
           let planType = 'starter'
           let planName = 'Starter'
           
@@ -84,16 +93,22 @@ export async function POST(request: Request) {
           if (priceIdMap[priceId]) {
             planType = priceIdMap[priceId].type
             planName = priceIdMap[priceId].name
+            console.log('✅ Price ID matched:', planType, planName)
+          } else {
+            console.warn('⚠️ Price ID NOT in map, using default:', priceId)
           }
 
           const shipments_limit = PLAN_LIMITS[planType]
+          console.log('📊 Shipments limit for plan:', shipments_limit)
 
           // Verifică dacă există deja subscription
-          const { data: existingSub } = await supabase
+          const { data: existingSub, error: checkError } = await supabase
             .from('subscriptions')
             .select('id')
             .eq('user_id', userId)
             .single()
+
+          console.log('🔍 Existing subscription check:', existingSub ? 'Found' : 'Not found', checkError?.message || '')
 
           // @ts-ignore - Stripe types issue with current_period_start/end
           const periodStart = subscription.current_period_start
@@ -104,7 +119,8 @@ export async function POST(request: Request) {
 
           if (existingSub) {
             // Update existing
-            await supabase
+            console.log('🔄 Updating existing subscription...')
+            const { error: updateError } = await supabase
               .from('subscriptions')
               .update({
                 stripe_subscription_id: subscription.id,
@@ -123,9 +139,16 @@ export async function POST(request: Request) {
                 updated_at: new Date().toISOString(),
               })
               .eq('user_id', userId)
+            
+            if (updateError) {
+              console.error('❌ Update subscription error:', updateError)
+            } else {
+              console.log('✅ Subscription updated successfully')
+            }
           } else {
             // Insert new
-            await supabase
+            console.log('➕ Inserting new subscription...')
+            const { error: insertError } = await supabase
               .from('subscriptions')
               .insert({
                 user_id: userId,
@@ -144,6 +167,12 @@ export async function POST(request: Request) {
                 shipments_limit,
                 shipments_used: 0,
               })
+            
+            if (insertError) {
+              console.error('❌ Insert subscription error:', insertError)
+            } else {
+              console.log('✅ Subscription inserted successfully')
+            }
           }
 
           // Update stripe_customer_id în client_profiles sau transporter_profiles
