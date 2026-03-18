@@ -25,7 +25,12 @@ export async function uploadKycDocument(formData: FormData): Promise<ActionResul
   // Use regular client for authentication
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: 'Not authenticated' }
+  if (!user) {
+    console.error('Upload KYC: User not authenticated')
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  console.log('Upload KYC: User authenticated:', user.id)
 
   // Use admin client for database operations to bypass RLS
   const supabaseAdmin = await createAdminClient()
@@ -33,24 +38,30 @@ export async function uploadKycDocument(formData: FormData): Promise<ActionResul
   const documentType = formData.get('document_type') as DocumentType
   const file = formData.get('file') as File
 
+  console.log('Upload KYC: FormData received:', { documentType, fileName: file?.name, fileSize: file?.size })
+
   if (!documentType || !file) {
+    console.error('Upload KYC: Missing fields:', { documentType: !!documentType, file: !!file })
     return { success: false, error: 'Missing required fields' }
   }
 
   // Validate document type is KYC
   const kycTypes: DocumentType[] = ['kyc_registration', 'kyc_license', 'kyc_insurance']
   if (!kycTypes.includes(documentType)) {
+    console.error('Upload KYC: Invalid document type:', documentType)
     return { success: false, error: 'Invalid KYC document type' }
   }
 
   // Validate file size (max 10MB)
   if (file.size > 10 * 1024 * 1024) {
+    console.error('Upload KYC: File too large:', file.size)
     return { success: false, error: 'File size must be less than 10MB' }
   }
 
   // Validate file type (PDF, images)
   const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
   if (!allowedTypes.includes(file.type)) {
+    console.error('Upload KYC: Invalid file type:', file.type)
     return { success: false, error: 'Only PDF and image files are allowed' }
   }
 
@@ -59,6 +70,8 @@ export async function uploadKycDocument(formData: FormData): Promise<ActionResul
     const fileExt = file.name.split('.').pop()
     const fileName = `${user.id}/${documentType}_${Date.now()}.${fileExt}`
     const filePath = `kyc-documents/${fileName}`
+
+    console.log('Uploading file:', { filePath, fileSize: file.size, fileType: file.type })
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from('documents')
@@ -72,17 +85,21 @@ export async function uploadKycDocument(formData: FormData): Promise<ActionResul
       return { success: false, error: `Upload failed: ${uploadError.message}` }
     }
 
+    console.log('File uploaded successfully, getting public URL...')
+
     // Get public URL (bucket is public)
     const { data: { publicUrl } } = supabaseAdmin.storage
       .from('documents')
       .getPublicUrl(filePath)
+
+    console.log('Public URL:', publicUrl)
 
     // Save document metadata to database using admin client (bypasses RLS)
     const { data: document, error: dbError } = await supabaseAdmin
       .from('documents')
       .insert({
         user_id: user.id,
-        shipment_id: null, // KYC documents don't have shipment_id
+        shipment_id: null,
         type: documentType,
         file_name: file.name,
         file_url: publicUrl,
@@ -95,10 +112,11 @@ export async function uploadKycDocument(formData: FormData): Promise<ActionResul
 
     if (dbError) {
       console.error('Database error:', dbError)
-      // Cleanup uploaded file
       await supabaseAdmin.storage.from('documents').remove([filePath])
       return { success: false, error: `Database error: ${dbError.message}` }
     }
+
+    console.log('Document saved to database:', document.id)
 
     revalidatePath('/dashboard/client/settings')
     revalidatePath('/dashboard/transporter/settings')
