@@ -28,30 +28,31 @@ export async function generateDisplayId(
     'OFF': 1000,
   }
   
-  // Get count of existing records to generate next number
-  const { count } = await supabase
-    .from(tableName)
-    .select('*', { count: 'exact', head: true })
-  
-  // Generate sequential number starting from configured base (padded to 5 digits)
   const baseNumber = startingNumbers[type]
-  const nextNumber = (baseNumber + (count || 0)).toString().padStart(5, '0')
+  const prefix = `TC-${type}-`
   
-  // Format: TC-[TYPE]-[NUMBER]
-  const displayId = `TC-${type}-${nextNumber}`
-  
-  // Check if display_id already exists (collision check)
-  const { data: existing } = await supabase
+  // Get the highest existing display_id for this type
+  const { data: records } = await supabase
     .from(tableName)
-    .select('id')
-    .eq('display_id', displayId)
-    .single()
+    .select('display_id')
+    .like('display_id', `${prefix}%`)
+    .order('display_id', { ascending: false })
+    .limit(1)
   
-  // If collision, add random suffix
-  if (existing) {
-    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-    return `TC-${type}-${nextNumber}${randomSuffix}`
+  let nextNumber = baseNumber
+  
+  if (records && records.length > 0 && records[0].display_id) {
+    // Extract number from display_id (e.g., "TC-SHP-02205" -> 2205)
+    const lastId = records[0].display_id
+    const match = lastId.match(/TC-[A-Z]+-(\d+)/)
+    if (match) {
+      const lastNumber = parseInt(match[1], 10)
+      nextNumber = lastNumber + 1
+    }
   }
+  
+  // Format: TC-[TYPE]-[NUMBER] (padded to 5 digits)
+  const displayId = `${prefix}${nextNumber.toString().padStart(5, '0')}`
   
   return displayId
 }
