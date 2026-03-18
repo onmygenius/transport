@@ -66,6 +66,7 @@ export const EUROPEAN_PORTS: Port[] = [
   { name: 'Izmir', country: 'Turkey', code: 'TRIZM' },
   { name: 'Mersin', country: 'Turkey', code: 'TRMER' },
   { name: 'Novorossiysk', country: 'Russia', code: 'RUNVS' },
+  { name: 'Other', country: '', code: 'OTHER' },
 ]
 
 export const PORT_TERMINALS: Record<string, string[]> = {
@@ -231,6 +232,7 @@ interface PortSelectProps {
 export function PortSelect({ placeholder = 'Select port...', value, onChange }: PortSelectProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [isOther, setIsOther] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -256,6 +258,28 @@ export function PortSelect({ placeholder = 'Select port...', value, onChange }: 
   }, [open])
 
   const selectedPort = EUROPEAN_PORTS.find(p => `${p.name}, ${p.country}` === value)
+  
+  if (isOther || (value && !selectedPort && value !== '')) {
+    return (
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={value === 'Other, ' ? '' : value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Enter port name..."
+          className="flex h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+          autoFocus
+        />
+        <button
+          type="button"
+          onClick={() => { setIsOther(false); onChange('') }}
+          className="shrink-0 h-9 px-3 text-xs text-gray-500 border border-gray-200 rounded-md hover:bg-gray-50"
+        >
+          ← List
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div ref={containerRef} className="relative">
@@ -304,18 +328,25 @@ export function PortSelect({ placeholder = 'Select port...', value, onChange }: 
                   key={port.code}
                   type="button"
                   onClick={() => {
-                    onChange(`${port.name}, ${port.country}`)
-                    setOpen(false)
-                    setSearch('')
+                    if (port.code === 'OTHER') {
+                      setIsOther(true)
+                      onChange('')
+                      setOpen(false)
+                      setSearch('')
+                    } else {
+                      onChange(`${port.name}, ${port.country}`)
+                      setOpen(false)
+                      setSearch('')
+                    }
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-blue-50 transition-colors ${value === `${port.name}, ${port.country}` ? 'bg-blue-50 text-blue-700' : 'text-gray-900'}`}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-blue-50 transition-colors ${value === `${port.name}, ${port.country}` ? 'bg-blue-50 text-blue-700' : port.code === 'OTHER' ? 'text-blue-600 font-medium border-t border-gray-100' : 'text-gray-900'}`}
                 >
                   <div className="flex items-center gap-2">
                     <Anchor className="h-3.5 w-3.5 text-gray-400 shrink-0" />
                     <span className="font-medium">{port.name}</span>
-                    <span className="text-gray-500">{port.country}</span>
+                    {port.country && <span className="text-gray-500">{port.country}</span>}
                   </div>
-                  <span className="text-xs text-gray-400 font-mono">{port.code}</span>
+                  {port.code !== 'OTHER' && <span className="text-xs text-gray-400 font-mono">{port.code}</span>}
                 </button>
               ))
             )}
