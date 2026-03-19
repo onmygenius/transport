@@ -86,7 +86,7 @@ export async function POST(request: Request) {
           // Map price IDs to plan types
           const priceIdMap: Record<string, { type: string; name: string }> = {
             'price_1TASbp0dqWRNGixPqAoh7aKf': { type: 'starter', name: 'Starter' },
-            'price_1TAScM0dqWRNGixPJ3llWAut': { type: 'growth', name: 'Growth' },
+            'price_1TAScM0dqWRNGixPJ3IlWAut': { type: 'growth', name: 'Growth' },
             'price_1TASci0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
             'price_1TASdA0dqWRNGixPXq896wn9': { type: 'enterprise', name: 'Enterprise' },
             'price_1TASdg0dqWRNGixPXI5TsjFt': { type: 'basic', name: 'Basic' },
@@ -235,7 +235,9 @@ export async function POST(request: Request) {
 
         // Determină plan type din price ID
         const priceId = subscription.items.data[0].price.id
-        console.log('💰 Price ID:', priceId)
+        console.log('💰 Price ID from subscription:', priceId)
+        console.log('💰 Price ID type:', typeof priceId)
+        console.log('💰 Price ID length:', priceId?.length)
 
         const priceIdMap: Record<string, { type: string; name: string }> = {
           'price_1TASbp0dqWRNGixPqAoh7aKf': { type: 'starter', name: 'Starter' },
@@ -245,9 +247,13 @@ export async function POST(request: Request) {
           'price_1TASdg0dqWRNGixPXI5TsjFt': { type: 'basic', name: 'Basic' },
         }
 
+        console.log('🗺️ Checking priceIdMap[priceId]:', priceIdMap[priceId])
+        console.log('🗺️ All map keys:', Object.keys(priceIdMap))
+
         const planType = priceIdMap[priceId]?.type || 'starter'
         const planName = priceIdMap[priceId]?.name || 'Starter'
-        console.log('📦 Plan:', planType, planName)
+        console.log('📦 Plan mapped to:', planType, planName)
+        console.log('📦 Used default?', !priceIdMap[priceId])
 
         const shipments_limit = planType === 'starter' ? 5 : planType === 'growth' ? 20 : planType === 'business' ? 50 : 100
 
