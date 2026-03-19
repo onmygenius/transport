@@ -68,10 +68,12 @@ export async function POST(request: Request) {
           
           const userId = session.metadata?.userId || session.client_reference_id
           console.log('👤 User ID:', userId)
+          console.log('📋 Session metadata:', JSON.stringify(session.metadata))
+          console.log('📋 Client reference ID:', session.client_reference_id)
           
           if (!userId) {
-            console.error('❌ No userId in session metadata')
-            break
+            console.error('❌ No userId in session metadata or client_reference_id')
+            return NextResponse.json({ error: 'No userId found' }, { status: 400 })
           }
 
           // Determină plan type din price ID
@@ -122,7 +124,7 @@ export async function POST(request: Request) {
           // Validate timestamps before conversion
           if (!periodStart || !periodEnd) {
             console.error('❌ Missing period timestamps:', { periodStart, periodEnd })
-            break
+            return NextResponse.json({ error: 'Missing period timestamps' }, { status: 400 })
           }
 
           const startsAt = new Date(Number(periodStart) * 1000).toISOString()
