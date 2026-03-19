@@ -520,7 +520,6 @@ export default function PostShipmentPage() {
                       <SelectItem value="30ft">30 FT</SelectItem>
                       <SelectItem value="40ft">40 FT</SelectItem>
                       <SelectItem value="45ft">45 FT</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
