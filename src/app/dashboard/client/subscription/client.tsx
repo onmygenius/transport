@@ -195,14 +195,14 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
       <ClientHeader title="Subscription" subtitle="Manage your Trade Container subscription plan" />
 
       <main className="flex-1 p-6 space-y-6">
-        {isTrialing && trialEndsAt && (
+        {isTrialing && (
           <Card className="border-blue-200 bg-blue-50">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-blue-600" />
                 <div>
-                  <p className="font-semibold text-blue-900">Trial Period Active</p>
-                  <p className="text-sm text-blue-700">Your trial ends on {trialEndsAt}. Add a payment method to continue.</p>
+                  <p className="font-semibold text-blue-900">Subscription Active</p>
+                  <p className="text-sm text-blue-700">Your subscription is valid until {trialEndsAt}.</p>
                 </div>
               </div>
             </CardContent>
@@ -274,14 +274,6 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
                 ))}
               </div>
 
-              <div className="flex gap-3">
-                <Button variant="outline">Manage Subscription</Button>
-                {!isCanceled && (
-                  <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50">
-                    Cancel Subscription
-                  </Button>
-                )}
-              </div>
             </CardContent>
           </Card>
 
@@ -353,19 +345,6 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Payment History</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <p className="text-sm text-gray-500">
-              Payment history will be available soon. You can view your invoices in your Stripe Customer Portal.
-            </p>
-            <Button variant="outline" size="sm" className="mt-4">
-              View Invoices in Stripe
-            </Button>
-          </CardContent>
-        </Card>
       </main>
     </div>
   )
