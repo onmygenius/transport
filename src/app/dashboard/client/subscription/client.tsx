@@ -67,9 +67,13 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
   const handleUpgrade = async (planId: string) => {
     setUpgrading(true)
     try {
+      console.log('🔍 handleUpgrade called with planId:', planId)
+      console.log('🔍 PRICE_IDS:', PRICE_IDS)
       const priceId = PRICE_IDS[planId]
+      console.log('🔍 Selected priceId:', priceId)
       if (!priceId) {
-        alert('Price ID not configured for this plan')
+        alert(`Price ID not configured for plan: ${planId}`)
+        setUpgrading(false)
         return
       }
 
