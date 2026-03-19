@@ -251,11 +251,10 @@ export async function POST(request: Request) {
 
         const shipments_limit = planType === 'starter' ? 5 : planType === 'growth' ? 20 : planType === 'business' ? 50 : 100
 
-        // @ts-ignore
-        const periodStart = subscription.current_period_start
-        // @ts-ignore
-        const periodEnd = subscription.current_period_end
-        // @ts-ignore
+        // Get timestamps from subscription items (for customer.subscription.created event)
+        const subscriptionItem = subscription.items.data[0]
+        const periodStart = subscriptionItem.current_period_start
+        const periodEnd = subscriptionItem.current_period_end
         const trialEnd = subscription.trial_end
 
         console.log('📅 Timestamps:', { periodStart, periodEnd, trialEnd })
