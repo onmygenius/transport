@@ -93,23 +93,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // Check if user already has an active subscription
-    const { data: existingSubscription } = await supabase
-      .from('subscriptions')
-      .select('id, status')
-      .eq('user_id', user.id)
-      .in('status', ['active', 'trialing'])
-      .single()
-
-    // Only apply trial for NEW customers (no existing active subscription)
-    const isNewCustomer = !existingSubscription
-
     // Determine success URL based on role
     const dashboardUrl = profile.role === 'client' 
       ? '/dashboard/client/subscription'
       : '/dashboard/transporter/subscription'
 
-    // Create checkout session
+    // Create checkout session - NO TRIAL, user pays immediately
     const sessionConfig: any = {
       customer: customerId,
       mode: 'subscription',
@@ -127,25 +116,13 @@ export async function POST(request: Request) {
         userId: user.id,
         role: profile.role,
       },
+      subscription_data: {
+        metadata: {
+          userId: user.id,
+          role: profile.role,
+        },
+      },
       allow_promotion_codes: true,
-    }
-
-    // Add trial ONLY for new customers
-    if (isNewCustomer) {
-      sessionConfig.subscription_data = {
-        trial_period_days: 30,
-        metadata: {
-          userId: user.id,
-          role: profile.role,
-        },
-      }
-    } else {
-      sessionConfig.subscription_data = {
-        metadata: {
-          userId: user.id,
-          role: profile.role,
-        },
-      }
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig)
