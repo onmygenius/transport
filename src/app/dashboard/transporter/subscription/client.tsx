@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { TransporterHeader } from '@/components/transporter/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, CreditCard, Download, AlertTriangle, Clock } from 'lucide-react'
+import { CheckCircle, CreditCard, Download, AlertTriangle, Clock, Truck } from 'lucide-react'
 
 interface Subscription {
   id: string
@@ -26,14 +28,16 @@ interface Props {
 }
 
 export default function TransporterSubscriptionClient({ subscription }: Props) {
+  const router = useRouter()
+  const [upgrading, setUpgrading] = useState(false)
+
   const isActive = subscription?.status === 'active'
   const isTrialing = subscription?.status === 'trialing'
   const isPastDue = subscription?.status === 'past_due'
   const isCanceled = subscription?.status === 'canceled'
 
-  // Fallback pentru plan_name și price dacă sunt null/incorecte în DB
-  const planName = subscription?.plan_name || (subscription?.status === 'active' || subscription?.status === 'trialing' ? 'Transporter Pro' : 'No Active Plan')
-  const price = subscription?.price && subscription.price !== 49 ? subscription.price : 29.99
+  const planName = subscription?.plan_name || 'Transporter Plan'
+  const price = subscription?.price || 0
   const currency = subscription?.currency || 'EUR'
   const shipmentsUsed = subscription?.shipments_used || 0
   const shipmentsLimit = subscription?.shipments_limit || 0
@@ -72,23 +76,85 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
     'Verified badge after KYC',
   ]
 
+  const handleChoosePlan = async () => {
+    setUpgrading(true)
+    try {
+      const priceId = 'price_1TASdg0dqWRNGixPXI5TsjFt' // Transporter plan
+      
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      })
+
+      const data = await response.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Failed to create checkout session')
+        setUpgrading(false)
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      alert('Failed to start checkout process')
+      setUpgrading(false)
+    }
+  }
+
   if (!subscription) {
     return (
       <div className="flex flex-col min-h-screen overflow-y-auto">
-        <TransporterHeader title="Subscription" subtitle="Manage your Trade Container subscription plan" />
-        <main className="flex-1 p-6">
-          <Card className="border-emerald-200">
+        <TransporterHeader title="Subscription" subtitle="Choose your plan to start receiving shipment requests" />
+        <main className="flex-1 p-6 space-y-6">
+          <Card className="border-emerald-200 bg-emerald-50">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <AlertTriangle className="h-12 w-12 text-emerald-500" />
+              <div className="flex items-center gap-4">
+                <AlertTriangle className="h-12 w-12 text-emerald-600" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">No Active Subscription</h3>
-                  <p className="text-gray-500">Subscribe to access shipment requests</p>
+                  <p className="text-gray-600">Subscribe to access shipment requests and start earning</p>
                 </div>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Choose a Plan
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-emerald-500 shadow-lg relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-emerald-600 text-white px-4 py-1">Recommended</Badge>
+            </div>
+            <CardHeader className="text-center pb-8 pt-8">
+              <div className="flex justify-center mb-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+                  <Truck className="h-8 w-8 text-emerald-600" />
+                </div>
+              </div>
+              <CardTitle className="text-3xl font-bold text-gray-900">Transporter Pro</CardTitle>
+              <div className="mt-4">
+                <span className="text-5xl font-bold text-gray-900">€29.99</span>
+                <span className="text-gray-500 ml-2">/ month</span>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Perfect for professional transporters</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                {planFeatures.map(feature => (
+                  <div key={feature} className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-sm text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg font-semibold"
+                onClick={handleChoosePlan}
+                disabled={upgrading}
+              >
+                {upgrading ? 'Processing...' : 'Start Subscription'}
               </Button>
+              <p className="text-xs text-center text-gray-500">
+                Secure payment powered by Stripe • Cancel anytime
+              </p>
             </CardContent>
           </Card>
         </main>
@@ -107,8 +173,8 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-blue-600" />
                 <div>
-                  <p className="font-semibold text-blue-900">Trial Period Active</p>
-                  <p className="text-sm text-blue-700">Your trial ends on {trialEndsAt}. Add a payment method to continue.</p>
+                  <p className="font-semibold text-blue-900">Subscription Active</p>
+                  <p className="text-sm text-blue-700">Your subscription is valid until {trialEndsAt}.</p>
                 </div>
               </div>
             </CardContent>
@@ -179,30 +245,9 @@ export default function TransporterSubscriptionClient({ subscription }: Props) {
               ))}
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="outline">Manage Subscription</Button>
-              {!isCanceled && (
-                <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50">
-                  Cancel Subscription
-                </Button>
-              )}
-            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Payment History</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <p className="text-sm text-gray-500">
-              Payment history will be available soon. You can view your invoices in your Stripe Customer Portal.
-            </p>
-            <Button variant="outline" size="sm" className="mt-4">
-              View Invoices in Stripe
-            </Button>
-          </CardContent>
-        </Card>
       </main>
     </div>
   )

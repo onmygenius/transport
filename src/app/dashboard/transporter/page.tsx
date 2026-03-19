@@ -9,26 +9,6 @@ import {
   Clock, CheckCircle, AlertTriangle, ArrowRight, Search
 } from 'lucide-react'
 
-const mockStats = {
-  activeJobs: 3,
-  pendingOffers: 5,
-  subscriptionPlan: 'Transporter Pro',
-  subscriptionRenewal: '01 Mar 2026',
-  rating: 4.8,
-  completedShipments: 47,
-}
-
-const mockActiveJobs = [
-  { id: 'SHP-1842', client: 'EuroShip GmbH', origin: 'Bucharest, RO', destination: 'Berlin, DE', pickup: '2026-02-22', status: 'confirmed', price: 2400 },
-  { id: 'SHP-1840', client: 'Container Plus Ltd', origin: 'London, GB', destination: 'Madrid, ES', pickup: '2026-02-20', status: 'in_transit', price: 3200 },
-  { id: 'SHP-1837', client: 'Adriatic Shipping DOO', origin: 'Zagreb, HR', destination: 'Amsterdam, NL', pickup: '2026-02-14', status: 'delivered', price: 3600 },
-]
-
-const mockRecentOffers = [
-  { id: 'OFF-021', shipmentId: 'SHP-1845', route: 'Warsaw → Rome', price: 1900, status: 'pending', sentAt: '2026-02-20' },
-  { id: 'OFF-020', shipmentId: 'SHP-1843', route: 'Paris → Vienna', price: 2100, status: 'accepted', sentAt: '2026-02-19' },
-  { id: 'OFF-019', shipmentId: 'SHP-1841', route: 'Oslo → Paris', price: 2800, status: 'rejected', sentAt: '2026-02-18' },
-]
 
 const statusConfig: Record<string, { label: string; variant: 'warning' | 'info' | 'default' | 'success' | 'destructive' | 'secondary' }> = {
   confirmed: { label: 'Confirmed', variant: 'default' },
@@ -52,6 +32,90 @@ export default async function TransporterDashboardPage() {
 
   const companyName = profile?.company_name || profile?.full_name || 'My Company'
   const kycApproved = profile?.kyc_status === 'approved'
+
+  // Get real active jobs (shipments where transporter has accepted offer)
+  const { data: activeJobs } = await supabase
+    .from('offers')
+    .select(`
+      id,
+      price,
+      status,
+      shipment:shipment_id(
+        id,
+        display_id,
+        origin_city,
+        origin_country,
+        destination_city,
+        destination_country,
+        pickup_date,
+        status,
+        client:client_id(
+          company_name,
+          full_name
+        )
+      )
+    `)
+    .eq('transporter_id', user.id)
+    .in('status', ['accepted'])
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  // Get real stats
+  const { count: activeJobsCount } = await supabase
+    .from('offers')
+    .select('*', { count: 'exact', head: true })
+    .eq('transporter_id', user.id)
+    .eq('status', 'accepted')
+
+  const { count: pendingOffersCount } = await supabase
+    .from('offers')
+    .select('*', { count: 'exact', head: true })
+    .eq('transporter_id', user.id)
+    .eq('status', 'pending')
+
+  const { count: completedShipmentsCount } = await supabase
+    .from('offers')
+    .select('shipment:shipment_id!inner(status)', { count: 'exact', head: true })
+    .eq('transporter_id', user.id)
+    .eq('status', 'accepted')
+    .eq('shipment.status', 'completed')
+
+  // Get average rating from reviews
+  const { data: reviews } = await supabase
+    .from('reviews')
+    .select('rating')
+    .eq('transporter_id', user.id)
+
+  const averageRating = reviews && reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : '0.0'
+
+  // Get recent offers
+  const { data: recentOffers } = await supabase
+    .from('offers')
+    .select(`
+      id,
+      price,
+      status,
+      created_at,
+      shipment:shipment_id(
+        display_id,
+        origin_city,
+        origin_country,
+        destination_city,
+        destination_country
+      )
+    `)
+    .eq('transporter_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  // Get subscription data
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('plan_name, status, expires_at')
+    .eq('user_id', user.id)
+    .single()
 
   return (
     <div className="flex flex-col min-h-screen overflow-y-auto">
@@ -78,10 +142,10 @@ export default async function TransporterDashboardPage() {
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[
-            { label: 'Active Jobs', value: mockStats.activeJobs, icon: Truck, color: 'bg-blue-100 text-blue-700', href: '/dashboard/transporter/jobs' },
-            { label: 'Pending Offers', value: mockStats.pendingOffers, icon: Package, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/offers' },
-            { label: 'Completed', value: mockStats.completedShipments, icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/jobs' },
-            { label: 'Rating', value: `${mockStats.rating} ★`, icon: Star, color: 'bg-violet-100 text-violet-700', href: '/dashboard/transporter/reviews' },
+            { label: 'Active Jobs', value: activeJobsCount || 0, icon: Truck, color: 'bg-blue-100 text-blue-700', href: '/dashboard/transporter/jobs' },
+            { label: 'Pending Offers', value: pendingOffersCount || 0, icon: Package, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/offers' },
+            { label: 'Completed', value: completedShipmentsCount || 0, icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700', href: '/dashboard/transporter/jobs' },
+            { label: 'Rating', value: `${averageRating} ★`, icon: Star, color: 'bg-violet-100 text-violet-700', href: '/dashboard/transporter/reviews' },
           ].map(s => (
             <Link key={s.label} href={s.href}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
@@ -108,17 +172,21 @@ export default async function TransporterDashboardPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Subscription</p>
-                  <p className="text-xl font-bold text-gray-900">{mockStats.subscriptionPlan}</p>
+                  <p className="text-xl font-bold text-gray-900">{subscription?.plan_name || 'No Plan'}</p>
                 </div>
               </div>
               <div className="rounded-lg bg-gray-50 p-3 mb-4 space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Next renewal</span>
-                  <span className="font-semibold text-gray-700">{mockStats.subscriptionRenewal}</span>
+                  <span className="font-semibold text-gray-700">
+                    {subscription?.expires_at ? new Date(subscription.expires_at).toLocaleDateString('en-GB') : '—'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Status</span>
-                  <span className="font-semibold text-emerald-600">Active</span>
+                  <span className={`font-semibold ${subscription?.status === 'active' || subscription?.status === 'trialing' ? 'text-emerald-600' : 'text-gray-600'}`}>
+                    {subscription?.status === 'trialing' ? 'Trial' : subscription?.status === 'active' ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
               </div>
               <Link
@@ -142,25 +210,34 @@ export default async function TransporterDashboardPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-gray-100">
-                {mockActiveJobs.map(job => {
-                  const cfg = statusConfig[job.status]
+                {activeJobs && activeJobs.length > 0 ? activeJobs.map(job => {
+                  const shipment = job.shipment as any
+                  const cfg = statusConfig[shipment?.status] || { label: shipment?.status || 'Unknown', variant: 'default' as const }
                   return (
                     <div key={job.id} className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-gray-500">{job.id}</span>
+                          <span className="font-mono text-xs font-bold text-gray-500">{shipment?.display_id}</span>
                           <Badge variant={cfg.variant} className="text-xs">{cfg.label}</Badge>
                         </div>
-                        <p className="text-sm font-medium text-gray-900 mt-0.5 truncate">{job.client}</p>
-                        <p className="text-xs text-gray-400">{job.origin} → {job.destination}</p>
+                        <p className="text-sm font-medium text-gray-900 mt-0.5 truncate">
+                          {shipment?.client?.company_name || shipment?.client?.full_name || 'Unknown Client'}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {shipment?.origin_city}, {shipment?.origin_country} → {shipment?.destination_city}, {shipment?.destination_country}
+                        </p>
                       </div>
                       <div className="text-right shrink-0 ml-4">
                         <p className="text-sm font-bold text-gray-900">€{job.price.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">{job.pickup}</p>
+                        <p className="text-xs text-gray-400">{shipment?.pickup_date ? new Date(shipment.pickup_date).toLocaleDateString() : '—'}</p>
                       </div>
                     </div>
                   )
-                })}
+                }) : (
+                  <div className="px-6 py-8 text-center text-sm text-gray-500">
+                    No active jobs yet. <Link href="/dashboard/transporter/shipments" className="text-blue-600 hover:underline">Browse shipments</Link>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -178,22 +255,29 @@ export default async function TransporterDashboardPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-gray-100">
-                {mockRecentOffers.map(offer => {
-                  const cfg = statusConfig[offer.status]
+                {recentOffers && recentOffers.length > 0 ? recentOffers.map(offer => {
+                  const shipment = offer.shipment as any
+                  const cfg = statusConfig[offer.status] || { label: offer.status, variant: 'default' as const }
                   return (
                     <div key={offer.id} className="flex items-center justify-between px-6 py-3 hover:bg-gray-50 transition-colors">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-gray-500">{offer.id}</span>
+                          <span className="font-mono text-xs font-bold text-gray-500">{shipment?.display_id}</span>
                           <Badge variant={cfg.variant} className="text-xs">{cfg.label}</Badge>
                         </div>
-                        <p className="text-sm font-medium text-gray-900 mt-0.5">{offer.route}</p>
-                        <p className="text-xs text-gray-400">{offer.sentAt}</p>
+                        <p className="text-sm font-medium text-gray-900 mt-0.5">
+                          {shipment?.origin_city}, {shipment?.origin_country} → {shipment?.destination_city}, {shipment?.destination_country}
+                        </p>
+                        <p className="text-xs text-gray-400">{new Date(offer.created_at).toLocaleDateString()}</p>
                       </div>
                       <p className="text-sm font-bold text-gray-900">€{offer.price.toLocaleString()}</p>
                     </div>
                   )
-                })}
+                }) : (
+                  <div className="px-6 py-8 text-center text-sm text-gray-500">
+                    No offers yet. <Link href="/dashboard/transporter/shipments" className="text-blue-600 hover:underline">Browse shipments</Link>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

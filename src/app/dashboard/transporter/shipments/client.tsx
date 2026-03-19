@@ -425,7 +425,7 @@ export default function TransporterShipmentsClient({ shipments, myOffers }: Prop
                           </button>
                         </td>
                         <td className="px-4 py-4">
-                          <Link href={`/dashboard/transporter/shipments/${s.id}`} className="text-sm font-bold text-cyan-600 hover:text-cyan-700 hover:underline">
+                          <Link href={`/dashboard/transporter/shipments/${s.id}`} className="font-mono text-xs font-bold text-gray-500 hover:text-gray-700 hover:underline">
                             {s.display_id || s.id.slice(0, 8)}
                           </Link>
                         </td>

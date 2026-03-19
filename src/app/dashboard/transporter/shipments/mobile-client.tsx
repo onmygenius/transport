@@ -239,7 +239,7 @@ export default function TransporterShipmentsMobile({ shipments, myOffers }: Prop
                       <button className="text-gray-300 hover:text-red-500">
                         <Heart className="h-4 w-4" />
                       </button>
-                      <Link href={`/dashboard/transporter/shipments/${s.id}`} className="text-sm font-bold text-cyan-600">
+                      <Link href={`/dashboard/transporter/shipments/${s.id}`} className="font-mono text-xs font-bold text-gray-500">
                         {s.id.slice(0, 8)}
                       </Link>
                     </div>
