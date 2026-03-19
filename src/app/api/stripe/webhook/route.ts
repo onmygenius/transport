@@ -219,6 +219,115 @@ export async function POST(request: Request) {
         break
       }
 
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription
+        
+        console.log('🆕 Subscription created event:', subscription.id)
+
+        // Get userId from subscription metadata
+        const userId = subscription.metadata?.userId
+        console.log('👤 User ID from subscription metadata:', userId)
+
+        if (!userId) {
+          console.error('❌ No userId in subscription metadata')
+          return NextResponse.json({ error: 'No userId in subscription metadata' }, { status: 400 })
+        }
+
+        // Determină plan type din price ID
+        const priceId = subscription.items.data[0].price.id
+        console.log('💰 Price ID:', priceId)
+
+        const priceIdMap: Record<string, { type: string; name: string }> = {
+          'price_1TASbp0dqWRNGixPqAoh7aKf': { type: 'starter', name: 'Starter' },
+          'price_1TAScM0dqWRNGixPJ3llWAut': { type: 'growth', name: 'Growth' },
+          'price_1TASci0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
+          'price_1TASdA0dqWRNGixPXq896wn9': { type: 'enterprise', name: 'Enterprise' },
+          'price_1TASdg0dqWRNGixPXI5TsjFt': { type: 'basic', name: 'Basic' },
+        }
+
+        const planType = priceIdMap[priceId]?.type || 'starter'
+        const planName = priceIdMap[priceId]?.name || 'Starter'
+        console.log('📦 Plan:', planType, planName)
+
+        const shipments_limit = planType === 'starter' ? 5 : planType === 'growth' ? 20 : planType === 'business' ? 50 : 100
+
+        // @ts-ignore
+        const periodStart = subscription.current_period_start
+        // @ts-ignore
+        const periodEnd = subscription.current_period_end
+        // @ts-ignore
+        const trialEnd = subscription.trial_end
+
+        console.log('📅 Timestamps:', { periodStart, periodEnd, trialEnd })
+
+        if (!periodStart || !periodEnd) {
+          console.error('❌ Missing period timestamps')
+          return NextResponse.json({ error: 'Missing period timestamps' }, { status: 400 })
+        }
+
+        const startsAt = new Date(Number(periodStart) * 1000).toISOString()
+        const expiresAt = new Date(Number(periodEnd) * 1000).toISOString()
+        const trialEndsAt = trialEnd ? new Date(Number(trialEnd) * 1000).toISOString() : null
+
+        // Check if subscription already exists
+        const { data: existingSub } = await supabase
+          .from('subscriptions')
+          .select('id')
+          .eq('user_id', userId)
+          .single()
+
+        if (existingSub) {
+          console.log('🔄 Updating existing subscription')
+          const { error } = await supabase
+            .from('subscriptions')
+            .update({
+              stripe_subscription_id: subscription.id,
+              plan: planType,
+              plan_name: planName,
+              status: subscription.status,
+              price: subscription.items.data[0].price.unit_amount! / 100,
+              currency: subscription.currency.toUpperCase(),
+              starts_at: startsAt,
+              expires_at: expiresAt,
+              trial_ends_at: trialEndsAt,
+              shipments_limit,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('user_id', userId)
+
+          if (error) {
+            console.error('❌ Update error:', error)
+            return NextResponse.json({ error: error.message }, { status: 500 })
+          }
+        } else {
+          console.log('➕ Creating new subscription')
+          const { error } = await supabase
+            .from('subscriptions')
+            .insert({
+              user_id: userId,
+              stripe_subscription_id: subscription.id,
+              plan: planType,
+              plan_name: planName,
+              status: subscription.status,
+              price: subscription.items.data[0].price.unit_amount! / 100,
+              currency: subscription.currency.toUpperCase(),
+              starts_at: startsAt,
+              expires_at: expiresAt,
+              trial_ends_at: trialEndsAt,
+              shipments_limit,
+              shipments_used: 0,
+            })
+
+          if (error) {
+            console.error('❌ Insert error:', error)
+            return NextResponse.json({ error: error.message }, { status: 500 })
+          }
+        }
+
+        console.log('✅ Subscription created successfully')
+        break
+      }
+
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         
