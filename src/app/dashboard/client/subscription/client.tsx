@@ -58,10 +58,10 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
     : null
 
   const PRICE_IDS: Record<string, string> = {
-    'starter': process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER_MONTHLY || '',
-    'growth': process.env.NEXT_PUBLIC_STRIPE_PRICE_GROWTH_MONTHLY || '',
-    'business': process.env.NEXT_PUBLIC_STRIPE_PRICE_BUSINESS_MONTHLY || '',
-    'enterprise': process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY || '',
+    'starter': 'price_1TASbp0dqWRNGixPqAoh7aKf',
+    'growth': 'price_1TAScM0dqWRNGixPJ3IlWAut',
+    'business': 'price_1TASci0dqWRNGixPZ5yVzA7d',
+    'enterprise': 'price_1TASdA0dqWRNGixPXq896wn9',
   }
 
   const handleUpgrade = async (planId: string) => {
