@@ -117,6 +117,20 @@ export async function POST(request: Request) {
           // @ts-ignore - Stripe types issue with trial_end
           const trialEnd = subscription.trial_end
 
+          console.log('📅 Period start:', periodStart, 'Period end:', periodEnd, 'Trial end:', trialEnd)
+
+          // Validate timestamps before conversion
+          if (!periodStart || !periodEnd) {
+            console.error('❌ Missing period timestamps:', { periodStart, periodEnd })
+            break
+          }
+
+          const startsAt = new Date(Number(periodStart) * 1000).toISOString()
+          const expiresAt = new Date(Number(periodEnd) * 1000).toISOString()
+          const trialEndsAt = trialEnd ? new Date(Number(trialEnd) * 1000).toISOString() : null
+
+          console.log('📅 Converted dates:', { startsAt, expiresAt, trialEndsAt })
+
           if (existingSub) {
             // Update existing
             console.log('🔄 Updating existing subscription...')
@@ -129,11 +143,9 @@ export async function POST(request: Request) {
                 status: subscription.status,
                 price: subscription.items.data[0].price.unit_amount! / 100,
                 currency: subscription.currency.toUpperCase(),
-                starts_at: new Date(periodStart * 1000).toISOString(),
-                expires_at: new Date(periodEnd * 1000).toISOString(),
-                trial_ends_at: trialEnd 
-                  ? new Date(trialEnd * 1000).toISOString()
-                  : null,
+                starts_at: startsAt,
+                expires_at: expiresAt,
+                trial_ends_at: trialEndsAt,
                 shipments_limit,
                 shipments_used: 0,
                 updated_at: new Date().toISOString(),
@@ -159,11 +171,9 @@ export async function POST(request: Request) {
                 status: subscription.status,
                 price: subscription.items.data[0].price.unit_amount! / 100,
                 currency: subscription.currency.toUpperCase(),
-                starts_at: new Date(periodStart * 1000).toISOString(),
-                expires_at: new Date(periodEnd * 1000).toISOString(),
-                trial_ends_at: trialEnd 
-                  ? new Date(trialEnd * 1000).toISOString()
-                  : null,
+                starts_at: startsAt,
+                expires_at: expiresAt,
+                trial_ends_at: trialEndsAt,
                 shipments_limit,
                 shipments_used: 0,
               })
