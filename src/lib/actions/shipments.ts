@@ -42,6 +42,31 @@ export async function createShipment(data: CreateShipmentData): Promise<ActionRe
   if (!profile || profile.role !== 'client') return { success: false, error: 'Only clients can post shipments' }
   if (profile.kyc_status !== 'approved') return { success: false, error: 'KYC verification required' }
 
+  // Check subscription and shipment limits
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('plan_name, status, shipments_limit, shipments_used')
+    .eq('user_id', user.id)
+    .single()
+
+  if (!subscription) {
+    return { success: false, error: 'No active subscription. Please subscribe to post shipments.' }
+  }
+
+  if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+    return { success: false, error: 'Your subscription is not active. Please renew to continue posting shipments.' }
+  }
+
+  const limit = subscription.shipments_limit
+  const used = subscription.shipments_used || 0
+
+  if (limit !== null && used >= limit) {
+    return { 
+      success: false, 
+      error: `You've reached your limit of ${limit} shipments. Please upgrade your plan to continue posting.` 
+    }
+  }
+
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + 30)
 

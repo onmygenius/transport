@@ -255,7 +255,7 @@ export async function POST(request: Request) {
         console.log('📦 Plan mapped to:', planType, planName)
         console.log('📦 Used default?', !priceIdMap[priceId])
 
-        const shipments_limit = planType === 'starter' ? 5 : planType === 'growth' ? 20 : planType === 'business' ? 50 : 100
+        const shipments_limit = planType === 'starter' ? 5 : planType === 'growth' ? 10 : planType === 'business' ? 20 : null
 
         // Get timestamps from subscription items (for customer.subscription.created event)
         const subscriptionItem = subscription.items.data[0]
