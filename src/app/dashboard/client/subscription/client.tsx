@@ -117,9 +117,9 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
   ]
 
   const ALL_PLANS = [
-    { id: 'starter', name: 'Starter', price: 19.99, limit: 5, description: 'Perfect for getting started', features: ['Up to 5 shipments/month', 'Access to verified transporters', 'Real-time chat', 'Digital CMR documents', '30-day free trial'] },
-    { id: 'growth', name: 'Growth', price: 34.99, limit: 10, description: 'For growing companies', features: ['Up to 10 shipments/month', 'Priority offer matching', 'Real-time chat', 'Digital documents', '30-day free trial'], popular: true },
-    { id: 'business', name: 'Business', price: 59.99, limit: 20, description: 'Scale your business', features: ['Up to 20 shipments/month', 'Advanced documents', 'Analytics & reports', 'Priority support', '30-day free trial'] },
+    { id: 'starter', name: 'Starter', price: 19.99, limit: 4, description: 'Perfect for getting started', features: ['Up to 4 shipments/month', 'Access to verified transporters', 'Real-time chat', 'Digital CMR documents', '30-day free trial'] },
+    { id: 'growth', name: 'Growth', price: 34.99, limit: 8, description: 'For growing companies', features: ['Up to 8 shipments/month', 'Priority offer matching', 'Real-time chat', 'Digital documents', '30-day free trial'], popular: true },
+    { id: 'business', name: 'Business', price: 59.99, limit: 12, description: 'Scale your business', features: ['Up to 12 shipments/month', 'Advanced documents', 'Analytics & reports', 'Priority support', '30-day free trial'] },
     { id: 'enterprise', name: 'Enterprise', price: 99.99, limit: null, description: 'Unlimited shipments', features: ['Unlimited shipments', 'Full document suite', 'Advanced analytics', 'Dedicated support', '30-day free trial'] },
   ]
 
