@@ -15,10 +15,10 @@ export function ClientHeader({ title, subtitle, companyName }: ClientHeaderProps
     : 'CL'
 
   return (
-    <header className="grid grid-cols-3 h-16 items-center border-b border-gray-200 bg-white px-6">
+    <header className="grid grid-cols-3 h-16 items-center border-b border-gray-200 bg-white px-6 lg:px-6 pl-16 lg:pl-6">
       <div>
-        <h1 className="text-lg font-bold text-gray-900">{title}</h1>
-        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+        <h1 className="text-lg font-bold text-gray-900 truncate">{title}</h1>
+        {subtitle && <p className="text-xs text-gray-500 truncate hidden sm:block">{subtitle}</p>}
       </div>
       <div className="flex justify-center">
         <NotificationMarquee />

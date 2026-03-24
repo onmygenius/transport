@@ -27,7 +27,7 @@ export default async function ClientLayout({ children }: { children: React.React
         userId={user.id}
         initialUnreadCount={unreadCount}
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden lg:ml-0">
         {children}
       </div>
     </div>

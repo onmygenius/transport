@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Package, Truck, FileText,
   CreditCard, MessageSquare, Star, Settings,
-  LogOut, Bell, PlusCircle, History, AlertTriangle
+  LogOut, Bell, PlusCircle, History, AlertTriangle, X, Menu
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -35,6 +35,7 @@ export function ClientSidebar({ companyName, email, unreadMessagesCount = 0 }: C
   const pathname = usePathname()
   const router = useRouter()
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -83,8 +84,36 @@ export function ClientSidebar({ companyName, email, unreadMessagesCount = 0 }: C
   }
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(true)}
+        className="fixed top-4 left-4 z-40 flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-200 shadow-sm lg:hidden"
+      >
+        <Menu className="h-5 w-5 text-gray-600" />
+      </button>
+
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed lg:static inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-transform duration-300 lg:translate-x-0",
+        mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
       <div className="flex h-16 items-center gap-3 border-b border-gray-100 px-5">
+        {/* Mobile Close Button */}
+        <button
+          onClick={() => setMobileMenuOpen(false)}
+          className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100"
+        >
+          <X className="h-5 w-5 text-gray-600" />
+        </button>
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 overflow-hidden">
           {avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
@@ -111,6 +140,7 @@ export function ClientSidebar({ companyName, email, unreadMessagesCount = 0 }: C
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative',
                     isActive
@@ -145,5 +175,6 @@ export function ClientSidebar({ companyName, email, unreadMessagesCount = 0 }: C
         </button>
       </div>
     </aside>
+    </>
   )
 }
