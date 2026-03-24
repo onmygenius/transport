@@ -29,7 +29,6 @@ export const MAJOR_PORTS = {
   // Mediterana de Vest
   Barcelona: { lat: 41.3851, lng: 2.1734 },
   Valencia: { lat: 39.4699, lng: -0.3763 },
-  Algeciras: { lat: 36.1408, lng: -5.3536 },
   Bilbao: { lat: 43.2627, lng: -2.9253 },
   Marseille: { lat: 43.2965, lng: 5.3698 },
   
@@ -58,12 +57,11 @@ export const MAJOR_PORTS = {
   // Turcia
   Istanbul: { lat: 41.0082, lng: 28.9784 },
   Izmir: { lat: 38.4237, lng: 27.1428 },
-  Mersin: { lat: 36.8000, lng: 34.0000 },
   
   // Peninsula Iberică
   Lisbon: { lat: 38.7223, lng: -9.1393 },
-  Sines: { lat: 37.9553, lng: -8.8672 },
-  Leixoes: { lat: 41.1760, lng: -8.7050 },
+  Sines: { lat: 37.9553, lng: -8.3672 },
+  Leixoes: { lat: 41.1760, lng: -8.2050 },
 }
 
 // Rețea de rute maritime realiste între porturi majore
@@ -108,13 +106,6 @@ export const createPortRoutes = () => [
   { start: 'Le Havre', end: 'Genova' },
   { start: 'Le Havre', end: 'Marseille' },
   
-  // Algeciras - Gateway Atlantic-Mediterranean
-  { start: 'Algeciras', end: 'Valencia' },
-  { start: 'Algeciras', end: 'Barcelona' },
-  { start: 'Algeciras', end: 'Genova' },
-  { start: 'Algeciras', end: 'Piraeus' },
-  { start: 'Algeciras', end: 'Lisbon' },
-  
   // Valencia & Barcelona - Spania
   { start: 'Valencia', end: 'Barcelona' },
   { start: 'Valencia', end: 'Marseille' },
@@ -139,13 +130,11 @@ export const createPortRoutes = () => [
   { start: 'Piraeus', end: 'Constanta' },
   { start: 'Piraeus', end: 'Thessaloniki' },
   { start: 'Piraeus', end: 'Izmir' },
-  { start: 'Piraeus', end: 'Mersin' },
   
   // Naples & Gioia Tauro - Italia Sud
   { start: 'Naples', end: 'Gioia Tauro' },
   { start: 'Naples', end: 'Piraeus' },
   { start: 'Gioia Tauro', end: 'Barcelona' },
-  { start: 'Gioia Tauro', end: 'Algeciras' },
   
   // Trieste & Venice - Adriatic Nord
   { start: 'Trieste', end: 'Venice' },
@@ -167,7 +156,6 @@ export const createPortRoutes = () => [
   { start: 'Constanta', end: 'Copenhagen' },
   { start: 'Constanta', end: 'Bilbao' },
   { start: 'Istanbul', end: 'Izmir' },
-  { start: 'Istanbul', end: 'Mersin' },
   { start: 'Istanbul', end: 'Genova' },
   
   // Stockholm - Baltic
@@ -205,9 +193,7 @@ export const createPortRoutes = () => [
   // Lisbon & Sines - Portugalia
   { start: 'Lisbon', end: 'Sines' },
   { start: 'Lisbon', end: 'Leixoes' },
-  { start: 'Lisbon', end: 'Algeciras' },
   { start: 'Lisbon', end: 'Valencia' },
-  { start: 'Sines', end: 'Algeciras' },
   
   // Marseille - Sud Franța
   { start: 'Marseille', end: 'Genova' },
