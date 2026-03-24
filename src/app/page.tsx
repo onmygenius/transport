@@ -7,7 +7,6 @@ import FreightSearch from '@/components/home/freight-search'
 import HeroVideo from '@/components/home/hero-video'
 import FlowAnimation from '@/components/home/flow-animation'
 import PricingSection from '@/components/home/pricing-section'
-import SavingsCalculator from '@/components/home/savings-calculator'
 import { EuropeMap } from '@/components/ui/europe-map-simple'
 import { MAJOR_PORTS, createPortRoutes } from './page-routes'
 
@@ -224,8 +223,6 @@ export default function HomePage() {
       </section>
 
       <FlowAnimation />
-
-      <SavingsCalculator />
 
       <PricingSection />
 
