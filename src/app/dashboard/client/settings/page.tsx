@@ -173,15 +173,16 @@ export default function ClientSettingsPage() {
     <div className="flex flex-col min-h-screen overflow-y-auto">
       <ClientHeader title="Settings" subtitle="Manage your account and company details" />
 
-      <main className="flex-1 p-6">
-        <div className="flex gap-6">
-          <aside className="w-48 shrink-0">
-            <nav className="space-y-1">
+      <main className="flex-1 p-4 md:p-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+          {/* Mobile: Horizontal scrollable tabs */}
+          <aside className="w-full lg:w-48 shrink-0">
+            <nav className="flex lg:flex-col gap-2 lg:gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all text-left ${
+                  className={`flex items-center whitespace-nowrap lg:w-full rounded-lg px-3 py-2.5 text-sm font-medium transition-all text-left ${
                     activeTab === tab.id
                       ? 'bg-emerald-50 text-emerald-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -193,7 +194,7 @@ export default function ClientSettingsPage() {
             </nav>
           </aside>
 
-          <div className="flex-1 space-y-6">
+          <div className="flex-1 space-y-4 lg:space-y-6 min-w-0">
             {activeTab === 'profile' && (
               <>
                 <Card>
@@ -235,7 +236,7 @@ export default function ClientSettingsPage() {
                     <CardDescription>Update your company information visible to transporters</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>User ID</Label>
                         <Input 
@@ -371,7 +372,7 @@ export default function ClientSettingsPage() {
               </Card>
             )}
 
-            <div className="flex justify-end">
+            <div className="flex justify-end sticky bottom-0 bg-gray-50 py-4 -mx-4 px-4 lg:static lg:bg-transparent lg:py-0 lg:mx-0 lg:px-0">
               <Button onClick={handleSave} disabled={saving} className="gap-2 min-w-32 bg-emerald-600 hover:bg-emerald-700">
                 {saving ? (
                   <>
