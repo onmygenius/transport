@@ -16,6 +16,8 @@ export async function POST(request: Request) {
 
     const { priceId } = await request.json()
 
+    console.log('🔍 CREATE CHECKOUT SESSION - Received priceId:', priceId)
+
     if (!priceId) {
       return NextResponse.json(
         { error: 'Missing priceId' },
@@ -125,13 +127,30 @@ export async function POST(request: Request) {
       allow_promotion_codes: true,
     }
 
+    console.log('🔍 Creating Stripe checkout session with config:', {
+      priceId,
+      customerId,
+      mode: sessionConfig.mode,
+      userId: user.id,
+      role: profile.role
+    })
+
     const session = await stripe.checkout.sessions.create(sessionConfig)
+
+    console.log('✅ Checkout session created successfully:', session.id)
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error: any) {
-    console.error('Stripe checkout error:', error)
+    console.error('❌ Stripe checkout error:', error)
+    console.error('❌ Error details:', {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      statusCode: error.statusCode,
+      raw: error.raw
+    })
     return NextResponse.json(
-      { error: error.message },
+      { error: error.message || 'Failed to create checkout session' },
       { status: 500 }
     )
   }

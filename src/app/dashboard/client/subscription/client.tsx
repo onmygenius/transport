@@ -60,7 +60,7 @@ export default function ClientSubscriptionClient({ subscription }: Props) {
   const PRICE_IDS: Record<string, string> = {
     'starter': 'price_1TASbp0dqWRNGixPqAoh7aKf',
     'growth': 'price_1TAScM0dqWRNGixPJ3IlWAut',
-    'business': 'price_1TASci0dqWRNGixPZ5yVzA7d',
+    'business': 'price_1TAScl0dqWRNGixPZ5yVzA7d',
     'enterprise': 'price_1TASdA0dqWRNGixPXq896wn9',
   }
 
