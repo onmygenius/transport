@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           const priceIdMap: Record<string, { type: string; name: string }> = {
             'price_1TASbp0dqWRNGixPqAoh7aKf': { type: 'starter', name: 'Starter' },
             'price_1TAScM0dqWRNGixPJ3IlWAut': { type: 'growth', name: 'Growth' },
-            'price_1TASci0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
+            'price_1TAScl0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
             'price_1TASdA0dqWRNGixPXq896wn9': { type: 'enterprise', name: 'Enterprise' },
             'price_1TASdg0dqWRNGixPXI5TsjFt': { type: 'basic', name: 'Basic' },
           }
@@ -242,7 +242,7 @@ export async function POST(request: Request) {
         const priceIdMap: Record<string, { type: string; name: string }> = {
           'price_1TASbp0dqWRNGixPqAoh7aKf': { type: 'starter', name: 'Starter' },
           'price_1TAScM0dqWRNGixPJ3IlWAut': { type: 'growth', name: 'Growth' },
-          'price_1TASci0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
+          'price_1TAScl0dqWRNGixPZ5yVzA7d': { type: 'business', name: 'Business' },
           'price_1TASdA0dqWRNGixPXq896wn9': { type: 'enterprise', name: 'Enterprise' },
           'price_1TASdg0dqWRNGixPXI5TsjFt': { type: 'basic', name: 'Basic' },
         }
