@@ -148,8 +148,11 @@ export default function SubscriptionsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All plans</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="annual">Annual</SelectItem>
+                  <SelectItem value="starter">Starter</SelectItem>
+                  <SelectItem value="growth">Growth</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                  <SelectItem value="transporter_pro">Transporter Pro</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={roleFilter} onValueChange={v => { setRoleFilter(v); setPage(1) }}>
