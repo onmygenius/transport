@@ -296,6 +296,7 @@ export async function POST(request: Request) {
               expires_at: expiresAt,
               trial_ends_at: trialEndsAt,
               shipments_limit,
+              shipments_used: 0,
               updated_at: new Date().toISOString(),
             })
             .eq('user_id', userId)
