@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Package, Truck, FileText,
   CreditCard, MessageSquare, Star, Settings,
-  LogOut, Bell, PlusCircle, History, AlertTriangle, X, Menu
+  LogOut, Bell, PlusCircle, History, AlertTriangle, X, Menu, HeadphonesIcon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +23,7 @@ const navItems = [
   { title: 'History & Reports', href: '/dashboard/client/history', icon: History },
   { title: 'Subscription', href: '/dashboard/client/subscription', icon: CreditCard },
   { title: 'Settings', href: '/dashboard/client/settings', icon: Settings },
+  { title: 'Support', href: '/dashboard/client/support', icon: HeadphonesIcon },
 ]
 
 interface ClientSidebarProps {

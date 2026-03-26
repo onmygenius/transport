@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, Package, Truck, FileText,
   CreditCard, MessageSquare, Star, Settings,
-  LogOut, Bell, Wallet, Search
+  LogOut, Bell, Wallet, Search, HeadphonesIcon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +23,7 @@ const navItems = [
   { title: 'Reviews', href: '/dashboard/transporter/reviews', icon: Star },
   { title: 'Subscription', href: '/dashboard/transporter/subscription', icon: CreditCard },
   { title: 'Settings', href: '/dashboard/transporter/settings', icon: Settings },
+  { title: 'Support', href: '/dashboard/transporter/support', icon: HeadphonesIcon },
 ]
 
 interface TransporterSidebarProps {
