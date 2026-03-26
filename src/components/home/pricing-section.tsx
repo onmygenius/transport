@@ -117,12 +117,10 @@ export default function PricingSection() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-white text-lg">Transporter Pro</h3>
-                <span className="rounded-full bg-emerald-400 border-2 border-zinc-900 px-2.5 py-0.5 text-xs font-bold text-zinc-900">First month 50% OFF</span>
               </div>
               <p className="text-zinc-400 text-sm mt-0.5">
-                <span className="text-white font-bold">€14.99</span>
-                <span className="line-through text-zinc-500 ml-1.5">€29.99</span>
-                <span className="text-zinc-400"> first month · then €29.99/month</span>
+                <span className="text-white font-bold">€29.99</span>
+                <span className="text-zinc-400">/month</span>
               </p>
             </div>
           </div>

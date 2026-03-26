@@ -145,79 +145,74 @@ export default function HomePage() {
       <section id="how-it-works" className="py-24 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center mb-16">
-            <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-lg font-semibold text-emerald-700 mb-4">Simple Process</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">How does it work?</h2>
-            <p className="mt-4 text-lg text-gray-500 max-w-xl mx-auto">Simple, fast and secure. From posting to delivery in a few steps.</p>
+            <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-lg font-semibold text-emerald-700 mb-4">How It Works</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Three Simple Steps to Direct Logistics</h2>
+            <p className="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">Our platform is designed to eliminate the middleman and put the power back in your hands. Here is how we connect Europe's ports and carriers in the simplest way:</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* For Transporters */}
-            <div>
-              <div className="flex items-center gap-3 mb-6 p-4 bg-emerald-400 rounded-2xl">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/30">
-                  <Truck className="h-5 w-5 text-zinc-900" />
-                </div>
-                <div>
-                  <p className="font-bold text-zinc-900 text-base">For Transporters</p>
-                  <p className="text-base text-zinc-700">Carriers & fleet operators</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { icon: Users, title: 'Create & verify account', desc: 'Quick registration with KYC verification of company documents.' },
-                  { icon: Truck, title: 'Post your available trucks', desc: 'Specify location, equipment type and availability.' },
-                  { icon: Zap, title: 'Send offers on shipments', desc: 'Search by route, container type and date. Send offers in one click.' },
-                  { icon: Star, title: 'Deliver and get paid', desc: 'Payment settled directly between you and the client.' },
-                ].map((item, i) => (
-                  <div key={item.title} className="flex gap-4 bg-white rounded-2xl border border-gray-100 shadow-md p-5">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 border-2 border-emerald-200">
-                      <item.icon className="h-5 w-5 text-emerald-500" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-base font-bold text-emerald-400">0{i + 1}</span>
-                        <p className="font-semibold text-gray-900 text-lg">{item.title}</p>
-                      </div>
-                      <p className="text-lg text-gray-500 leading-relaxed">{item.desc}</p>
-                    </div>
+          <div className="space-y-8 mb-12">
+            {[
+              { 
+                num: '1', 
+                title: 'Post Your Shipment', 
+                desc: 'The process begins when a Client posts a shipment detail on the platform. Whether you are moving containers from Rotterdam or Piraeus, you set your requirements and conditions upfront.' 
+              },
+              { 
+                num: '2', 
+                title: 'Receive Direct Offers', 
+                desc: 'Carriers—whether they are already in the country of origin or looking for a return trip from abroad—can review your post. They can either make a custom offer or directly accept your stated conditions. No hidden fees, no third-party markups.' 
+              },
+              { 
+                num: '3', 
+                title: 'Connect & Collaborate', 
+                desc: 'Once the Client analyzes the offers and selects a partner, our Private Messaging System is unlocked. In this secure space, both parties can discuss specific logistics details, exchange phone numbers and contact information, and finalize the agreement directly.' 
+              },
+            ].map((step) => (
+              <div key={step.num} className="bg-white rounded-2xl border border-gray-100 shadow-md p-8">
+                <div className="flex items-start gap-6">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white text-2xl font-bold">
+                    {step.num}
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
+                    <p className="text-lg text-gray-600 leading-relaxed">{step.desc}</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* For Clients */}
-            <div>
-              <div className="flex items-center gap-3 mb-6 p-4 bg-zinc-900 rounded-2xl">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                  <Package className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-white text-base">For Clients / Shippers</p>
-                  <p className="text-base text-zinc-400">Manufacturing & trading companies</p>
-                </div>
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">The Difference</h3>
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+              Unlike traditional exchanges, we don't take a cut of your deal. After you connect on our platform, the relationship is yours to manage.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl p-6 border border-emerald-100">
+                <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <Package className="h-5 w-5 text-emerald-600" />
+                  For the Client
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
+                  You get a real-time view of available carriers and the best possible rates through direct competition.
+                </p>
               </div>
-              <div className="space-y-4">
-                {[
-                  { icon: Users, title: 'Create & verify account', desc: 'Simple registration process with KYC verification.' },
-                  { icon: Globe, title: 'Post your transport request', desc: 'Specify route, container type, weight and desired date.' },
-                  { icon: Star, title: 'Compare received offers', desc: 'Receive offers from verified transporters. Compare prices and ratings.' },
-                  { icon: CheckCircle, title: 'Agree on payment & track', desc: 'Pay the transporter directly. Track delivery status in real time.' },
-                ].map((item, i) => (
-                  <div key={item.title} className="flex gap-4 bg-white rounded-2xl border border-gray-100 shadow-md p-5">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-50 border-2 border-zinc-200">
-                      <item.icon className="h-5 w-5 text-zinc-600" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-base font-bold text-zinc-400">0{i + 1}</span>
-                        <p className="font-semibold text-gray-900 text-lg">{item.title}</p>
-                      </div>
-                      <p className="text-lg text-gray-500 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-xl p-6 border border-emerald-100">
+                <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-emerald-600" />
+                  For the Carrier
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
+                  You have the independence to find trips across all of Europe and build direct relationships with premium clients.
+                </p>
               </div>
             </div>
+          </div>
+
+          <div className="text-center bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-8 text-white">
+            <p className="text-xl font-semibold">
+              All of this is included in your flat monthly subscription. No commissions, no surprises.
+            </p>
           </div>
         </div>
       </section>
@@ -230,48 +225,51 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-gray-900">About Us</h2>
-            <p className="mt-3 text-lg text-gray-500 max-w-xl mx-auto">The story behind Trade Container and the team building the future of freight.</p>
+            <p className="mt-3 text-lg text-gray-500 max-w-2xl mx-auto">A dynamic team specializing in container transport, connecting Europe's ports and carriers.</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
-              <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                Trade Container was founded with a simple idea: make container freight across Europe faster, more transparent and accessible to everyone — from large logistics companies to small businesses.
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gray-50 rounded-2xl p-8 mb-8">
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                We are a dynamic team specializing in the container transport sector, collaborating with logistics partners across the Netherlands, Germany, France, Belgium, and Italy. By leveraging various transport exchanges, we secure consistent loads for our network of carriers.
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                We connect shippers directly with verified transporters, eliminating unnecessary intermediaries. Payments are settled directly between parties — we only charge a simple monthly subscription for platform access.
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                Our platform aims to bridge the gap between all European ports—moving beyond the traditional hubs of Rotterdam, Antwerp, and Hamburg. We connect clients and carriers to over 30 container ports, including Valencia, Piraeus, Genoa, and Marseille.
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Our platform covers 25+ European countries and is trusted by over 1,800 companies who use it daily to move containers across the continent.
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                Our unique system is the first to offer a truly pan-European network that prioritizes independence for the carrier and transparency for the client.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Through a simple monthly subscription, users can negotiate directly without hidden commissions. We believe this model maximizes profitability for companies of all sizes.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {[
-                { value: '2022', label: 'Founded', desc: 'Born in Europe, built for Europe' },
-                { value: '25+', label: 'Countries', desc: 'Pan-European coverage' },
-                { value: '1,800+', label: 'Active users', desc: 'Transporters & shippers' },
-                { value: '10,000+', label: 'Shipments', desc: 'Successfully completed' },
+                { value: '30+', label: 'Container Ports', desc: 'Pan-European coverage' },
+                { value: '5', label: 'Countries', desc: 'Active partnerships' },
+                { value: '100%', label: 'Direct Deals', desc: 'No commissions' },
               ].map(stat => (
-                <div key={stat.label} className="rounded-2xl bg-gray-50 border border-gray-100 p-6">
-                  <p className="text-3xl font-bold text-emerald-500">{stat.value}</p>
+                <div key={stat.label} className="rounded-2xl bg-emerald-50 border border-emerald-100 p-6 text-center">
+                  <p className="text-3xl font-bold text-emerald-600">{stat.value}</p>
                   <p className="text-lg font-semibold text-gray-900 mt-1">{stat.label}</p>
                   <p className="text-base text-gray-500 mt-0.5">{stat.desc}</p>
                 </div>
               ))}
             </div>
-          </div>
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: '🎯', title: 'Direct & Transparent', desc: 'No hidden fees, no commissions per shipment. You pay only your monthly subscription and deal directly with your partner.' },
-              { icon: '🔒', title: 'Verified & Secure', desc: 'Every transporter and shipper goes through KYC verification. You always know who you are working with.' },
-              { icon: '🌍', title: 'Built for Europe', desc: 'Designed specifically for the European freight market — multi-language support, European regulations and pan-continental routes.' },
-            ].map(v => (
-              <div key={v.title} className="text-center p-6">
-                <div className="text-4xl mb-4">{v.icon}</div>
-                <h4 className="font-bold text-gray-900 mb-2">{v.title}</h4>
-                <p className="text-lg text-gray-500 leading-relaxed">{v.desc}</p>
-              </div>
-            ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { icon: '🎯', title: 'Direct & Transparent', desc: 'No hidden fees, no commissions per shipment. You pay only your monthly subscription and deal directly with your partner.' },
+                { icon: '🔒', title: 'Verified & Secure', desc: 'Every transporter and shipper goes through KYC verification. You always know who you are working with.' },
+                { icon: '🌍', title: 'Built for Europe', desc: 'First truly pan-European network connecting over 30 container ports across the continent.' },
+              ].map(v => (
+                <div key={v.title} className="text-center p-6">
+                  <div className="text-4xl mb-4">{v.icon}</div>
+                  <h4 className="font-bold text-gray-900 mb-2">{v.title}</h4>
+                  <p className="text-lg text-gray-500 leading-relaxed">{v.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

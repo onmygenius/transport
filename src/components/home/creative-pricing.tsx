@@ -278,12 +278,10 @@ export default function CreativePricing() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-white text-lg">Transporter Pro</h3>
-                <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-bold text-slate-900">First month 50% OFF</span>
               </div>
               <p className="text-slate-400 text-sm mt-0.5">
-                <span className="text-white font-semibold">€14.99</span>
-                <span className="line-through text-slate-500 ml-1.5">€29.99</span>
-                <span className="text-slate-400"> first month, then €29.99/month</span>
+                <span className="text-white font-semibold">€29.99</span>
+                <span className="text-slate-400">/month</span>
               </p>
             </div>
           </div>
