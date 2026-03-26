@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminHeader } from '@/components/admin/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,21 +8,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate, formatCurrency } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 import {
   Search, Download, CreditCard, TrendingUp, ChevronLeft,
-  ChevronRight, RefreshCw, Ban, CheckCircle, Calendar
+  ChevronRight, RefreshCw, Ban, CheckCircle, Calendar, Loader2
 } from 'lucide-react'
 
-const mockSubscriptions = [
-  { id: 'SUB-001', user: 'Trans Cargo SRL', email: 'office@transcargo.ro', role: 'transporter', plan: 'monthly', price: 49, currency: 'EUR', status: 'active', starts: '2026-02-01', expires: '2026-03-01', stripeId: 'sub_abc123' },
-  { id: 'SUB-002', user: 'EuroShip GmbH', email: 'info@euroship.de', role: 'client', plan: 'annual', price: 278, currency: 'EUR', status: 'active', starts: '2026-01-15', expires: '2027-01-15', stripeId: 'sub_def456' },
-  { id: 'SUB-003', user: 'Fast Logistics SA', email: 'contact@fastlogistics.fr', role: 'transporter', plan: 'annual', price: 470, currency: 'EUR', status: 'active', starts: '2026-01-01', expires: '2027-01-01', stripeId: 'sub_ghi789' },
-  { id: 'SUB-004', user: 'Container Plus Ltd', email: 'ops@containerplus.co.uk', role: 'client', plan: 'monthly', price: 29, currency: 'EUR', status: 'active', starts: '2026-02-10', expires: '2026-03-10', stripeId: 'sub_jkl012' },
-  { id: 'SUB-005', user: 'Balkan Transport DOO', email: 'info@balkantransport.rs', role: 'transporter', plan: 'monthly', price: 49, currency: 'EUR', status: 'expired', starts: '2026-01-05', expires: '2026-02-05', stripeId: 'sub_mno345' },
-  { id: 'SUB-006', user: 'Nordic Freight AS', email: 'freight@nordic.no', role: 'client', plan: 'annual', price: 278, currency: 'EUR', status: 'active', starts: '2025-12-01', expires: '2026-12-01', stripeId: 'sub_pqr678' },
-  { id: 'SUB-007', user: 'Iberian Cargo SL', email: 'cargo@iberian.es', role: 'transporter', plan: 'monthly', price: 49, currency: 'EUR', status: 'active', starts: '2026-02-15', expires: '2026-03-15', stripeId: 'sub_stu901' },
-  { id: 'SUB-008', user: 'Vistula Trans SP', email: 'trans@vistula.pl', role: 'transporter', plan: 'annual', price: 470, currency: 'EUR', status: 'suspended', starts: '2025-11-01', expires: '2026-11-01', stripeId: 'sub_vwx234' },
-]
+interface SubscriptionWithUser {
+  id: string
+  user_id: string
+  plan: string
+  plan_name: string
+  status: string
+  price: number
+  currency: string
+  starts_at: string
+  expires_at: string
+  stripe_subscription_id: string
+  user_email?: string
+  user_name?: string
+  user_role?: string
+}
 
 const statusConfig: Record<string, { label: string; variant: 'success' | 'destructive' | 'warning' | 'secondary' }> = {
   active: { label: 'Active', variant: 'success' },
@@ -32,6 +38,9 @@ const statusConfig: Record<string, { label: string; variant: 'success' | 'destru
 }
 
 export default function SubscriptionsPage() {
+  const supabase = createClient()
+  const [subscriptions, setSubscriptions] = useState<SubscriptionWithUser[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [planFilter, setPlanFilter] = useState('all')
@@ -39,21 +48,48 @@ export default function SubscriptionsPage() {
   const [page, setPage] = useState(1)
   const perPage = 10
 
-  const filtered = mockSubscriptions.filter(s => {
-    const matchSearch = s.user.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    loadSubscriptions()
+  }, [])
+
+  async function loadSubscriptions() {
+    setLoading(true)
+    const { data: subs } = await supabase
+      .from('subscriptions')
+      .select(`
+        *,
+        profile:profiles(email, company_name, role)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (subs) {
+      const subsWithUser = subs.map(sub => ({
+        ...sub,
+        user_email: Array.isArray(sub.profile) ? sub.profile[0]?.email : sub.profile?.email,
+        user_name: Array.isArray(sub.profile) ? sub.profile[0]?.company_name : sub.profile?.company_name,
+        user_role: Array.isArray(sub.profile) ? sub.profile[0]?.role : sub.profile?.role,
+      }))
+      setSubscriptions(subsWithUser)
+    }
+    setLoading(false)
+  }
+
+  const filtered = subscriptions.filter(s => {
+    const matchSearch = (s.user_name?.toLowerCase() || '').includes(search.toLowerCase()) || 
+                       (s.user_email?.toLowerCase() || '').includes(search.toLowerCase())
     const matchStatus = statusFilter === 'all' || s.status === statusFilter
     const matchPlan = planFilter === 'all' || s.plan === planFilter
-    const matchRole = roleFilter === 'all' || s.role === roleFilter
+    const matchRole = roleFilter === 'all' || s.user_role === roleFilter
     return matchSearch && matchStatus && matchPlan && matchRole
   })
 
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
-  const totalRevenue = mockSubscriptions.filter(s => s.status === 'active').reduce((acc, s) => acc + s.price, 0)
-  const activeCount = mockSubscriptions.filter(s => s.status === 'active').length
-  const expiredCount = mockSubscriptions.filter(s => s.status === 'expired').length
-  const suspendedCount = mockSubscriptions.filter(s => s.status === 'suspended').length
+  const totalRevenue = subscriptions.filter(s => s.status === 'active').reduce((acc, s) => acc + (s.price || 0), 0)
+  const activeCount = subscriptions.filter(s => s.status === 'active').length
+  const expiredCount = subscriptions.filter(s => s.status === 'expired').length
+  const suspendedCount = subscriptions.filter(s => s.status === 'suspended').length
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -146,31 +182,45 @@ export default function SubscriptionsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {paginated.map(sub => (
-                    <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-mono text-xs text-gray-500">{sub.id}</td>
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-gray-900">{sub.user}</p>
-                        <p className="text-xs text-gray-500">{sub.email}</p>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={9} className="px-6 py-12 text-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Loading subscriptions...</p>
                       </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={sub.role === 'transporter' ? 'default' : 'info'}>
-                          {sub.role === 'transporter' ? 'Transporter' : 'Client'}
-                        </Badge>
+                    </tr>
+                  ) : paginated.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                        <p className="text-sm">No subscriptions found</p>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-medium text-gray-700">
-                          {sub.plan === 'monthly' ? 'Monthly' : 'Annual'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(sub.price)}</td>
-                      <td className="px-6 py-4 text-xs text-gray-500">{formatDate(sub.starts)}</td>
-                      <td className="px-6 py-4 text-xs text-gray-500">{formatDate(sub.expires)}</td>
-                      <td className="px-6 py-4">
-                        <Badge variant={statusConfig[sub.status].variant}>
-                          {statusConfig[sub.status].label}
-                        </Badge>
-                      </td>
+                    </tr>
+                  ) : (
+                    paginated.map(sub => (
+                      <tr key={sub.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 font-mono text-xs text-gray-500">{sub.id.slice(0, 8)}</td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">{sub.user_name || sub.user_email || '-'}</p>
+                          <p className="text-xs text-gray-500">{sub.user_email || '-'}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Badge variant={sub.user_role === 'transporter' ? 'default' : 'info'}>
+                            {sub.user_role === 'transporter' ? 'Transporter' : 'Client'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-medium text-gray-700">
+                            {sub.plan_name || sub.plan || '-'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(sub.price || 0)}</td>
+                        <td className="px-6 py-4 text-xs text-gray-500">{formatDate(sub.starts_at)}</td>
+                        <td className="px-6 py-4 text-xs text-gray-500">{formatDate(sub.expires_at)}</td>
+                        <td className="px-6 py-4">
+                          <Badge variant={statusConfig[sub.status]?.variant || 'secondary'}>
+                            {statusConfig[sub.status]?.label || sub.status}
+                          </Badge>
+                        </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1">
                           {sub.status === 'suspended' && (
@@ -194,7 +244,8 @@ export default function SubscriptionsPage() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
