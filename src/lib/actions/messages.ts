@@ -196,7 +196,7 @@ export async function getConversations(): Promise<ActionResult<Conversation[]>> 
   // Get shipments where user is involved
   let shipmentsQuery = supabase
     .from('shipments')
-    .select('id, origin_city, destination_city, client_id, transporter_id')
+    .select('id, display_id, origin_city, destination_city, client_id, transporter_id')
 
   if (profile.role === 'client') {
     shipmentsQuery = shipmentsQuery.eq('client_id', user.id).not('transporter_id', 'is', null)
@@ -247,7 +247,7 @@ export async function getConversations(): Promise<ActionResult<Conversation[]>> 
 
     conversations.push({
       shipment_id: shipment.id,
-      shipment_code: shipment.id.slice(0, 8).toUpperCase(),
+      shipment_code: shipment.display_id || shipment.id.slice(0, 8).toUpperCase(),
       origin_city: shipment.origin_city,
       destination_city: shipment.destination_city,
       other_party_name: otherPartyName,

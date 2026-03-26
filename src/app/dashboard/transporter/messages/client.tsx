@@ -154,7 +154,7 @@ export default function MessagesClient({ conversations }: MessagesClientProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-semibold text-gray-900">{conv.other_party_name}</p>
-                          <span className="text-xs text-gray-400 font-mono">SHP-{conv.shipment_code}</span>
+                          <span className="text-xs text-gray-400 font-mono">{conv.shipment_code}</span>
                         </div>
                         <p className="text-xs text-gray-500 truncate mt-0.5">{conv.last_message}</p>
                       </div>
