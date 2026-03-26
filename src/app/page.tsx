@@ -70,7 +70,18 @@ export default function HomePage() {
           <p className="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
             Connecting transporters with shippers across Europe. Post shipments, send offers and manage transport — all in one platform.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className="mt-10 flex justify-center">
+            <div className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-400/30 px-8 py-4 backdrop-blur-sm">
+              <Globe className="h-8 w-8 text-emerald-400" />
+              <div className="text-left">
+                <p className="text-3xl md:text-4xl font-bold text-white">25+</p>
+                <p className="text-base text-emerald-300">Countries covered</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-8 py-4 text-base font-semibold text-zinc-900 hover:bg-emerald-300 transition-colors shadow-lg"
@@ -85,22 +96,8 @@ export default function HomePage() {
               Sign In
             </Link>
           </div>
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-lg mx-auto">
-            {[
-              { value: '1,800+', label: 'Active users' },
-              { value: '10,000+', label: 'Completed shipments' },
-              { value: '25+', label: 'Countries covered' },
-            ].map(s => (
-              <div key={s.label} className="text-center">
-                <p className="text-2xl md:text-3xl font-bold text-white">{s.value}</p>
-                <p className="text-lg text-emerald-300 mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
-
-      <FreightSearch />
 
       <section id="features" className="py-20 bg-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -274,6 +271,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <FreightSearch />
+
       <footer className="border-t border-gray-200 bg-white py-10">
         <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -281,9 +280,9 @@ export default function HomePage() {
           </div>
           <p className="text-base text-gray-500">© 2026 Trade Container. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Terms</a>
-            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Privacy</a>
-            <a href="#" className="text-base text-gray-500 hover:text-gray-700">Contact</a>
+            <Link href="/terms" className="text-base text-gray-500 hover:text-gray-700">Terms</Link>
+            <Link href="/privacy" className="text-base text-gray-500 hover:text-gray-700">Privacy</Link>
+            <Link href="/contact" className="text-base text-gray-500 hover:text-gray-700">Contact</Link>
           </div>
         </div>
       </footer>
