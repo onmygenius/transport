@@ -61,12 +61,24 @@ export default function UsersPage() {
     setLoading(true)
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('*')
+      .select(`
+        *,
+        subscription:subscriptions(status, plan, plan_name)
+      `)
       .neq('role', 'admin')
       .order('created_at', { ascending: false })
 
     if (profiles) {
-      setUsers(profiles)
+      const usersWithSub = profiles.map(profile => ({
+        ...profile,
+        subscription_status: Array.isArray(profile.subscription) && profile.subscription.length > 0 
+          ? profile.subscription[0].status 
+          : undefined,
+        subscription_plan: Array.isArray(profile.subscription) && profile.subscription.length > 0 
+          ? profile.subscription[0].plan_name || profile.subscription[0].plan 
+          : undefined,
+      }))
+      setUsers(usersWithSub)
     }
     setLoading(false)
   }
@@ -77,7 +89,8 @@ export default function UsersPage() {
       (u.company_cif?.toLowerCase() || '').includes(search.toLowerCase())
     const matchRole = roleFilter === 'all' || u.role === roleFilter
     const matchKyc = kycFilter === 'all' || u.kyc_status === kycFilter
-    return matchSearch && matchRole && matchKyc
+    const matchSub = subFilter === 'all' || u.subscription_status === subFilter
+    return matchSearch && matchRole && matchKyc && matchSub
   })
 
   const totalPages = Math.ceil(filtered.length / perPage)
@@ -218,9 +231,18 @@ export default function UsersPage() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant="secondary">
-                          N/A
-                        </Badge>
+                        {user.subscription_status ? (
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={subscriptionLabels[user.subscription_status]?.variant || 'secondary'}>
+                              {subscriptionLabels[user.subscription_status]?.label || user.subscription_status}
+                            </Badge>
+                            {user.subscription_plan && (
+                              <span className="text-xs text-gray-500">{user.subscription_plan}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <Badge variant="secondary">No subscription</Badge>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.created_at)}</td>
                       <td className="px-6 py-4 text-gray-500 text-xs">{formatDate(user.updated_at)}</td>
