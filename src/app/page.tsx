@@ -64,8 +64,8 @@ export default function HomePage() {
             <span className="text-lg text-emerald-200">Active platform in 25+ European countries</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
-            Freight Exchange<br />
-            <span className="text-emerald-400">for Europe</span>
+            European Container<br />
+            <span className="text-emerald-400">Transport Platform</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
             Connecting transporters with shippers across Europe. Post shipments, send offers and manage transport — all in one platform.
