@@ -41,8 +41,9 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'info' 
   disputed: { label: 'Disputed', variant: 'destructive' },
 }
 
-export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
+export default function TransporterJobsClient({ jobs: initialJobs }: { jobs: Job[] }) {
   const router = useRouter()
+  const [jobs, setJobs] = useState<Job[]>(initialJobs)
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [updating, setUpdating] = useState<string | null>(null)
@@ -52,6 +53,10 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
   const [ratedJobs, setRatedJobs] = useState<Set<string>>(new Set())
   const supabase = createClient()
   const perPage = 10
+
+  useEffect(() => {
+    setJobs(initialJobs)
+  }, [initialJobs])
 
   const filtered = jobs.filter(j => statusFilter === 'all' || j.status === statusFilter)
   const totalPages = Math.ceil(filtered.length / perPage)
@@ -95,10 +100,17 @@ export default function TransporterJobsClient({ jobs }: { jobs: Job[] }) {
     setUpdating(jobId)
     setError(null)
     
+    setJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId ? { ...job, status: newStatus } : job
+      )
+    )
+    
     const result = await updateShipmentStatus(jobId, newStatus)
     
     if (!result.success) {
       setError(result.error || 'Failed to update status')
+      setJobs(initialJobs)
       setUpdating(null)
       return
     }
