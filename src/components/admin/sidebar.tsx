@@ -11,10 +11,8 @@ import {
   CreditCard,
   Truck,
   FileText,
-  AlertTriangle,
   BarChart3,
   Settings,
-  Shield,
   Bell,
   LogOut,
   ChevronRight,
@@ -55,24 +53,9 @@ const navItems = [
     icon: FileText,
   },
   {
-    title: 'Disputes',
-    href: '/admin/disputes',
-    icon: AlertTriangle,
-  },
-  {
-    title: 'Reports',
-    href: '/admin/reports',
-    icon: BarChart3,
-  },
-  {
     title: 'Notifications',
     href: '/admin/notifications',
     icon: Bell,
-  },
-  {
-    title: 'Audit Log',
-    href: '/admin/audit',
-    icon: Shield,
   },
   {
     title: 'Settings',

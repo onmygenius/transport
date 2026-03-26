@@ -7,10 +7,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { formatDate } from '@/lib/utils'
 import {
   Search, Download, Truck, CheckCircle, Clock,
-  XCircle, Eye, ChevronLeft, ChevronRight, MapPin, AlertTriangle
+  XCircle, Eye, ChevronLeft, ChevronRight, MapPin, AlertTriangle, X, Calendar, Building2
 } from 'lucide-react'
 
 const mockTrucks = [
@@ -44,7 +45,17 @@ export default function TrucksPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [page, setPage] = useState(1)
+  const [selectedTruck, setSelectedTruck] = useState<typeof mockTrucks[0] | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
   const perPage = 10
+
+  const handleViewTruckDetails = (truckId: string) => {
+    const truck = mockTrucks.find(t => t.id === truckId)
+    if (truck) {
+      setSelectedTruck(truck)
+      setShowDetails(true)
+    }
+  }
 
   const filtered = mockTrucks.filter(t => {
     const matchSearch =
@@ -193,7 +204,13 @@ export default function TrucksPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="View details">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7" 
+                              title="View details"
+                              onClick={() => handleViewTruckDetails(truck.id)}
+                            >
                               <Eye className="h-3.5 w-3.5" />
                             </Button>
                             {truck.status === 'flagged' && (
@@ -234,6 +251,101 @@ export default function TrucksPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Truck Details Modal */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Truck Details</span>
+              {selectedTruck && (
+                <Badge variant={statusConfig[selectedTruck.status].variant}>
+                  {statusConfig[selectedTruck.status].label}
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedTruck && (
+            <div className="space-y-6">
+              {/* Header Info */}
+              <div className="flex items-start justify-between pb-4 border-b">
+                <div>
+                  <p className="text-sm font-mono text-gray-500">{selectedTruck.id}</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mt-1">{selectedTruck.company}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="secondary">{selectedTruck.country}</Badge>
+                    {selectedTruck.verified && (
+                      <Badge variant="success" className="gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-50">
+                  <Truck className="h-8 w-8 text-blue-600" />
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-500">License Plate</p>
+                  <p className="text-sm font-semibold text-gray-900">{selectedTruck.plate}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-500">Container Type</p>
+                  <p className="text-sm font-semibold text-gray-900">{containerLabels[selectedTruck.type] || selectedTruck.type}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-500">Current Location</p>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                    <p className="text-sm text-gray-900">{selectedTruck.location}</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-500">Posted On</p>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                    <p className="text-sm text-gray-900">{formatDate(selectedTruck.posted)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability Period */}
+              <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
+                <p className="text-xs font-medium text-blue-700 mb-2">Availability Period</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <p className="text-xs text-blue-600 mb-1">From</p>
+                    <p className="text-sm font-semibold text-blue-900">{formatDate(selectedTruck.availableFrom)}</p>
+                  </div>
+                  <div className="text-blue-400">→</div>
+                  <div className="flex-1">
+                    <p className="text-xs text-blue-600 mb-1">To</p>
+                    <p className="text-sm font-semibold text-blue-900">{formatDate(selectedTruck.availableTo)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowDetails(false)}>
+                  Close
+                </Button>
+                {selectedTruck.status === 'flagged' && (
+                  <Button variant="destructive" className="gap-2">
+                    <XCircle className="h-4 w-4" />
+                    Remove Post
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

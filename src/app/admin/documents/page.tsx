@@ -44,7 +44,18 @@ export default function DocumentsPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [page, setPage] = useState(1)
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null)
   const perPage = 10
+
+  const handleViewDocument = (docId: string) => {
+    // TODO: Implement document viewer modal or open in new tab
+    alert(`View document: ${docId}\n\nDocument viewer will be implemented when connected to real storage.`)
+  }
+
+  const handleDownloadDocument = (docId: string, filename: string) => {
+    // TODO: Implement document download
+    alert(`Download document: ${filename}\n\nDownload functionality will be implemented when connected to real storage.`)
+  }
 
   const filtered = mockDocuments.filter(d => {
     const matchSearch =
@@ -184,10 +195,22 @@ export default function DocumentsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="View document">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7" 
+                              title="View document"
+                              onClick={() => handleViewDocument(doc.id)}
+                            >
                               <Eye className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400" title="Download">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7 text-gray-400" 
+                              title="Download"
+                              onClick={() => handleDownloadDocument(doc.id, doc.filename)}
+                            >
                               <Download className="h-3.5 w-3.5" />
                             </Button>
                             {['flagged', 'disputed'].includes(doc.status) && (
