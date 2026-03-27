@@ -52,10 +52,6 @@ export default function DocumentsPage() {
     alert(`View document: ${docId}\n\nDocument viewer will be implemented when connected to real storage.`)
   }
 
-  const handleDownloadDocument = (docId: string, filename: string) => {
-    // TODO: Implement document download
-    alert(`Download document: ${filename}\n\nDownload functionality will be implemented when connected to real storage.`)
-  }
 
   const filtered = mockDocuments.filter(d => {
     const matchSearch =
@@ -106,13 +102,7 @@ export default function DocumentsPage() {
 
         <Card>
           <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle className="text-base">All Documents</CardTitle>
-              <Button variant="outline" size="sm" className="gap-2 self-start">
-                <Download className="h-4 w-4" />
-                Export CSV
-              </Button>
-            </div>
+            <CardTitle className="text-base">All Documents</CardTitle>
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
@@ -203,15 +193,6 @@ export default function DocumentsPage() {
                               onClick={() => handleViewDocument(doc.id)}
                             >
                               <Eye className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7 text-gray-400" 
-                              title="Download"
-                              onClick={() => handleDownloadDocument(doc.id, doc.filename)}
-                            >
-                              <Download className="h-3.5 w-3.5" />
                             </Button>
                             {['flagged', 'disputed'].includes(doc.status) && (
                               <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50" title="Remove">

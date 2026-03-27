@@ -422,7 +422,7 @@ export default function FreightSearch() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button size="lg" className="gap-2 bg-emerald-400 hover:bg-emerald-300 text-zinc-900 text-sm sm:text-base" asChild>
                     <Link href="/register">
-                      Subscribe Now - €{searchType === 'client' ? '29' : '49'}/month
+                      Subscribe Now - €{searchType === 'client' ? '19' : '29.99'}/month
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="text-sm sm:text-base" asChild>

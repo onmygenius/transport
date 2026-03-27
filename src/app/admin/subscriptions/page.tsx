@@ -119,13 +119,7 @@ export default function SubscriptionsPage() {
 
         <Card>
           <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle className="text-base">All Subscriptions</CardTitle>
-              <Button variant="outline" size="sm" className="gap-2 self-start">
-                <Download className="h-4 w-4" />
-                Export CSV
-              </Button>
-            </div>
+            <CardTitle className="text-base">All Subscriptions</CardTitle>
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />

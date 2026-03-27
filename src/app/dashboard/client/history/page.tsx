@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Download, TrendingUp, Package, CreditCard, Loader2 } from 'lucide-react'
+import { TrendingUp, Package, CreditCard, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface HistoryShipment {
@@ -96,33 +96,6 @@ export default function ClientHistoryPage() {
     return filtered
   }
 
-  const handleExportCSV = () => {
-    const filtered = filterByPeriod(shipments)
-    const csvContent = [
-      ['ID', 'Transporter', 'Origin', 'Destination', 'Date', 'Amount', 'Status'].join(','),
-      ...filtered.map(s => [
-        s.id,
-        `"${s.transporter?.company_name || s.transporter?.full_name || 'Unknown'}"`,
-        `"${s.origin_city}, ${s.origin_country}"`,
-        `"${s.destination_city}, ${s.destination_country}"`,
-        new Date(s.updated_at).toLocaleDateString(),
-        s.agreed_price || 0,
-        s.status
-      ].join(','))
-    ].join('\n')
-
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `shipments-history-${period}-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
-
-  const handleDownloadInvoice = (shipmentId: string) => {
-    alert(`Invoice download for ${shipmentId} - PDF generation will be implemented`)
-  }
 
   const filteredShipments = filterByPeriod(shipments)
   const completed = filteredShipments.filter(s => s.status === 'completed')
@@ -167,23 +140,17 @@ export default function ClientHistoryPage() {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Shipment History</CardTitle>
-              <div className="flex items-center gap-2">
-                <Select value={period} onValueChange={setPeriod}>
-                  <SelectTrigger className="w-36">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All time</SelectItem>
-                    <SelectItem value="month">This month</SelectItem>
-                    <SelectItem value="quarter">This quarter</SelectItem>
-                    <SelectItem value="year">This year</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" size="sm" className="gap-2" onClick={handleExportCSV}>
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </Button>
-              </div>
+              <Select value={period} onValueChange={setPeriod}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All time</SelectItem>
+                  <SelectItem value="month">This month</SelectItem>
+                  <SelectItem value="quarter">This quarter</SelectItem>
+                  <SelectItem value="year">This year</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -196,13 +163,12 @@ export default function ClientHistoryPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Amount</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Invoice</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredShipments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                       No shipments found for this period
                     </td>
                   </tr>
@@ -227,19 +193,6 @@ export default function ClientHistoryPage() {
                         <Badge variant={h.status === 'completed' ? 'success' : 'secondary'}>
                           {h.status === 'completed' ? 'Completed' : 'Cancelled'}
                         </Badge>
-                      </td>
-                      <td className="px-6 py-4">
-                        {h.status === 'completed' && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-7 gap-1 text-xs"
-                            onClick={() => handleDownloadInvoice(h.id)}
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                            PDF
-                          </Button>
-                        )}
                       </td>
                     </tr>
                   ))
